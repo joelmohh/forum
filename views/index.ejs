@@ -1,0 +1,223 @@
+<%- include('./partials/header') %>
+
+<body class="bg-body-tertiary forum-theme">
+    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top app-topbar shadow-sm">
+        <div class="container-fluid container-xxl py-2 gap-2">
+            <button class="btn btn-outline-secondary btn-sm d-lg-none" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Abrir menu">
+                Menu
+            </button>
+
+            <a class="navbar-brand fw-bold m-0" href="/" aria-label="DevForum - Inicio">
+                <span class="text-warning">Stack</span>Forum
+            </a>
+
+            <span class="d-none d-xl-inline text-secondary small ms-2">Switch to Classic</span>
+
+            <form class="d-none d-md-flex flex-grow-1 ms-md-3" role="search" style="max-width: 560px;">
+                <input class="form-control" type="search" placeholder="Search..." aria-label="Buscar perguntas">
+            </form>
+
+            <div class="d-flex gap-2 ms-auto">
+                <a href="#" class="btn btn-outline-secondary btn-sm d-none d-sm-inline-flex">Business</a>
+                <a href="#" class="btn btn-dark btn-sm">Log in</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title" id="mobileSidebarLabel">Navegacao</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <nav class="list-group list-group-flush" aria-label="Menu mobile">
+                <a class="list-group-item list-group-item-action" href="#">Home</a>
+                <a class="list-group-item list-group-item-action" href="#">AI Assist</a>
+                <a class="list-group-item list-group-item-action" href="#">Communities</a>
+                <a class="list-group-item list-group-item-action" href="#">Questions</a>
+                <a class="list-group-item list-group-item-action" href="#">Tags</a>
+                <a class="list-group-item list-group-item-action" href="#">Users</a>
+                <a class="list-group-item list-group-item-action" href="#">Help</a>
+            </nav>
+        </div>
+    </div>
+
+    <main class="container-fluid container-xxl px-0 px-md-2 forum-shell">
+        <div class="row g-0">
+            <aside class="col-lg-2 d-none d-lg-block bg-white border-end min-vh-100 left-sidebar">
+                <div class="position-sticky p-3" style="top: 70px;">
+                    <nav aria-label="Menu principal">
+                        <ul class="nav flex-column gap-1 mb-4">
+                            <li><a class="nav-link text-dark px-2" href="#">Home</a></li>
+                            <li><a class="nav-link text-dark px-2" href="#">AI Assist</a></li>
+                            <li><a class="nav-link text-dark px-2" href="#">Communities</a></li>
+                            <li><a class="nav-link active fw-semibold px-2" href="#" aria-current="page">Questions</a></li>
+                            <li><a class="nav-link text-dark px-2" href="#">Tags</a></li>
+                            <li><a class="nav-link text-dark px-2" href="#">Users</a></li>
+                            <li><a class="nav-link text-dark px-2" href="#">Help</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <section class="col-12 col-lg-7 col-xl-7 bg-white border-start-lg border-end-lg feed-column shadow-sm">
+                <header class="p-3 p-md-4 border-bottom feed-header">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <h1 class="h2 mb-0">Newest Questions</h1>
+                        <a href="#" class="btn btn-dark btn-sm">Ask Question</a>
+                    </div>
+                    <p class="text-secondary mt-2 mb-3">24,158,447 questions</p>
+
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Filtros">
+                        <button type="button" class="btn btn-secondary">Newest</button>
+                        <button type="button" class="btn btn-outline-secondary">Active</button>
+                        <button type="button" class="btn btn-outline-secondary">Bountied</button>
+                        <button type="button" class="btn btn-outline-secondary">Unanswered</button>
+                    </div>
+                </header>
+
+                <div class="list-group list-group-flush question-feed">
+                    <article class="list-group-item px-3 px-md-4 py-3">
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-auto">
+                                <div class="d-flex d-sm-block gap-3 text-secondary small text-sm-end">
+                                    <span><strong class="text-dark d-block">0</strong> votes</span>
+                                    <span><strong class="text-dark d-block">0</strong> answers</span>
+                                    <span><strong class="text-dark d-block">8</strong> views</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h2 class="h5 mb-1"><a href="#" class="text-decoration-none">How to get __builtin_vectorelements like macro in GCC?</a></h2>
+                                <p class="text-secondary small mb-2">Are there alternatives for __builtin_vectorelements in GCC? Replacing vec_ext_countof with another solution might help.</p>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    <span class="badge text-bg-light">c</span>
+                                    <span class="badge text-bg-light">vector</span>
+                                    <span class="badge text-bg-light">static-assert</span>
+                                </div>
+                                <small class="text-secondary">Jo Daniel perguntou ha 24 min</small>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="list-group-item px-3 px-md-4 py-3">
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-auto">
+                                <div class="d-flex d-sm-block gap-3 text-secondary small text-sm-end">
+                                    <span><strong class="text-dark d-block">0</strong> votes</span>
+                                    <span><strong class="text-dark d-block">0</strong> answers</span>
+                                    <span><strong class="text-dark d-block">8</strong> views</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h2 class="h5 mb-1"><a href="#" class="text-decoration-none">How can I match comma separated values in Power BI?</a></h2>
+                                <p class="text-secondary small mb-2">I am trying to manipulate a dataset in power bi and convert comma-separated rows into structured fields.</p>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    <span class="badge text-bg-light">powerbi</span>
+                                    <span class="badge text-bg-light">powerquery</span>
+                                    <span class="badge text-bg-light">desktop</span>
+                                </div>
+                                <small class="text-secondary">Aparna perguntou ha 32 min</small>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="list-group-item px-3 px-md-4 py-3">
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-auto">
+                                <div class="d-flex d-sm-block gap-3 text-secondary small text-sm-end">
+                                    <span><strong class="text-dark d-block">1</strong> vote</span>
+                                    <span class="border border-success rounded px-2 py-1"><strong class="text-success d-block">1</strong> answer</span>
+                                    <span><strong class="text-dark d-block">19</strong> views</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h2 class="h5 mb-1"><a href="#" class="text-decoration-none">How to spawn random object on button press in Javascript</a></h2>
+                                <p class="text-secondary small mb-2">I am working on a virtual pet javascript game and need a random spawner for objects by click event.</p>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    <span class="badge text-bg-light">javascript</span>
+                                    <span class="badge text-bg-light">html</span>
+                                </div>
+                                <small class="text-secondary">Red Ferrous perguntou ha 42 min</small>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="list-group-item px-3 px-md-4 py-3">
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-auto">
+                                <div class="d-flex d-sm-block gap-3 text-secondary small text-sm-end">
+                                    <span><strong class="text-dark d-block">-1</strong> votes</span>
+                                    <span><strong class="text-dark d-block">0</strong> answers</span>
+                                    <span><strong class="text-dark d-block">17</strong> views</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h2 class="h5 mb-1"><a href="#" class="text-decoration-none">Java's tries traversal</a></h2>
+                                <p class="text-secondary small mb-2">I was trying to write code for finding word count by prefix, but Trie traversal is returning inconsistent output.</p>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    <span class="badge text-bg-light">java</span>
+                                    <span class="badge text-bg-light">recursion</span>
+                                    <span class="badge text-bg-light">data-structures</span>
+                                </div>
+                                <small class="text-secondary">Manisha Sharma perguntou ha 42 min</small>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <nav aria-label="Paginacao" class="p-3 p-md-4 border-top">
+                    <ul class="pagination pagination-sm flex-wrap mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#">Prev</a></li>
+                        <li class="page-item active" aria-current="page"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
+            </section>
+
+            <aside class="col-lg-3 col-xl-3 d-none d-lg-block bg-white border-end min-vh-100 right-sidebar">
+                <div class="position-sticky p-3" style="top: 70px;">
+                    <section class="card border-warning-subtle mb-3">
+                        <div class="card-header bg-warning-subtle fw-semibold">The Overflow Blog</div>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item">Lights, camera, open source!</li>
+                            <li class="list-group-item">Black box AI drift and design decisions.</li>
+                        </ul>
+                    </section>
+
+                    <section class="card mb-3">
+                        <div class="card-header fw-semibold">Featured on Meta</div>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item">Retiring the beta site</li>
+                            <li class="list-group-item">Policy: Generative AI is banned</li>
+                        </ul>
+                    </section>
+
+                    <section class="card">
+                        <div class="card-header fw-semibold">Collectives</div>
+                        <div class="card-body p-2">
+                            <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                                <div>
+                                    <div class="fw-semibold">Google Cloud</div>
+                                    <small class="text-secondary">68k Members</small>
+                                </div>
+                                <a href="#" class="btn btn-outline-secondary btn-sm">Join</a>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border rounded p-2">
+                                <div>
+                                    <div class="fw-semibold">AWS</div>
+                                    <small class="text-secondary">39k Members</small>
+                                </div>
+                                <a href="#" class="btn btn-outline-secondary btn-sm">Join</a>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </aside>
+        </div>
+    </main>
+</body>
+
+<%- include('./partials/footer') %>

@@ -1,0 +1,145 @@
+:root {
+    --brand: #f48024;
+    --bg-page: #f1f2f3;
+    --bg-surface: #ffffff;
+    --text-main: #232629;
+    --text-muted: #6a737c;
+    --line: #d6d9dc;
+    --blue-link: #0a95ff;
+    --blue-link-hover: #0074cc;
+    --green-soft: #e9f8ef;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-main);
+    background-color: var(--bg-page);
+}
+
+.app-topbar {
+    background-color: rgba(255, 255, 255, 0.97) !important;
+}
+
+.navbar-brand .text-warning {
+    color: var(--brand) !important;
+}
+
+.navbar .form-control {
+    border-radius: 8px;
+    border-color: #b8bcc0;
+    font-size: 0.92rem;
+}
+
+.navbar .form-control:focus {
+    border-color: #8cbadf;
+    box-shadow: 0 0 0 0.25rem rgba(140, 186, 223, 0.22);
+}
+
+.left-sidebar,
+.feed-column,
+.right-sidebar {
+    background: var(--bg-surface);
+}
+
+.left-sidebar .nav-link {
+    border-radius: 0;
+    color: #3b4045 !important;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+}
+
+.left-sidebar .nav-link:hover {
+    background-color: #f8f9f9;
+}
+
+.left-sidebar .nav-link.active {
+    background-color: #f1f2f3;
+    border-right: 3px solid var(--brand);
+}
+
+.feed-column {
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+}
+
+.feed-header h1 {
+    letter-spacing: 0;
+}
+
+.question-feed .list-group-item {
+    border-color: var(--line);
+}
+
+.question-feed .list-group-item:hover {
+    background-color: #fcfcfc;
+}
+
+.question-feed h2 a {
+    color: var(--blue-link);
+    text-decoration: none;
+}
+
+.question-feed h2 a:hover {
+    color: var(--blue-link-hover);
+    text-decoration: underline;
+}
+
+.badge.text-bg-light {
+    background-color: #e3e6e8 !important;
+    color: #3b4045 !important;
+    border-radius: 3px;
+    border: 0;
+    font-weight: 500;
+}
+
+.border-success {
+    background: var(--green-soft);
+}
+
+.card {
+    border-radius: 8px;
+    border-color: var(--line);
+}
+
+.card-header {
+    background-color: #fbf3d5;
+}
+
+.btn {
+    border-radius: 6px;
+}
+
+.pagination .page-link {
+    border-radius: 4px;
+    color: #3b4045;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #f48225;
+    border-color: #da670b;
+}
+
+@media (max-width: 991.98px) {
+    .feed-column {
+        border-left: 0;
+        border-right: 0;
+        box-shadow: none !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .question-feed .list-group-item {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    .btn-group .btn {
+        border-radius: 6px !important;
+    }
+}
