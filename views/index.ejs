@@ -1,59 +1,133 @@
 <%- include('./partials/header') %>
 
 <body class="">
-    <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu lateral">
-    <div class="navbar">
-        <div class="brand">
-            <label for="menu-toggle" class="menu-trigger" aria-label="Abrir menu">
-                <i class="bi bi-list"></i>
-            </label>
-            <a href="#" class="logo" aria-label="Pagina inicial">
-                <span class="logo-mark" aria-hidden="true">
-                    <i class="bi bi-stack"></i>
-                </span>
-                <span class="logo-text">
-                    <span class="logo-main">stack</span>
-                    <span class="logo-bold">overflow</span>
-                </span>
-            </a>
-            <div class="top-menu-links">
-                <a href="#">Home</a>
-            </div>
-            <div class="nav-searchbar">
-                <input type="text" placeholder="Search...">
-            </div>
-            <div class="account">
-                <button>Login</button>
-                <button>Register</button>
+    <%- include('./partials/menu', { sidebar: true }) %>
+    
+    <main class="content-area">
+        <div class="container px-2 px-md-4">
+            <div class="row g-5 align-items-start">
+                <section class="col-12 col-xl-9">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                        <h1 class="h4 mb-0">Top Questions</h1>
+                        <button class="btn b-primary" type="button">Ask Question</button>
+                    </div>
+
+                    <div class="d-flex justify-content-end mb-3">
+                        <ul class="nav nav-pills border rounded p-1 bg-body-tertiary">
+                            <li class="nav-item">
+                                <a class="nav-link b-active" href="#">Active</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-body" href="#">Hot</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-body" href="#">Week</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-body" href="#">Month</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="list-group rounded-0">
+                        <article class="list-group-item border-0 border-top rounded-0 py-3 px-0">
+                            <div class="row g-3 align-items-start">
+                                <div class="col-12 col-md-2 text-md-end small text-secondary">
+                                    <div>15 votes</div>
+                                    <div>0 answers</div>
+                                    <div>102 views</div>
+                                </div>
+                                <div class="col-12 col-md-10">
+                                    <h2 class="h5 fw-normal mb-2">Stack Overflow data dump fails with forbidden part-way through</h2>
+                                    <div class="d-flex flex-wrap gap-2 mb-2">
+                                        <span class="badge text-bg-secondary">bug</span>
+                                        <span class="badge text-bg-warning">status-review</span>
+                                        <span class="badge text-bg-secondary">data-dump</span>
+                                    </div>
+                                    <p class="mb-0 text-secondary small">Journeyman Geek <strong>232</strong> modified 6 hours ago</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="list-group-item border-0 border-top rounded-0 py-3 px-0">
+                            <div class="row g-3 align-items-start">
+                                <div class="col-12 col-md-2 text-md-end small text-secondary">
+                                    <div>-14 votes</div>
+                                    <div><span class="badge text-bg-success fw-normal">1 answer</span></div>
+                                    <div>172 views</div>
+                                </div>
+                                <div class="col-12 col-md-10">
+                                    <h2 class="h5 fw-normal mb-2">How do I get out of here? [duplicate]</h2>
+                                    <div class="d-flex flex-wrap gap-2 mb-2">
+                                        <span class="badge text-bg-secondary">support</span>
+                                        <span class="badge text-bg-secondary">accounts</span>
+                                        <span class="badge text-bg-secondary">deleted-users</span>
+                                    </div>
+                                    <p class="mb-0 text-secondary small">philipyx <strong>15.2k</strong> modified 7 hours ago</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="list-group-item border-0 border-top rounded-0 py-3 px-0">
+                            <div class="row g-3 align-items-start">
+                                <div class="col-12 col-md-2 text-md-end small text-secondary">
+                                    <div>4 votes</div>
+                                    <div>0 answers</div>
+                                    <div>143 views</div>
+                                </div>
+                                <div class="col-12 col-md-10">
+                                    <h2 class="h5 fw-normal mb-2">Inescapable recurrent and animated ad</h2>
+                                    <div class="d-flex flex-wrap gap-2 mb-2">
+                                        <span class="badge text-bg-secondary">support</span>
+                                        <span class="badge text-bg-secondary">bug</span>
+                                        <span class="badge text-bg-secondary">advertising</span>
+                                    </div>
+                                    <p class="mb-0 text-secondary small">jonrsharpe <strong>124k</strong> modified yesterday</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="list-group-item border-0 border-top border-bottom rounded-0 py-3 px-0">
+                            <div class="row g-3 align-items-start">
+                                <div class="col-12 col-md-2 text-md-end small text-secondary">
+                                    <div>70 votes</div>
+                                    <div><span class="badge text-bg-success fw-normal">5 answers</span></div>
+                                    <div>2k views</div>
+                                </div>
+                                <div class="col-12 col-md-10">
+                                    <h2 class="h5 fw-normal mb-2">Jeff Atwood's April 20, 2026 blog post advice to Stack Overflow and LLM / GAI companies</h2>
+                                    <div class="d-flex flex-wrap gap-2 mb-2">
+                                        <span class="badge text-bg-secondary">discussion</span>
+                                        <span class="badge text-bg-secondary">ai-generated-content</span>
+                                    </div>
+                                    <p class="mb-0 text-secondary small">Journeyman Geek <strong>232</strong> modified yesterday</p>
+                                </div>
+                            </div>
+                        </article>
+                        </div>
+                </section>
+
+                <aside class="col-12 col-xl-3">
+                    <div class="card border-warning-subtle bg-warning-subtle mb-4">
+                        <div class="card-body">
+                            <h2 class="h5 card-title mb-3">The Overflow Blog</h2>
+                            <ul class="list-unstyled mb-0 small">
+                                <li class="mb-2">Lights, camera, open source!</li>
+                                <li>Black box AI drift: AI tools are making design decisions nobody asked for</li>
+                            </ul>
+                        </div>
+                        <div class="card-body border-top border-warning-subtle">
+                            <h3 class="h5 mb-3">Featured</h3>
+                            <ul class="list-unstyled mb-0 small">
+                                <li class="mb-2">Retiring the beta site</li>
+                                <li>Policy: Generative AI (e.g., ChatGPT) is banned</li>
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
             </div>
         </div>
-    </div>
-    <label for="menu-toggle" class="menu-overlay" aria-hidden="true"></label>
-    <div class="sidebar">
-        <div class="sidebar-itens">
-            <label for="menu-toggle" class="menu-close" aria-label="Fechar menu">
-                <i class="bi bi-x-lg"></i>
-            </label>
-            <div class="sidebar-title">PUBLIC</div>
-            <a href="#" class="sidebar-item">
-                <i class="bi bi-house-door"></i>
-                <span>Home</span>
-            </a>
-            <a href="#" class="sidebar-item">
-                <i class="bi bi-people"></i>
-                <span>Questions</span>
-            </a>
-            <a href="#" class="sidebar-item">
-                <i class="bi bi-gear"></i>
-                <span>Tags</span>
-            </a>
-            <a href="#" class="sidebar-item empty"></a>
-            <a href="#" class="sidebar-item">
-                <i class="bi bi-person"></i>
-                <span>Users</span>
-            </a>
-        </div>
-    </div>
+    </main>
 </body>
 
 <%- include('./partials/footer') %>
