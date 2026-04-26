@@ -9,9 +9,8 @@ app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
-app.get('/', (req, res) => {
-    res.render('index')
-})
+const mainRoutes = require('./routes/main');
+app.use('/', mainRoutes);   
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

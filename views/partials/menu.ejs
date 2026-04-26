@@ -1,31 +1,38 @@
 <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu lateral">
-    <div class="navbar">
-        <div class="brand">
-            <label for="menu-toggle" class="menu-trigger" aria-label="Abrir menu">
-                <i class="bi bi-list"></i>
-            </label>
-            <a href="#" class="logo" aria-label="Pagina inicial">
-                <span class="logo-mark" aria-hidden="true">
-                    <i class="bi bi-stack"></i>
-                </span>
-                <span class="logo-text">
-                    <span class="logo-main">stack</span>
-                    <span class="logo-bold">overflow</span>
-                </span>
-            </a>
-            <div class="top-menu-links">
-                <a href="#">Home</a>
-            </div>
+<div class="navbar">
+    <div class="brand">
+        <label for="menu-toggle" class="menu-trigger" aria-label="Abrir menu">
+            <i class="bi bi-list"></i>
+        </label>
+        <a href="/" class="logo" aria-label="Pagina inicial">
+            <span class="logo-mark" aria-hidden="true">
+                <i class="bi bi-stack"></i>
+            </span>
+            <span class="logo-text">
+                <span class="logo-main">stack</span>
+                <span class="logo-bold">overflow</span>
+            </span>
+        </a>
+        <div class="top-menu-links">
+            <% if(pageType==='main' ) { %>
+                <a href="/">Home</a>
+            <% } else { %>
+                <a href="/" style="position: absolute; right: 20px;">Home</a>
+            <% } %>
+        </div>
+        <% if(pageType==='main' ) { %>
             <div class="d-flex w-90 nav-searchbar">
                 <input type="text" placeholder="Search..." class="form-control">
             </div>
             <div class="account">
-                <button class="b-secondary" onclick="window.location.href = `/login`">Login</button>
-                <button class="b-primary" onclick="window.location.href = `/signup`">Sign Up</button>
+                <button class="b-button b-secondary" onclick="window.location.href = `/login`">Login</button>
+                <button class="b-button b-primary" onclick="window.location.href = `/signup`">Register</button>
             </div>
-        </div>
+            <% } %>
     </div>
-    <label for="menu-toggle" class="menu-overlay" aria-hidden="true"></label>
+</div>
+<label for="menu-toggle" class="menu-overlay" aria-hidden="true"></label>
+<% if(pageType==='main' ) { %>
     <div class="sidebar">
         <div class="sidebar-itens">
             <label for="menu-toggle" class="menu-close" aria-label="Fechar menu">
@@ -51,3 +58,4 @@
             </a>
         </div>
     </div>
+    <% } %>

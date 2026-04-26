@@ -1,0 +1,80 @@
+<%- include('./partials/header') %>
+<body class="auth-page">
+    <%- include('./partials/menu', { activePage: 'signup', pageType: 'auth' }) %>
+    <main class="auth-shell">
+        <div class="row g-0 justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card auth-card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <p class="auth-subtitle mx-auto mb-0">Create your account to ask and answer questions.</p>
+                    </div>
+
+                    <form class="auth-form">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label for="firstName" class="form-label">First name</label>
+                                <input type="text" class="form-control" id="firstName" placeholder="First name">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="lastName" class="form-label">Last name</label>
+                                <input type="text" class="form-control" id="lastName" placeholder="Last name">
+                            </div>
+                        </div>
+
+                        <div class="mt-3 mb-3">
+                            <label for="signupEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="signupEmail" placeholder="you@example.com">
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label for="signupPassword" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="signupPassword" placeholder="Create a password">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="confirmPassword" class="form-label">Confirm password</label>
+                                <input type="password" class="form-control" id="confirmPassword" placeholder="Repeat password">
+                            </div>
+                        </div>
+
+                        <div class="form-check my-4 small">
+                            <input class="form-check-input" type="checkbox" id="terms">
+                            <label class="form-check-label" for="terms">I agree to the terms of service</label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-dark btn-lg w-100 d-flex align-items-center justify-content-center">Create account</button>
+                        </div>
+
+                        <p class="text-center text-secondary small mt-3 mb-0">
+                            Already have an account? <a href="/login" class="link-secondary fw-semibold text-decoration-none">Log in</a>
+                        </p>
+                    </form>
+
+                    <div class="text-center mb-4 mt-4">
+                        <p class="auth-subtitle mx-auto mb-0 auth-divider"><span></span>or <span></span></p>
+                    </div>
+                    <div class="text-center mb-0 social-auth-container">
+                        <button class="social-auth google-auth" type="button">
+                            <i class="bi bi-google" aria-hidden="true"></i>
+                            <span class="social-auth-label">Continue with Google</span>
+                            <span aria-hidden="true"></span>
+                        </button>
+                        <button class="social-auth microsoft-auth" type="button">
+                            <i class="bi bi-microsoft" aria-hidden="true"></i>
+                            <span class="social-auth-label">Continue with Microsoft</span>
+                            <span aria-hidden="true"></span>
+                        </button>
+                        <button class="social-auth github-auth" type="button">
+                            <i class="bi bi-github" aria-hidden="true"></i>
+                            <span class="social-auth-label">Continue with GitHub</span>
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+<%- include('./partials/footer') %>
