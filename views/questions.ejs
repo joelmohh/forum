@@ -1,0 +1,248 @@
+<%- include('./partials/header') %>
+
+<body>
+    <%- include('./partials/menu', { activePage: 'questions', pageType: 'main' }) %>
+    <main class="content-area">
+        <div class="container-fluid px-2 px-md-4">
+            <div class="row g-4">
+                <!-- Header Section -->
+                <section class="col-12">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                        <div>
+                            <h1 class="h4 mb-0">All Questions</h1>
+                        </div>
+                        <a href="/questions/new" class="btn b-primary">Ask Question</a>
+                    </div>
+                </section>
+
+                <!-- Sidebar + Content -->
+                <div class="col-12">
+                    <div class="row g-4">
+                        <!-- Sidebar Filters -->
+                        <div class="col-12 col-lg-3">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <div class="filter-panel">
+                                        <div class="filter-title">Filters</div>
+
+                                        <div class="filter-row mb-3">
+                                            <div class="w-100">
+                                                <div class="mb-2"><strong class="small">Status</strong></div>
+                                                <div class="d-flex gap-2 flex-wrap">
+                                                    <label class="filter-chip active" for="unanswered">Unanswered</label>
+                                                    <label class="filter-chip" for="withAnswers">With answers</label>
+                                                    <label class="filter-chip" for="accepted">Has accepted answer</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="filter-row mb-3">
+                                            <div class="w-100">
+                                                <div class="mb-2"><strong class="small">Popular Tags</strong></div>
+                                                <div class="d-flex gap-2 flex-wrap">
+                                                    <button class="filter-chip">javascript</button>
+                                                    <button class="filter-chip">python</button>
+                                                    <button class="filter-chip">react</button>
+                                                    <button class="filter-chip">nodejs</button>
+                                                    <button class="filter-chip">typescript</button>
+                                                    <button class="filter-chip">java</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="filter-row">
+                                            <div class="flex-grow-1 min-w-0">
+                                                <label class="form-label small fw-500">Last Activity</label>
+                                                <select class="form-select form-select-sm" id="dateRange">
+                                                    <option selected>Anytime</option>
+                                                    <option>Today</option>
+                                                    <option>This week</option>
+                                                    <option>This month</option>
+                                                    <option>This year</option>
+                                                </select>
+                                            </div>
+                                            <div class="filter-score">
+                                                <label class="form-label small fw-500">Min Score</label>
+                                                <input type="number" class="form-control form-control-sm" id="score" placeholder="0" value="0">
+                                            </div>
+                                        </div>
+
+                                        <div class="filter-actions">
+                                            <button class="btn btn-sm btn-secondary-light">Apply Filters</button>
+                                            <button class="btn btn-sm btn-outline-secondary">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Questions List -->
+                        <div class="col-12 col-lg-9">
+                            <!-- Sort Tabs -->
+                            <div class="mb-3">
+                                <ul class="nav nav-pills border rounded p-2 bg-body-tertiary gap-2 flex-wrap">
+                                    <li class="nav-item">
+                                        <a class="nav-link b-active" href="#">Newest</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-body" href="#">Active</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-body" href="#">Hot</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-body" href="#">Most Voted</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-body" href="#">Unanswered</a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Questions List -->
+                            <div class="list-group rounded-0">
+                                <!-- Question Item 1 -->
+                                <a href="/questions/1/how-to-center-div-in-css" class="list-group-item list-group-item-action border-0 border-top rounded-0 py-3 px-0" style="text-decoration: none;">
+                                    <div class="row g-3 align-items-start">
+                                        <div class="col-12 col-md-2 text-md-end small text-secondary">
+                                            <div>28 votes</div>
+                                            <div><span class="badge text-bg-success fw-normal">3 answers</span></div>
+                                            <div>1.2k views</div>
+                                        </div>
+                                        <div class="col-12 col-md-10">
+                                            <h2 class="h5 fw-normal mb-2" style="color: #0c0d0e;">How to center a div in CSS?</h2>
+                                            <p class="text-secondary small mb-2">I'm trying to center a div element on a webpage using CSS. I've tried several methods including flexbox and margin: auto, but nothing seems to work correctly. Can someone explain the best approach?</p>
+                                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                                <span class="badge bg-light text-secondary">css</span>
+                                                <span class="badge bg-light text-secondary">html</span>
+                                                <span class="badge bg-light text-secondary">flexbox</span>
+                                            </div>
+                                            <p class="mb-0 text-secondary small">Alice Johnson <strong>5.2k</strong> asked 2 hours ago</p>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <!-- Question Item 2 -->
+                                <a href="/questions/2/why-is-my-async-function-not-awaiting" class="list-group-item list-group-item-action border-0 border-top rounded-0 py-3 px-0" style="text-decoration: none;">
+                                    <div class="row g-3 align-items-start">
+                                        <div class="col-12 col-md-2 text-md-end small text-secondary">
+                                            <div>-5 votes</div>
+                                            <div><span class="badge text-bg-success fw-normal">5 answers</span></div>
+                                            <div>342 views</div>
+                                        </div>
+                                        <div class="col-12 col-md-10">
+                                            <h2 class="h5 fw-normal mb-2" style="color: #0c0d0e;">Why is my async function not awaiting properly?</h2>
+                                            <p class="text-secondary small mb-2">I'm having issues with my async/await implementation. My function seems to be executing out of order and not waiting for promises to resolve. I've checked the code multiple times but can't find the issue.</p>
+                                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                                <span class="badge bg-light text-secondary">javascript</span>
+                                                <span class="badge bg-light text-secondary">async-await</span>
+                                                <span class="badge bg-light text-secondary">promise</span>
+                                            </div>
+                                            <p class="mb-0 text-secondary small">Bob Smith <strong>1.8k</strong> asked 4 hours ago</p>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <!-- Question Item 3 -->
+                                <a href="/questions/3/how-to-filter-array-of-objects" class="list-group-item list-group-item-action border-0 border-top rounded-0 py-3 px-0" style="text-decoration: none;">
+                                    <div class="row g-3 align-items-start">
+                                        <div class="col-12 col-md-2 text-md-end small text-secondary">
+                                            <div>156 votes</div>
+                                            <div><span class="badge text-bg-success fw-normal">12 answers</span></div>
+                                            <div>8.5k views</div>
+                                        </div>
+                                        <div class="col-12 col-md-10">
+                                            <h2 class="h5 fw-normal mb-2" style="color: #0c0d0e;">How to filter an array of objects in JavaScript?</h2>
+                                            <p class="text-secondary small mb-2">I have an array of objects and I need to filter it based on a specific property value. I'm familiar with basic filtering but would like to know the most efficient and elegant way to do this.</p>
+                                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                                <span class="badge bg-light text-secondary">javascript</span>
+                                                <span class="badge bg-light text-secondary">arrays</span>
+                                                <span class="badge bg-light text-secondary">filter</span>
+                                            </div>
+                                            <p class="mb-0 text-secondary small">Carol Davis <strong>12.3k</strong> asked 1 day ago</p>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <!-- Question Item 4 -->
+                                <a href="/questions/4/best-practices-for-react-hooks" class="list-group-item list-group-item-action border-0 border-top rounded-0 py-3 px-0" style="text-decoration: none;">
+                                    <div class="row g-3 align-items-start">
+                                        <div class="col-12 col-md-2 text-md-end small text-secondary">
+                                            <div>89 votes</div>
+                                            <div><span class="badge text-bg-success fw-normal">8 answers</span></div>
+                                            <div>5.2k views</div>
+                                        </div>
+                                        <div class="col-12 col-md-10">
+                                            <h2 class="h5 fw-normal mb-2" style="color: #0c0d0e;">What are the best practices for using React Hooks?</h2>
+                                            <p class="text-secondary small mb-2">I'm learning React Hooks and want to ensure I'm using them properly. Are there any best practices or common pitfalls I should be aware of? Any recommendations for structuring hooks in larger applications?</p>
+                                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                                <span class="badge bg-light text-secondary">react</span>
+                                                <span class="badge bg-light text-secondary">hooks</span>
+                                                <span class="badge bg-light text-secondary">best-practices</span>
+                                            </div>
+                                            <p class="mb-0 text-secondary small">David Wilson <strong>8.7k</strong> asked 2 days ago</p>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <!-- Question Item 5 -->
+                                <a href="/questions/5/python-list-comprehension-syntax" class="list-group-item list-group-item-action border-0 border-top border-bottom rounded-0 py-3 px-0" style="text-decoration: none;">
+                                    <div class="row g-3 align-items-start">
+                                        <div class="col-12 col-md-2 text-md-end small text-secondary">
+                                            <div>234 votes</div>
+                                            <div>0 answers</div>
+                                            <div>12.1k views</div>
+                                        </div>
+                                        <div class="col-12 col-md-10">
+                                            <h2 class="h5 fw-normal mb-2" style="color: #0c0d0e;">Understanding Python list comprehension syntax</h2>
+                                            <p class="text-secondary small mb-2">I'm trying to understand how Python list comprehensions work, especially with nested conditions. Can someone break down the syntax and provide some practical examples?</p>
+                                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                                <span class="badge bg-light text-secondary">python</span>
+                                                <span class="badge bg-light text-secondary">list-comprehension</span>
+                                                <span class="badge bg-light text-secondary">syntax</span>
+                                            </div>
+                                            <p class="mb-0 text-secondary small">Emma Harris <strong>15.4k</strong> modified 3 days ago</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <section class="col-12 d-flex justify-content-center mt-4 mb-4">
+                    <nav>
+                        <ul class="pagination">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        .list-group-item {
+            transition: background-color 0.15s ease;
+        }
+
+        .list-group-item:hover {
+            background-color: var(--hover);
+        }
+
+        .list-group-item h2 a:hover {
+            color: var(--accent) !important;
+        }
+    </style>
+</body>
+
+<%- include('./partials/footer') %>
