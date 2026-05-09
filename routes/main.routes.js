@@ -9,5 +9,26 @@ Router.get('/login', (req, res) => {
 Router.get('/signup', (req, res) => {
     res.render('signup')
 })
+Router.get('/users', (req, res) => {
+    res.render('users')
+})
+Router.get('/settings', (req, res) => {
+    res.render('settings')
+})
+Router.get('/questions', (req, res) => {
+    res.render('questions')
+})
+Router.get('/tags', (req, res) => {
+    res.render('tags')
+})
+Router.get('/questions/new', (req, res) => {
+    res.render('question-form')
+})
+Router.get('/questions/edit/:id', (req, res) => {
+    res.render('question-form')
+})
+Router.get('/questions/:id/:slug', (req, res) => {
+    res.render('question-detail')
+})
 
 module.exports = Router;
