@@ -1,0 +1,94 @@
+/*
+	menu.css - styles for the sidebar menu, including responsive behavior for mobile devices
+*/
+.d-inline {
+	display: inline;
+}
+
+.btn-open {
+	display: inline;
+}
+
+.mobile-overlay {
+	display: none;
+}
+
+.btn-close {
+	border: 1px solid transparent;
+	padding: 0.5rem 0.5rem;
+	border-radius: 4px;
+	transition: border-color 150ms ease-in-out;
+}
+
+.btn-close:hover {
+	cursor: pointer;
+	border: 1px solid #999999;
+}
+
+.site-sidebar {
+	background: #fff;
+}
+
+.site-content {
+	min-width: 0;
+}
+
+@media (max-width: 767.98px) {
+	.site-sidebar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 100vh;
+		width: 100%;
+		transform: translateX(-110%);
+		transition: transform 250ms ease-in-out;
+		z-index: 1100;
+		overflow-y: auto;
+
+		background: #fff;
+		box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+	}
+
+	#menuToggle:checked~.row .site-sidebar {
+		transform: translateX(0);
+	}
+
+	label.mobile-overlay {
+		display: block;
+		position: fixed;
+		inset: 0 0 0 0;
+		background: rgba(0, 0, 0, 0.45);
+		z-index: 1090;
+	}
+
+	#menuToggle:not(:checked)~.row label.mobile-overlay {
+		display: none;
+	}
+
+	#menuToggle:checked~.row label.mobile-overlay {
+		display: block;
+	}
+
+	.site-content {
+		padding-top: 1rem;
+	}
+
+	.site-sidebar.border-end {
+		border-right: none !important;
+	}
+}
+
+@media (min-width: 768px) {
+	.site-sidebar {
+		position: relative;
+		transform: none !important;
+		height: auto;
+		max-width: none;
+		z-index: auto;
+		box-shadow: none;
+	}
+
+	.mobile-overlay {
+		display: none !important;
+	}
+}
