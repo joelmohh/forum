@@ -1,11 +1,57 @@
 <%- include('./partials/header') %>
 
-<body class="">
-    <%- include('./partials/menu', { activePage: 'index', pageType: 'main' }) %>
-    <div class="main-content">
-        <h1 class="display-4">Welcome to the Forum</h1>
-        <p class="lead">This is a sample text for the main content area. You can replace this with your actual content.</p>
-    </div>
-</body>
+    <body class="">
+        <%- include('./partials/menu', { activePage: 'index' , pageType: 'main' }) %>
+            <div class="main-content">
+                <h2 class="display-6 d-inline">Top Questions</h2>
+                <button class="btn float-end btn-primary">Ask Question</button>
+                <div class="filters">
+                    <a href="#" class="active">Newest</a>
+                    <a href="#">Active</a>
+                    <a href="#">Unanswered</a>
+                    <a href="#">More</a>
+                </div>
 
-<%- include('./partials/footer') %>
+                <div class="question-list">
+                    <% for(let i = 0; i < 5; i++) { %>
+                    <article class="question-item border-bottom p-3 d-flex gap-5">
+                        <div class="question-stats d-flex flex-column gap-2 text-center">
+                            <span class="text-muted">15 votes</span>
+                            <span class="text-muted">0 answers</span>
+                            <span class="text-muted">172 views</span>
+                        </div>
+                        <div class="question-details">
+                            <h3 class="h4">How to center a div in CSS?</h3>
+                            <div class="tags">
+                                <span class="badge bg-secondary">css</span>
+                                <span class="badge bg-secondary">html</span>
+                                <span class="badge bg-secondary">web-development</span>
+                            </div>
+                            <p class="question-meta text-muted">Asked by <a href="#">user123</a> on Jan 1, 2024</p>
+                        </div>
+                    </article>
+                    <% } %>
+
+                    <nav class="pagination-nav">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="pagi-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="pagi-link" href="#">1</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="pagi-link" href="#">2</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="pagi-link" href="#">3</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="pagi-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+    </body>
+
+    <%- include('./partials/footer') %>

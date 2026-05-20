@@ -1,94 +1,94 @@
-/*
-	menu.css - styles for the sidebar menu, including responsive behavior for mobile devices
-*/
-.d-inline {
-	display: inline;
+header {
+    height: 60px;
+    background: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    z-index: 1200;
 }
 
-.btn-open {
-	display: inline;
-}
-
-.mobile-overlay {
-	display: none;
-}
-
-.btn-close {
-	border: 1px solid transparent;
-	padding: 0.5rem 0.5rem;
-	border-radius: 4px;
-	transition: border-color 150ms ease-in-out;
-}
-
-.btn-close:hover {
-	cursor: pointer;
-	border: 1px solid #999999;
+.app-shell {
+    display: flex;
+    min-height: calc(100vh - 60px);
+    margin-top: 60px;
 }
 
 .site-sidebar {
-	background: #fff;
+    width: 266px;
+    flex-shrink: 0;
+    background: #fff;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    z-index: 1100;
 }
 
 .site-content {
-	min-width: 0;
+    flex: 1;
+    min-width: 0;
+    padding: 1rem;
+    margin-left: 266px;
+}
+
+.main-content {
+    max-width: calc(100% - 10px);
+}
+
+.mobile-overlay {
+    display: none;
+}
+
+.btn-close,
+.btn {
+    cursor: pointer;
+}
+
+.nav-link i {
+    margin-right: 0.5rem;
+}
+
+.nav-link a {
+    color: #DEE2E6;
 }
 
 @media (max-width: 767.98px) {
-	.site-sidebar {
-		position: fixed;
-		top: 0;
-		left: 0;
-		height: 100vh;
-		width: 100%;
-		transform: translateX(-110%);
-		transition: transform 250ms ease-in-out;
-		z-index: 1100;
-		overflow-y: auto;
+    .app-shell {
+        display: block;
+    }
 
-		background: #fff;
-		box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
-	}
+    .site-sidebar {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        transform: translateX(-110%);
+        transition: transform 250ms ease-in-out;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    }
 
-	#menuToggle:checked~.row .site-sidebar {
-		transform: translateX(0);
-	}
+    #menuToggle:checked ~ .app-shell .site-sidebar {
+        transform: translateX(0);
+    }
 
-	label.mobile-overlay {
-		display: block;
-		position: fixed;
-		inset: 0 0 0 0;
-		background: rgba(0, 0, 0, 0.45);
-		z-index: 1090;
-	}
+    .site-content {
+        margin-left: 0;
+    }
 
-	#menuToggle:not(:checked)~.row label.mobile-overlay {
-		display: none;
-	}
+    .mobile-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 1090;
+    }
 
-	#menuToggle:checked~.row label.mobile-overlay {
-		display: block;
-	}
-
-	.site-content {
-		padding-top: 1rem;
-	}
-
-	.site-sidebar.border-end {
-		border-right: none !important;
-	}
-}
-
-@media (min-width: 768px) {
-	.site-sidebar {
-		position: relative;
-		transform: none !important;
-		height: auto;
-		max-width: none;
-		z-index: auto;
-		box-shadow: none;
-	}
-
-	.mobile-overlay {
-		display: none !important;
-	}
+    #menuToggle:not(:checked) ~ .app-shell .mobile-overlay {
+        display: none;
+    }
 }

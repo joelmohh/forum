@@ -1,0 +1,158 @@
+/* Bootstrap CSS overwrites */
+
+.btn-primary {
+    background-color: #ff9d00;
+    border-color: #ff9d00;
+}
+.btn-primary:hover {
+    background-color: #ff7a00;
+    border-color: #ff7a00;
+}
+.btn-primary:focus, .btn-primary.focus {
+    background-color: #ff7a00;
+    border-color: #ff7a00;
+    box-shadow: 0 0 0 0.25rem rgba(255, 157, 0, 0.5);
+}
+.btn-primary:active, .btn-primary.active, .show>.btn-primary.dropdown-toggle {
+    background-color: #ff7a00;
+    border-color: #ff7a00;
+}
+.btn-primary:active:hover, .btn-primary.active:hover, .show>.btn-primary.dropdown-toggle:hover {
+    background-color: #ff7a00;
+    border-color: #ff7a00;
+}
+.btn-primary:active:focus, .btn-primary.active:focus, .show>.btn-primary.dropdown-toggle:focus {
+    background-color: #ff7a00;
+    border-color: #ff7a00;
+    box-shadow: 0 0 0 0.25rem rgba(255, 157, 0, 0.5);       
+}
+.btn-link-primary {
+    color: #ff9d00;
+}
+.btn-link-primary:hover {
+    color: #ff7a00;
+    border: none;
+}
+.btn-link-primary:focus, .btn-link-primary.focus {
+    color: #ff7a00;
+    text-decoration: none;
+    border: none;
+}
+.btn-link-primary:active, .btn-link-primary.active, .show>.btn-link-primary.dropdown-toggle {
+    color: #ff7a00;
+    border: none;
+    text-decoration: none;
+}
+.btn-link-primary:active:hover, .btn-link-primary.active:hover, .show>.btn-link-primary.dropdown-toggle:hover {
+    color: #ff7a00;
+    border: none;
+    text-decoration: none;
+}
+.btn-link-primary:active:focus, .btn-link-primary.active:focus, .show>.btn-link-primary.dropdown-toggle:focus {
+    color: #ff7a00;
+    border: none;
+    text-decoration: none;
+}
+
+.btn-link-primary {
+    color: #ff9d00;
+    border: none;
+    text-decoration: none;
+}
+
+/* FILTERS */
+
+.filters {
+    margin-top: 20px;
+    display: block;
+    gap: 15px;
+    margin-left: auto;
+
+    padding: 12px 6px;
+    border-radius: 10px;
+
+    border: 1px solid #ddd;
+    width: fit-content;
+}
+
+.filters a:not(.active) {
+    color: #595C5F;
+    text-decoration: none;
+    padding: 8px 5px;
+    border-radius: 5px;
+}
+.filters a:not(.active):hover {
+    background-color: #f0f0f0;
+    color: #595C5F;
+    text-decoration: none;
+    padding: 8px 5px;
+    border-radius: 5px;
+}
+
+.filters .active{
+    background-color: #ff9d00;
+
+    color: #fff;
+
+    text-decoration: none;
+    padding: 8px 5px;
+    border-radius: 5px;
+}
+.filters .active:hover {
+    background-color: #ff7a00;
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 5px;
+    border-radius: 5px;
+}
+/* QUESTIONS */
+.question-list {
+    margin-top: 20px;
+}
+.question-meta{
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #777;
+}
+/* PAGINATION */
+.pagination-nav {
+    margin-top: 40px;
+}
+.pagination {
+    display: flex;
+    list-style: none;
+    gap: 0px;
+    padding: 0;
+}
+
+.page-item .pagi-link {
+    text-decoration: none;
+    color: #000;
+    border: 1px solid #ddd;
+    background: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+.page-item:not(:first-child):not(:last-child) .pagi-link {
+    color: #ff9d00;
+    border-radius: 0;
+}
+.page-item:first-child .pagi-link{
+    border-radius: 6px 0px 0px 6px;
+}
+.page-item:last-child .pagi-link {
+    border-radius: 0px 6px 6px 0px;
+    color: #fff;
+    background: #ff9d00;
+}
+
+.page-item:not(:first-child):not(:last-child) .pagi-link:hover {
+    background: #e8e8e8;
+}
+
+.page-item.disabled .pagi-link {
+    opacity: 0.5;
+    pointer-events: none;
+}
