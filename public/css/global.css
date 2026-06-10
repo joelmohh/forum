@@ -1,3 +1,4 @@
+@import url('./auth.css');
 /* Bootstrap CSS overwrites */
 
 .btn-primary {
@@ -58,6 +59,36 @@
     color: #ff9d00;
     border: none;
     text-decoration: none;
+}
+
+.form-control {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+.form-control:focus:not(.error):not(.success) {
+    border-color: #ff9d00;
+    box-shadow: 0 0 0 0.25rem rgba(255, 157, 0, 0.25);
+}
+
+.form-check-input:checked:not(.error):not(.success) {
+    color: #ff9d00;
+    font-weight: 600;
+}
+.form-check-input:checked:not(.error):not(.success) {
+    color: #ffb733;
+}
+.form-check-input:focus:not(.error):not(.success) {
+    border-color: #ff9d00;
+    box-shadow: 0 0 0 0.25rem rgba(255, 157, 0, 0.25);
+}
+.form-check-input:checked:not(.error):not(.success) {
+    background-color: #ff9d00;
+    border-color: #ff9d00;
+}
+
+.form-check-input:disabled:not(.error):not(.success) {
+    color: #cc7e00;
+    opacity: 0.65;
 }
 
 /* FILTERS */
@@ -155,4 +186,10 @@
 .page-item.disabled .pagi-link {
     opacity: 0.5;
     pointer-events: none;
+}
+
+
+a.text-decoration-none {
+    color: #ffb733;
+    text-decoration: none;
 }

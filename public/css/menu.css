@@ -35,6 +35,12 @@ header {
     padding: 1rem;
     margin-left: 266px;
 }
+.site-content-auth {
+    flex: 1;
+    min-width: 0;
+    padding: 1rem;
+    margin-left: 20px;
+}
 
 .main-content {
     max-width: calc(100% - 10px);

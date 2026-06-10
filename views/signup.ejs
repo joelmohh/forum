@@ -1,0 +1,227 @@
+<%- include('./partials/header') %>
+
+    <body>
+        <%- include('./partials/menu', { activePage: 'signup' , pageType: 'auth' }) %>
+
+            <div class="main-content">
+                <div class="container d-flex align-items-center justify-content-center">
+
+                    <div class="card border" style="width:100%; max-width:420px;">
+                        <div class="card-body p-4 p-md-5">
+
+                            <div class="text-center mb-4">
+                                <h2 class="fw-bold mb-2">Create Account</h2>
+                                <p class="text-muted mb-0">
+                                    Sign up to get started
+                                </p>
+                            </div>
+                            <div class="progress-steps">
+                                <div class="step">
+                                    <span class="dot">1</span>
+                                </div>
+
+                                <div class="step">
+                                    <span class="dot">2</span>
+                                </div>
+
+                                <div class="step">
+                                    <span class="dot">3</span>
+                                </div>
+                            </div>
+                            <form id="signup_form" action="/register" method="POST" enctype="multipart/form-data">
+                                <section class="form-step" id="step_1">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Email Address <span class="mandatory">*</span>
+                                        </label>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fa-regular fa-envelope"></i>
+                                            </span>
+
+                                            <input type="email" class="form-control" name="email"
+                                                placeholder="name@example.com" required>
+                                        </div>
+
+                                        <div class="validation-messages" id="email-message">
+
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Username <span class="mandatory">*</span>
+                                        </label>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fa-regular fa-user"></i>
+                                            </span>
+
+                                            <input type="text" class="form-control" name="username"
+                                                placeholder="jhondoe" required>
+                                        </div>
+                                        <div class="validation-messages" id="username-message">
+
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Password <span class="mandatory">*</span>
+                                        </label>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fa-solid fa-lock"></i>
+                                            </span>
+
+                                            <input type="password" class="form-control" id="password" name="password"
+                                                placeholder="Enter your password" required>
+
+                                            <button class="btn btn-primary" type="button" id="togglePassword">
+                                                <i class="fa-regular fa-eye"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="validation-messages" id="password-message"></div>
+
+                                        <div class="mt-3 d-none" id="password-strength-container">
+                                            <div class="strength-bar" aria-hidden="true">
+                                                <div class="strength-fill" id="password-strength-fill"></div>
+                                            </div>
+                                            <ul class="password-rules mt-2">
+                                                <li id="rule-length">At least 8 characters</li>
+                                                <li id="rule-lowercase">One lowercase letter</li>
+                                                <li id="rule-uppercase">One uppercase letter</li>
+                                                <li id="rule-number">One number</li>
+                                                <li id="rule-special">One special character</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Confirm Password <span class="mandatory">*</span>
+                                        </label>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fa-solid fa-lock"></i>
+                                            </span>
+
+                                            <input type="password" class="form-control" id="confirmPassword"
+                                                name="confirmPassword" placeholder="Confirm your password" required>
+                                        </div>
+
+                                        <div class="validation-messages" id="confirmPassword-message"></div>
+                                    </div>
+                                    <div class="text-muted mb-3">All fields marked with <span class="mandatory">*</span>
+                                        are required.</div>
+                                </section>
+                                <section class="form-step d-none" id="step_2">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Display Name
+                                        </label>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fa-regular fa-user"></i>
+                                            </span>
+
+                                            <input type="text" class="form-control" name="displayName"
+                                                placeholder="John Doe">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Profile Picture
+                                        </label>
+
+                                        <div class="input-group mb-3">
+                                            <label class="input-group-text" for="profilePicture"><i
+                                                    class="fa-regular fa-image"></i></label>
+                                            <input type="file" class="form-control" id="profilePicture"
+                                                name="profilePicture" accept="image/*">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Bio
+                                        </label>
+
+                                        <div class="input-group mb-3">
+                                            <label class="input-group-text" for="bio"><i
+                                                    class="fa-regular fa-user"></i></label>
+                                            <textarea class="form-control" id="bio" name="bio"
+                                                placeholder="Tell us about yourself"></textarea>
+                                        </div>
+                                    </div>
+
+                                </section>
+                                <section class="form-step d-none" id="step_3">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            OTP Code <span class="mandatory">*</span>
+                                        </label>
+                                        <div class="input-group otp mb-3">
+                                            <input type="text" maxlength="1" name="otp_1" id="otp_1"
+                                                class="form-control">
+                                            <input type="text" maxlength="1" name="otp_2" id="otp_2"
+                                                class="form-control">
+                                            <input type="text" maxlength="1" name="otp_3" id="otp_3"
+                                                class="form-control">
+                                            <input type="text" maxlength="1" name="otp_4" id="otp_4"
+                                                class="form-control">
+                                            <input type="text" maxlength="1" name="otp_5" id="otp_5"
+                                                class="form-control">
+                                            <input type="text" maxlength="1" name="otp_6" id="otp_6"
+                                                class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="text-muted">
+                                            Didn't receive the code? <a href="#" id="resend_otp"
+                                                class="text-decoration-none">Resend OTP</a>
+                                        </span>
+                                    </div>
+
+                                </section>
+                                <button type="button" id="next_step_signup" class="btn btn-primary w-100">
+                                    Next Step <i class="ml-2 fa-solid fa-arrow-right"></i>
+                                </button>
+                            </form>
+
+                            <div class="text-center mt-4">
+
+                                <span class="text-muted">
+                                    Already have an account?
+                                </span>
+
+                                <a href="/login" class="text-decoration-none">
+                                    Sign in
+                                </a>
+                            </div>
+                            <div class="divider">
+                                <span class="divider-text">or</span>
+                            </div>
+                            <div class="social-login alingn-items-center justify-content-center mt-3">
+                                <a href="/auth/google" class="google-btn"><img
+                                        src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                                        alt="Google Logo" width="20px">Sign up with Google</a>
+                                <a href="/auth/hackclub" class="hc-btn"><img
+                                        src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                                        alt="HackClub Logo" width="20px">Sign up with HackClub</a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <script src="./js/auth.js"></script>
+    </body>
+
+    <%- include('./partials/footer') %>

@@ -3,91 +3,108 @@
     <!-- ================= HEADER ================= -->
     <header class="d-flex align-items-center justify-content-between border-bottom gap-2">
         <div
-            class="col-12 col-md-3 col-lg-2 d-flex flex-row flex-sm-row flex-md-column flex-lg-row align-items-start align-items-sm-center align-items-md-start align-items-lg-center justify-content-between gap-3 border-md-end border-end px-4 py-3">
+            class="col-12 col-md-3 col-lg-2 d-flex flex-row flex-sm-row flex-md-column flex-lg-row align-items-start align-items-sm-center align-items-md-start align-items-lg-center justify-content-between gap-3 <% if (pageType === 'main') { %> border-md-end border-end <% } %> px-4 py-3">
             <a href="/" class="d-inline text-decoration-none text-dark fw-semibold">LOGO</a>
-            <div class="flex-grow-1 mx-2 d-block d-md-none">
-                <input type="search" class="form-control rounded-pill border-dark-subtle" placeholder="Search..."
-                    aria-label="Search">
+            <% if (pageType === 'main') { %>
+                <div class="flex-grow-1 mx-2 d-block d-md-none">
+                    <input type="search" class="form-control rounded-pill border-dark-subtle" placeholder="Search..."
+                        aria-label="Search">
+                </div>
+                <label 
+                    for="menuToggle" 
+                    class="btn-open btn btn-outline-dark px-3 py-1 ms-sm-auto ms-md-0 ms-lg-auto d-md-none" role="button" 
+                    aria-label="Open Menu">
+                        ☰
+                </label>
+            <% } %>
+        </div>
+        <% if (pageType === 'main') { %>
+            <div class="flex-grow-1 mx-2">
+                <input type="search" class="form-control d-none d-md-block" placeholder="Search..." aria-label="Search">
             </div>
-            <label for="menuToggle"
-                class="btn-open btn btn-outline-dark px-3 py-1 ms-sm-auto ms-md-0 ms-lg-auto d-md-none" role="button"
-                aria-label="Open Menu">☰</label>
+        <% } %>
+        <div class="col-12 col-lg-auto d-block d-md-flex align-items-center gap-2 px-4 py-3 justify-content-start justify-content-lg-end">
+            <% if (activePage === 'login' || activePage === 'signup') { %>
+                <a href="/" class="btn btn-link-primary">Return</a>
+            <% } %>
+
+            <% if (activePage !== 'login') { %>
+                <a href="/login" class="btn <% if (pageType === 'main') { %>btn-link-primary<% } else { %>btn-primary<% } %>">Login</a>
+            <% } %>
+
+            <% if (activePage !== 'signup') { %>
+                <a href="/signup" class="btn btn-primary">Sign Up</a>
+            <% } %>
         </div>
-        <div class="flex-grow-1 mx-2">
-            <input type="search" class="form-control d-none d-md-block" placeholder="Search..." aria-label="Search">
-        </div>
-        <div
-            class="col-12 col-lg-auto d-none d-md-flex align-items-center gap-2 px-4 py-3 justify-content-start justify-content-lg-end">
-            <a href="/login" class="btn btn-link-primary">Login</a>
-            <a href="/signup" class="btn btn-primary">Sign Up</a>
-        </div>
-    </header>
+</header>
 
     <!-- ================= TOGGLE ================= -->
     <input id="menuToggle" type="checkbox" class="d-none">
 
     <!-- ================= APP LAYOUT ================= -->
+     
     <div class="app-shell">
+        <% if(pageType !== 'auth') { %>
+            <label for="menuToggle" class="mobile-overlay"></label>
 
-        <label for="menuToggle" class="mobile-overlay"></label>
+            <!-- ================= SIDEBAR ================= -->
+            <aside class="site-sidebar border-end px-4 py-4">
 
-        <!-- ================= SIDEBAR ================= -->
-        <aside class="site-sidebar border-end px-4 py-4">
+                <!-- MOBILE HEADER INSIDE SIDEBAR -->
+                <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
 
-            <!-- MOBILE HEADER INSIDE SIDEBAR -->
-            <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
+                    <a href="/" class="text-decoration-none text-dark fw-semibold fs-4">
+                        LOGO
+                    </a>
 
-                <a href="/" class="text-decoration-none text-dark fw-semibold fs-4">
-                    LOGO
-                </a>
+                    <label for="menuToggle" class="btn btn-outline-dark" aria-label="Close Menu">
+                        ✕
+                    </label>
 
-                <label for="menuToggle" class="btn btn-outline-dark" aria-label="Close Menu">
-                    ✕
-                </label>
+                </div>
 
-            </div>
+                <!-- NAVIGATION -->
+                <nav class="nav flex-column gap-3">
 
-            <!-- NAVIGATION -->
-            <nav class="nav flex-column gap-3">
+                    <a href="/" class="nav-link text-muted fw-medium">
+                        <i class="fa-solid fa-house"></i> Home
+                    </a>
 
-                <a href="/" class="nav-link text-muted fw-medium">
-                    <i class="fa-solid fa-house"></i> Home
-                </a>
+                    <a href="/questions" class="nav-link text-muted fw-medium">
+                        <i class="fa-solid fa-circle-question"></i> Questions
+                    </a>
 
-                <a href="/questions" class="nav-link text-muted fw-medium">
-                    <i class="fa-solid fa-circle-question"></i> Questions
-                </a>
+                    <a href="/tags" class="nav-link text-muted fw-medium">
+                        <i class="fa-solid fa-tags"></i> Tags
+                    </a>
 
-                <a href="/tags" class="nav-link text-muted fw-medium">
-                    <i class="fa-solid fa-tags"></i> Tags
-                </a>
+                    <a href="/users" class="nav-link text-muted fw-medium">
+                        <i class="fa-solid fa-users"></i> Users
+                    </a>
+                    <span class="empty p-10">
+                    </span>
+                    <a href="/messages" class="nav-link text-muted fw-medium">
+                        <i class="fa-solid fa-envelope"></i> Messages
+                    </a>
 
-                <a href="/users" class="nav-link text-muted fw-medium">
-                    <i class="fa-solid fa-users"></i> Users
-                </a>
-                <span class="empty p-10">
-                </span>
-                <a href="/messages" class="nav-link text-muted fw-medium">
-                    <i class="fa-solid fa-envelope"></i> Messages
-                </a>
+                </nav>
 
-            </nav>
+                <!-- AUTH BUTTONS (mobile only) -->
+                <div class="mt-4 d-block d-md-none">
 
-            <!-- AUTH BUTTONS (mobile only) -->
-            <div class="mt-4 d-block d-md-none">
+                    <a href="/auth/login" class="btn btn-link-primary w-100 mb-2">
+                        Login
+                    </a>
 
-                <a href="/auth/login" class="btn btn-link-primary w-100 mb-2">
-                    Login
-                </a>
+                    <a href="/auth/register" class="btn btn-primary w-100">
+                        Sign Up
+                    </a>
 
-                <a href="/auth/register" class="btn btn-primary w-100">
-                    Sign Up
-                </a>
+                </div>
 
-            </div>
-
-        </aside>
+            </aside>
+        <% } %>
 
         <!-- ================= MAIN CONTENT WRAPPER ================= -->
-        <main class="site-content">
+        <main class="<% if(pageType !== 'auth') { %>site-content<% } else { %>site-content-auth<% } %>">
             <div class="main-content">
