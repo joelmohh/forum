@@ -1,0 +1,90 @@
+<%- include('./partials/header') %>
+
+    <body>
+        <%- include('./partials/menu', { activePage: 'users' , pageType: 'main' }) %>
+
+            <div class="main-content">
+                <h2 class="display-6">Users</h2>
+
+                <div class="d-flex gap-3 align-items-center mt-3">
+                    <div class="search-tags">
+                        <input type="text" class="form-control" placeholder="Search users...">
+                    </div>
+
+                    <div class="filters">
+                        <a href="#" class="active">Active</a>
+                        <a href="#">New</a>
+                        <a href="#">Moderators</a>
+                    </div>
+                </div>
+
+                <div class="tag-list mt-4">
+                    <div class="row g-3">
+
+                        <% for(let i=0; i < 12; i++) { %>
+                            <div class="col-sm-6 col-lg-4 col-xl-3">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body d-flex align-items-center gap-3">
+
+                                        <img src="https://placehold.net/default.svg" alt="User Avatar" width="60"
+                                            height="60" class="rounded-circle border">
+
+                                        <div class="flex-grow-1">
+                                            <a href="/users/id"
+                                                class="fw-bold text-warning text-decoration-none d-block">
+                                                User Name
+                                            </a>
+
+                                            <small class="text-muted d-block">
+                                                <i class="fa-solid fa-location-dot me-1"></i> São Paulo, Brazil
+                                            </small>
+
+                                            <span class="badge bg-light text-dark mt-2">
+                                                Reputation: 1000
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <% } %>
+
+                    </div>
+
+                    <nav class="pagination-nav d-flex justify-content-between align-items-center mt-4">
+                        <div class="pagination filter-quantity">
+                            <span class="text-muted">Tags per page:</span>
+
+                            <select class="form-select d-inline-block w-auto">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+
+                        <ul class="pagination justify-content-end">
+                            <li class="page-item disabled">
+                                <a class="pagi-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+
+                            <li class="page-item">
+                                <a class="pagi-link" href="#">1</a>
+                            </li>
+
+                            <li class="page-item">
+                                <a class="pagi-link" href="#">2</a>
+                            </li>
+
+                            <li class="page-item">
+                                <a class="pagi-link" href="#">3</a>
+                            </li>
+
+                            <li class="page-item">
+                                <a class="pagi-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <%- include('./partials/footer') %>

@@ -5,51 +5,76 @@
     background-color: #ff9d00;
     border-color: #ff9d00;
 }
+
 .btn-primary:hover {
     background-color: #ff7a00;
     border-color: #ff7a00;
 }
-.btn-primary:focus, .btn-primary.focus {
+
+.btn-primary:focus,
+.btn-primary.focus {
     background-color: #ff7a00;
     border-color: #ff7a00;
     box-shadow: 0 0 0 0.25rem rgba(255, 157, 0, 0.5);
 }
-.btn-primary:active, .btn-primary.active, .show>.btn-primary.dropdown-toggle {
+
+.btn-primary:active,
+.btn-primary.active,
+.show>.btn-primary.dropdown-toggle {
     background-color: #ff7a00;
     border-color: #ff7a00;
 }
-.btn-primary:active:hover, .btn-primary.active:hover, .show>.btn-primary.dropdown-toggle:hover {
+
+.btn-primary:active:hover,
+.btn-primary.active:hover,
+.show>.btn-primary.dropdown-toggle:hover {
     background-color: #ff7a00;
     border-color: #ff7a00;
 }
-.btn-primary:active:focus, .btn-primary.active:focus, .show>.btn-primary.dropdown-toggle:focus {
+
+.btn-primary:active:focus,
+.btn-primary.active:focus,
+.show>.btn-primary.dropdown-toggle:focus {
     background-color: #ff7a00;
     border-color: #ff7a00;
-    box-shadow: 0 0 0 0.25rem rgba(255, 157, 0, 0.5);       
+    box-shadow: 0 0 0 0.25rem rgba(255, 157, 0, 0.5);
 }
+
 .btn-link-primary {
     color: #ff9d00;
 }
+
 .btn-link-primary:hover {
     color: #ff7a00;
     border: none;
 }
-.btn-link-primary:focus, .btn-link-primary.focus {
+
+.btn-link-primary:focus,
+.btn-link-primary.focus {
     color: #ff7a00;
     text-decoration: none;
     border: none;
 }
-.btn-link-primary:active, .btn-link-primary.active, .show>.btn-link-primary.dropdown-toggle {
+
+.btn-link-primary:active,
+.btn-link-primary.active,
+.show>.btn-link-primary.dropdown-toggle {
     color: #ff7a00;
     border: none;
     text-decoration: none;
 }
-.btn-link-primary:active:hover, .btn-link-primary.active:hover, .show>.btn-link-primary.dropdown-toggle:hover {
+
+.btn-link-primary:active:hover,
+.btn-link-primary.active:hover,
+.show>.btn-link-primary.dropdown-toggle:hover {
     color: #ff7a00;
     border: none;
     text-decoration: none;
 }
-.btn-link-primary:active:focus, .btn-link-primary.active:focus, .show>.btn-link-primary.dropdown-toggle:focus {
+
+.btn-link-primary:active:focus,
+.btn-link-primary.active:focus,
+.show>.btn-link-primary.dropdown-toggle:focus {
     color: #ff7a00;
     border: none;
     text-decoration: none;
@@ -65,6 +90,7 @@
     border: 1px solid #ddd;
     border-radius: 6px;
 }
+
 .form-control:focus:not(.error):not(.success) {
     border-color: #ff9d00;
     box-shadow: 0 0 0 0.25rem rgba(255, 157, 0, 0.25);
@@ -74,13 +100,16 @@
     color: #ff9d00;
     font-weight: 600;
 }
+
 .form-check-input:checked:not(.error):not(.success) {
     color: #ffb733;
 }
+
 .form-check-input:focus:not(.error):not(.success) {
     border-color: #ff9d00;
     box-shadow: 0 0 0 0.25rem rgba(255, 157, 0, 0.25);
 }
+
 .form-check-input:checked:not(.error):not(.success) {
     background-color: #ff9d00;
     border-color: #ff9d00;
@@ -112,6 +141,7 @@
     padding: 8px 5px;
     border-radius: 5px;
 }
+
 .filters a:not(.active):hover {
     background-color: #f0f0f0;
     color: #595C5F;
@@ -120,7 +150,7 @@
     border-radius: 5px;
 }
 
-.filters .active{
+.filters .active {
     background-color: #ff9d00;
 
     color: #fff;
@@ -129,6 +159,7 @@
     padding: 8px 5px;
     border-radius: 5px;
 }
+
 .filters .active:hover {
     background-color: #ff7a00;
     color: #fff;
@@ -136,19 +167,23 @@
     padding: 8px 5px;
     border-radius: 5px;
 }
+
 /* QUESTIONS */
 .question-list {
     margin-top: 20px;
 }
-.question-meta{
+
+.question-meta {
     margin-top: 10px;
     font-size: 0.9em;
     color: #777;
 }
+
 /* PAGINATION */
 .pagination-nav {
     margin-top: 40px;
 }
+
 .pagination {
     display: flex;
     list-style: none;
@@ -170,9 +205,11 @@
     color: #ff9d00;
     border-radius: 0;
 }
-.page-item:first-child .pagi-link{
+
+.page-item:first-child .pagi-link {
     border-radius: 6px 0px 0px 6px;
 }
+
 .page-item:last-child .pagi-link {
     border-radius: 0px 6px 6px 0px;
     color: #fff;
@@ -192,4 +229,21 @@
 a.text-decoration-none {
     color: #ffb733;
     text-decoration: none;
+}
+
+.tooltip-inner {
+    max-width: 300px;
+    text-align: left;
+    padding: 12px 14px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.badge.text-bg-primary {
+    cursor: pointer;
+}
+
+.text-bg-warning {
+    background-color: #ff9d00 !important;
+    color: #fff !important; 
 }

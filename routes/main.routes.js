@@ -21,13 +21,13 @@ Router.get('/questions', (req, res) => {
 Router.get('/tags', (req, res) => {
     res.render('tags')
 })
-Router.get('/questions/new', (req, res) => {
+Router.get('/questions/ask', (req, res) => {
     res.render('question-form')
 })
 Router.get('/questions/edit/:id', (req, res) => {
     res.render('question-form')
 })
-Router.get('/questions/:id/:slug', (req, res) => {
+Router.get('/questions/:id/', (req, res) => {
     res.render('question-detail')
 })
 

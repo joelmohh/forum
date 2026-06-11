@@ -1,0 +1,93 @@
+```ejs
+<%- include('./partials/header') %>
+
+<body>
+    <%- include('./partials/menu', { activePage: 'tags', pageType: 'main' }) %>
+
+    <div class="main-content">
+        <h2 class="display-6">Tags</h2>
+
+        <span class="text-muted">
+            A tag is a keyword or label that categorizes your question with other,
+            similar questions. Using the right tags makes it easier for others to
+            find and answer your question.
+        </span>
+
+        <div class="d-flex gap-3 align-items-center mt-3">
+            <div class="search-tags">
+                <input type="text" class="form-control" placeholder="Search tags...">
+            </div>
+
+            <div class="filters">
+                <a href="#" class="active">Popular</a>
+                <a href="#">Name</a>
+                <a href="#">New</a>
+            </div>
+        </div>
+
+        <div class="tag-list mt-4">
+            <div class="row g-3">
+
+                <% for(let i = 0; i < 12; i++) { %>
+                    <div class="col-sm-6 col-lg-4 col-xl-3">
+                        <div class="card h-100 border">
+                            <div class="card-body">
+                                <span class="badge text-bg-warning text-decoration-none mb-3">javascript</span>
+                                <p class="text-muted small mb-4"> A programming language commonly used in web development. </p>
+
+                                <div class="row text-center">
+                                    <div class="col">
+                                        <div class="fw-semibold">1500</div>
+                                        <small class="text-muted">Questions</small>
+                                    </div>
+
+                                    <div class="col">
+                                        <div class="fw-semibold">500</div>
+                                        <small class="text-muted">Followers</small>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+            </div>
+
+            <nav class="pagination-nav d-flex justify-content-between align-items-center mt-4">
+                <div class="pagination filter-quantity">
+                    <span class="text-muted">Tags per page:</span>
+
+                    <select class="form-select d-inline-block w-auto">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+
+                <ul class="pagination justify-content-end">
+                    <li class="page-item disabled">
+                        <a class="pagi-link" href="#" tabindex="-1">Previous</a>
+                    </li>
+
+                    <li class="page-item">
+                        <a class="pagi-link" href="#">1</a>
+                    </li>
+
+                    <li class="page-item">
+                        <a class="pagi-link" href="#">2</a>
+                    </li>
+
+                    <li class="page-item">
+                        <a class="pagi-link" href="#">3</a>
+                    </li>
+
+                    <li class="page-item">
+                        <a class="pagi-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <%- include('./partials/footer') %>
