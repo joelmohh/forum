@@ -62,6 +62,21 @@ header {
 .nav-link a {
     color: #DEE2E6;
 }
+nav .nav-link:hover:not(.active) {
+    background-color: #fac46d;
+    color: #000 !important;
+    border-radius: 0.25rem;
+}
+nav .nav-link.active:hover {
+    background-color: #FF7A00;
+    color: #fff !important;
+    border-radius: 0.25rem;
+}
+.nav-link.active {
+    background-color: #ff9d00;
+    color: #fff !important;
+    border-radius: 0.25rem;
+}
 
 @media (max-width: 767.98px) {
     .app-shell {

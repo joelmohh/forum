@@ -66,24 +66,24 @@
                 <!-- NAVIGATION -->
                 <nav class="nav flex-column gap-3">
 
-                    <a href="/" class="nav-link text-muted fw-medium">
+                    <a href="/" class="nav-link text-muted fw-medium <% if (activePage === 'index') { %> active <% } %>">
                         <i class="fa-solid fa-house"></i> Home
                     </a>
 
-                    <a href="/questions" class="nav-link text-muted fw-medium">
+                    <a href="/questions" class="nav-link text-muted fw-medium <% if (activePage === 'questions') { %> active <% } %>">
                         <i class="fa-solid fa-circle-question"></i> Questions
                     </a>
 
-                    <a href="/tags" class="nav-link text-muted fw-medium">
+                    <a href="/tags" class="nav-link text-muted fw-medium <% if (activePage === 'tags') { %> active <% } %>">
                         <i class="fa-solid fa-tags"></i> Tags
                     </a>
 
-                    <a href="/users" class="nav-link text-muted fw-medium">
+                    <a href="/users" class="nav-link text-muted fw-medium <% if (activePage === 'users') { %> active <% } %>">
                         <i class="fa-solid fa-users"></i> Users
                     </a>
                     <span class="empty p-10">
                     </span>
-                    <a href="/messages" class="nav-link text-muted fw-medium">
+                    <a href="/messages" class="nav-link text-muted fw-medium <% if (activePage === 'messages') { %> active <% } %>">
                         <i class="fa-solid fa-envelope"></i> Messages
                     </a>
 
