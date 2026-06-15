@@ -30,5 +30,7 @@ Router.get('/questions/edit/:id', (req, res) => {
 Router.get('/questions/:id/', (req, res) => {
     res.render('question-detail')
 })
-
+Router.get('/profile/settings', (req, res) => {
+    res.render('profile-settings')
+})
 module.exports = Router;

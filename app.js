@@ -2,7 +2,10 @@ const express = require('express');
 require('dotenv').config();
 const mongoose = require('mongoose');
 
-const app = express(); 
+
+const trasporter = require('./modules/mail/SMTP').transporter;
+
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
@@ -21,11 +24,17 @@ const mainRoutes = require('./routes/main.routes');
 const authRoutes = require('./routes/auth.routes');
 const apiRoutes = require('./routes/api.routes');
 
-app.use('/', mainRoutes);   
-app.use('/auth', authRoutes);
-app.use('/api', apiRoutes); 
+app.use('/', mainRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api', apiRoutes);
 
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+    //try {
+    //    await transporter.verify();
+    //    console.log("Server is ready to take our messages");
+    //} catch (err) {
+    //    console.error("Verification failed:", err);
+    //}
     console.log(`Server is running on port ${PORT}`);
 })

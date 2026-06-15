@@ -65,7 +65,7 @@ const passwordRules = {
 
 const inputs = document.querySelectorAll('.form-control');
 inputs.forEach(input => {
-    input.addEventListener('input', () => {
+    input.addEventListener('input', async () => {
         if (input.name === 'email' && loginForm && input.closest('#login_form')) {
             updateLoginFieldState(loginEmailInput, loginMessages.email, isValidEmail(input.value), 'Email valid.', 'Please enter a valid email address.');
             return;
@@ -81,7 +81,20 @@ inputs.forEach(input => {
         }
 
         if (input.name === 'username') {
-            showSuccess(input, messageElements.username, isValidUsername(input.value), 'Username valid.');
+            const username = input.value.trim();
+
+            if (!isValidUsernameFormat(username)) {
+                clearValidation(input, messageElements.username);
+                return;
+            }
+
+            const available = await checkUsernameAvailability(username);
+
+            if (available) {
+                showSuccess(input, messageElements.username, true, 'Username available.');
+            } else {
+                showError(input, messageElements.username, 'Username is already taken.');
+            }
         }
 
         if (input.name === 'password') {
@@ -134,16 +147,66 @@ if (nextBtn && signupForm) {
         const valid = await validateStep(currentStep);
         if (!valid) return;
 
+        if (currentStep === 2) {
+
+            const email = document.querySelector('[name="email"]').value;
+            const username = document.querySelector('[name="username"]').value;
+            const password = document.querySelector('[name="password"]').value;
+            const profilePictureInput = document.querySelector('[name="profilePicture"]');
+            const displayName = document.querySelector('[name="displayName"]').value;
+            const bio = document.querySelector('[name="bio"]').value;
+
+            const formData = new FormData();
+
+            formData.append('email', email);
+            formData.append('username', username);
+            formData.append('password', password);
+            formData.append('displayName', displayName);
+            formData.append('bio', bio);
+
+            if (profilePictureInput.files[0]) {
+                formData.append('profilePicture', profilePictureInput.files[0]);
+            }
+
+            nextBtn.disabled = true;
+            nextBtn.innerText = 'Sending OTP...';
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    alert(data.message || 'Failed to send OTP');
+                    nextBtn.disabled = false;
+                    nextBtn.innerText = 'Next Step';
+                    return;
+                }
+
+                steps[currentStep - 1].classList.add('d-none');
+                currentStep++;
+                steps[currentStep - 1].classList.remove('d-none');
+                updateStepProgress();
+
+            } catch (err) {
+                console.error(err);
+                alert('Error sending OTP');
+            }
+
+            nextBtn.disabled = false;
+            nextBtn.innerText = 'Next Step';
+
+            return;
+        }
+
         if (currentStep < 3) {
             steps[currentStep - 1].classList.add('d-none');
             currentStep++;
             steps[currentStep - 1].classList.remove('d-none');
             updateStepProgress();
-
-            if (currentStep === 3) {
-                nextBtn.innerHTML = 'Create Account';
-            }
-
             return;
         }
 
@@ -164,12 +227,12 @@ function updateStepProgress() {
         }
 
     });
-
 }
 async function validateStep(step) {
 
     if (step === 1) {
         let isValid = true;
+
         const username = document.querySelector('[name="username"]');
         const email = document.querySelector('[name="email"]');
         const password = document.querySelector('[name="password"]');
@@ -193,47 +256,131 @@ async function validateStep(step) {
             },
             password: {
                 empty: 'Password is required.',
-                length: 'Password must be at least 8 characters.',
                 weak: 'You must follow all the password rules.'
             },
             confirmPassword: {
                 empty: 'Please confirm your password.',
                 mismatch: 'Passwords do not match.'
             }
-        }
+        };
 
-        if (!isValidUsername(username.value)) {
-            showError(username, usernameMessage, errorMessages.username.length);
+        if (!isValidUsernameFormat(username.value)) {
+            showError(
+                username,
+                usernameMessage,
+                errorMessages.username.length
+            );
             isValid = false;
-        } else {
-            showSuccess(username, usernameMessage, true, 'Username valid.');
         }
 
         if (!isValidEmail(email.value)) {
-            showError(email, emailMessage, email.value ? errorMessages.email.invalid : errorMessages.email.empty);
+            showError(
+                email,
+                emailMessage,
+                email.value
+                    ? errorMessages.email.invalid
+                    : errorMessages.email.empty
+            );
             isValid = false;
-        } else {
-            showSuccess(email, emailMessage, true, 'Email valid.');
         }
 
         if (!password.value) {
-            showError(password, passwordMessage, errorMessages.password.empty);
+            showError(
+                password,
+                passwordMessage,
+                errorMessages.password.empty
+            );
             isValid = false;
         } else if (!isPasswordValid(password.value)) {
-            showError(password, passwordMessage, errorMessages.password.weak);
+            showError(
+                password,
+                passwordMessage,
+                errorMessages.password.weak
+            );
             isValid = false;
-        } else {
-            showSuccess(password, passwordMessage, true, 'Password valid.');
         }
 
         if (!confirmPassword.value) {
-            showError(confirmPassword, confirmPasswordMessage, errorMessages.confirmPassword.empty);
+            showError(
+                confirmPassword,
+                confirmPasswordMessage,
+                errorMessages.confirmPassword.empty
+            );
             isValid = false;
         } else if (confirmPassword.value !== password.value) {
-            showError(confirmPassword, confirmPasswordMessage, errorMessages.confirmPassword.mismatch);
+            showError(
+                confirmPassword,
+                confirmPasswordMessage,
+                errorMessages.confirmPassword.mismatch
+            );
+            isValid = false;
+        }
+
+        if (!isValid) {
+            return false;
+        }
+
+        const response = await fetch('/api/auth/check-availability', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username.value,
+                email: email.value
+            })
+        });
+
+        const data = await response.json();
+
+        if (!data.usernameAvailable) {
+            showError(
+                username,
+                usernameMessage,
+                errorMessages.username.taken
+            );
             isValid = false;
         } else {
-            showSuccess(confirmPassword, confirmPasswordMessage, true, 'Passwords match.');
+            showSuccess(
+                username,
+                usernameMessage,
+                true,
+                'Username valid.'
+            );
+        }
+
+        if (!data.emailAvailable) {
+            showError(
+                email,
+                emailMessage,
+                errorMessages.email.taken
+            );
+            isValid = false;
+        } else {
+            showSuccess(
+                email,
+                emailMessage,
+                true,
+                'Email valid.'
+            );
+        }
+
+        if (isPasswordValid(password.value)) {
+            showSuccess(
+                password,
+                passwordMessage,
+                true,
+                'Password valid.'
+            );
+        }
+
+        if (confirmPassword.value === password.value) {
+            showSuccess(
+                confirmPassword,
+                confirmPasswordMessage,
+                true,
+                'Passwords match.'
+            );
         }
 
         return isValid;
@@ -244,10 +391,51 @@ async function validateStep(step) {
     }
 
     if (step === 3) {
+        const otpInputs = document.querySelectorAll('.input-group.otp input');
+
+        const otp = Array.from(otpInputs)
+            .map(input => input.value.trim())
+            .join('');
+
+        const otpMessage = document.getElementById('otp-message');
+
+        if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+            showOtpError('Please enter a valid 6-digit code.');
+            return false;
+        }
+
+        const response = await fetch('/api/auth/verify-otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ otp })
+        });
+
+        const data = await response.json();
+
+        if (!data.valid) {
+            showOtpError('Invalid or expired OTP code.');
+            return false;
+        }
+
         return true;
     }
 
     return false;
+}
+function showOtpError(message) {
+    let container = document.getElementById('otp-message');
+
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'otp-message';
+        container.className = 'validation-messages error mt-2';
+
+        document.querySelector('.input-group.otp').after(container);
+    }
+
+    container.innerHTML = `<span class="validation-message error">${message}</span>`;
 }
 
 function isPasswordValid(password) {
@@ -329,8 +517,29 @@ function isValidEmail(email) {
     return /\S+@\S+\.\S+/.test(email);
 }
 
-function isValidUsername(username) {
+function isValidUsernameFormat(username) {
     return Boolean(username) && username.length >= 3 && username.length <= 30;
+}
+async function checkUsernameAvailability(username) {
+    try {
+        const response = await fetch(
+            '/api/auth/check-availability?username=true',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username })
+            }
+        );
+
+        const data = await response.json();
+
+        return data.usernameAvailable === true;
+    } catch (err) {
+        console.error('Error checking username:', err);
+        return false;
+    }
 }
 
 function showSuccess(input, messageContainer, isValid, successMessage) {

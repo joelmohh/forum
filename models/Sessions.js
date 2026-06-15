@@ -1,25 +1,30 @@
 const mongoose = require('mongoose');
 const sessionSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-        index: true
-    },
-
-    token: {
+    tokenHash: {
         type: String,
         required: true,
         unique: true
     },
 
-    expiresAt: {
-        type: Date,
-        required: true
+    refreshTokenId: {
+        type: String,
+        index: true
+    },
+
+    deviceId: {
+        type: String,
+        index: true
     },
 
     ip: String,
-    userAgent: String
+    userAgent: String,
+
+    revokedAt: Date,
+
+    lastUsedAt: {
+        type: Date,
+        default: Date.now
+    }
 
 }, { timestamps: true });
 sessionSchema.index(

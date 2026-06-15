@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
         unique: true,
         trim: true,
         minlength: 3,
-        maxlength: 30
+        maxlength: 30,
+        index: true
     },
     displayName: {
         type: String,
@@ -19,7 +20,8 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         lowercase: true,
-        trim: true
+        trim: true,
+        index: true
     },
 
     password: {
@@ -37,11 +39,20 @@ const userSchema = new mongoose.Schema({
         lastUsed: Date
     }],
 
-    profilePicture: String,
+    profilePicture: {
+        type: String,
+        default: "https://via.placeholder.com/150?text=Profile+Picture"
+    },
 
     bio: {
         type: String,
         maxlength: 500
+    },
+
+    verified: {
+        type: Boolean,
+        default: false,
+        index: true
     }
 
 }, { timestamps: true });
