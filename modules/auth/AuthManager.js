@@ -1,5 +1,6 @@
 const User = require('../../models/User');
 const Session = require('../../models/Sessions');
+const crypto = require('crypto');
 
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -16,52 +17,47 @@ const updateLastLogin = async (userId) => {
     }
 }
 
-const newSession = async (user, userAgent, ip) => {
+const newSession = async (user, { deviceId, ip, userAgent } = {}) => {
     try {
-        const session = new Session({
-            user: user._id,
-            token: generateToken(user),
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 
-            ip,
-            userAgent
-        });
-        await session.save();
-        return session.token;
-    } catch (err) {
-        console.error('Error creating new session:', err);
-        return null;
-    }
-}
+        const refreshToken = crypto.randomBytes(32).toString("hex");
+        const tokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
 
-const validateSession = async (token) => {
-    try {
-        const session = await Session.findOne({ token }).populate('user');
-        if (!session || session.expiresAt < new Date()) {
-            return null;
-        }
-        return session.user;
+        await Session.create({
+            user: user._id,
+            tokenHash,
+            deviceId,
+            ip,
+            userAgent,
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            lastUsedAt: new Date()
+        });
+
+        return refreshToken;
+
     } catch (err) {
-        console.error('Error validating session:', err);
+        console.error("Error creating session:", err);
+
         return null;
     }
-}
+};
 const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization'];
-    if (!token) {
-        return res.status(403).json({ message: 'No token provided.' });
+    const authHeader = req.headers["authorization"];
+
+    if (!authHeader) {
+        return res.status(403).json({ message: "No token provided." });
     }
+
+    const token = authHeader.startsWith("Bearer ")? authHeader.slice(7): authHeader;
 
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) {
-            return res.status(401).json({ message: 'Unauthorized.' });
+            return res.status(401).json({ message: "Unauthorized." });
         }
-        if (decoded.exp < Date.now() / 1000) {
-            return res.status(401).json({ message: 'Unauthorized.' });
-        }
-        req.userId = decoded.id;
+
+        req.userId = decoded.sub || decoded.id;
         next();
     });
 };
 
 
-module.exports = { generateToken, updateLastLogin, newSession, validateSession, verifyToken };
+module.exports = { generateToken, updateLastLogin, newSession, verifyToken };

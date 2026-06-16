@@ -4,6 +4,7 @@ const confirmPasswordInput = document.getElementById('confirmPassword');
 const signupForm = document.getElementById('signup_form');
 const nextBtn = document.getElementById('next_step_signup');
 const loginForm = document.getElementById('login_form');
+const loginBtn = document.getElementById('login_btn');
 const loginEmailInput = loginForm ? loginForm.querySelector('[name="email"]') : null;
 const loginPasswordInput = loginForm ? loginForm.querySelector('[name="password"]') : null;
 const loginMessages = {
@@ -174,6 +175,7 @@ if (nextBtn && signupForm) {
             try {
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
+                    credentials: "include",
                     body: formData
                 });
 
@@ -209,8 +211,16 @@ if (nextBtn && signupForm) {
             updateStepProgress();
             return;
         }
+        if (currentStep === 3) {
+            const valid = await validateStep(currentStep);
+            if (valid) {
+                window.location.href = '/';
+            }
+            else {
+                return
+            }
+        }
 
-        signupForm.submit();
     });
 }
 
@@ -325,6 +335,7 @@ async function validateStep(step) {
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: "include",
             body: JSON.stringify({
                 username: username.value,
                 email: email.value
@@ -404,22 +415,35 @@ async function validateStep(step) {
             return false;
         }
 
-        const response = await fetch('/api/auth/verify-otp', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ otp })
-        });
+        try {
+            const response = await fetch('/api/auth/verify-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    email: document.querySelector('[name="email"]').value,
+                    code: otp
+                })
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (!data.valid) {
-            showOtpError('Invalid or expired OTP code.');
+            if (!response.ok || !data.valid) {
+                showOtpError(data.message || 'Invalid or expired OTP code.');
+                return false;
+            }
+
+            window.location.href = "/";
+
+            return true;
+
+        } catch (err) {
+            console.error(err);
+            showOtpError("Something went wrong.");
             return false;
         }
-
-        return true;
     }
 
     return false;
@@ -529,6 +553,7 @@ async function checkUsernameAvailability(username) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: "include",
                 body: JSON.stringify({ username })
             }
         );
@@ -543,28 +568,29 @@ async function checkUsernameAvailability(username) {
 }
 
 function showSuccess(input, messageContainer, isValid, successMessage) {
-    if (!input || !messageContainer) {
-        return;
+    if (!messageContainer) return;
+
+    if (input) {
+        input.classList.remove('error');
+        input.classList.add('success');
     }
 
-    if (!isValid) {
-        clearValidation(input, messageContainer);
-        return;
-    }
-
-    input.classList.remove('error');
-    input.classList.add('success');
-    messageContainer.innerHTML = `<span class="validation-message success">${successMessage}</span>`;
+    messageContainer.innerHTML = `
+        <span class="validation-message success">${successMessage}</span>
+    `;
 }
 
 function showError(input, messageContainer, errorMessage) {
-    if (!input || !messageContainer) {
-        return;
+    if (!messageContainer) return;
+
+    if (input) {
+        input.classList.remove('success');
+        input.classList.add('error');
     }
 
-    input.classList.remove('success');
-    input.classList.add('error');
-    messageContainer.innerHTML = `<span class="validation-message error">${errorMessage}</span>`;
+    messageContainer.innerHTML = `
+        <span class="validation-message error">${errorMessage}</span>
+    `;
 }
 
 function clearValidation(input, messageContainer) {
@@ -616,4 +642,110 @@ function updateLoginFieldState(input, messageContainer, isValid, successMessage,
     input.classList.remove('success');
     input.classList.add('error');
     messageContainer.innerHTML = `<span class="validation-message error">${errorMessage}</span>`;
+}
+if (loginBtn) {
+    loginBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const isValid = validateLoginForm();
+        if (!isValid) return;
+
+        try {
+            const response = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    email: loginEmailInput.value,
+                    password: loginPasswordInput.value
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                updateLoginFieldState(
+                    loginPasswordInput,
+                    loginMessages.password,
+                    false,
+                    "",
+                    data.message || "Invalid credentials"
+                );
+                return;
+            }
+
+            window.location.href = "/";
+
+        } catch (err) {
+            console.error("Login error:", err);
+        }
+    });
+}
+const resendOtpBtn = document.getElementById("resend_otp");
+
+if (resendOtpBtn) {
+    let cooldown = 30;
+    let timer;
+
+    const startCooldown = () => {
+        resendOtpBtn.classList.add("disabled");
+
+        timer = setInterval(() => {
+            resendOtpBtn.innerText = `Resend OTP (${cooldown}s)`;
+
+            cooldown--;
+
+            if (cooldown < 0) {
+                clearInterval(timer);
+                resendOtpBtn.classList.remove("disabled");
+                resendOtpBtn.innerText = "Resend OTP";
+                cooldown = 30;
+            }
+        }, 1000);
+    };
+
+    resendOtpBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const email = document.querySelector('[name="email"]').value;
+        const otpMessage = document.getElementById("otp-message");
+
+        try {
+            const response = await fetch("/api/auth/resend-otp", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                showError(null, otpMessage, data.message || "Failed to resend OTP");
+                return;
+            }
+
+            showSuccess(
+                null,
+                otpMessage,
+                true,
+                "OTP resent successfully."
+            );
+
+            startCooldown();
+
+        } catch (err) {
+            console.error(err);
+
+            showError(
+                null,
+                document.getElementById("otp-message"),
+                "Error resending OTP"
+            );
+        }
+    });
 }

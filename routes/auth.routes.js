@@ -3,29 +3,72 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const crypto = require("crypto");
 
+const sendEmail = require('../modules/mail/SMTP').sendEmail;
+
 const User = require('../models/User');
 const { newSession, updateLastLogin } = require('../modules/auth/AuthManager');
 
+const OTP = require('../models/Otp');
+const Session = require('../models/Sessions');
+
 const multer = require('multer');
+const { success } = require('zod');
 const upload = multer()
 
-Router.post('/login', async (req, res) => {
+function hashOtp(otp) {
+    return crypto
+        .createHash('sha256')
+        .update(otp + process.env.JWT_SECRET)
+        .digest('hex');
+}
+
+
+Router.post("/login", async (req, res) => {
+
     const { email, password } = req.body;
+
     try {
-        const user = await User.findOne({ email }).select('+password');
+
+        const user = await User.findOne({ email: email.toLowerCase().trim() }).select("+password");
+
         if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials.' });
+            return res.status(401).json({ message: "Invalid credentials." });
         }
+
+        if (!user.verified) {
+            return res.status(403).json({ message: "Email not verified." });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
+
         if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials.' });
+            return res.status(401).json({
+                message: "Invalid credentials."
+            });
         }
+
+        const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+        const userAgent = req.headers["user-agent"];
+        const deviceId = req.body.deviceId || crypto.randomUUID();
+        const refreshToken = await newSession(user, { deviceId, ip, userAgent });
+        const accessToken = jwt.sign({ sub: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
+
         await updateLastLogin(user._id);
-        const token = await newSession(user, req.headers['user-agent'], req.ip);
-        res.json({ token });
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 30 * 24 * 60 * 60 * 1000
+        });
+
+        return res.json({ accessToken });
+
     } catch (err) {
-        console.error('Error during login:', err);
-        res.status(500).json({ message: 'Internal server error.' });
+
+        console.error(err);
+
+        return res.status(500).json({ message: "Internal server error." });
     }
 });
 
@@ -115,6 +158,21 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
         const displayName = req.body.displayName || username;
         const bio = req.body.bio || "";
 
+        if (username && (username.length < 3 || username.length > 30)) {
+            return res.status(400).json({
+                message: "Username must be between 3 and 30 characters"
+            });
+        }
+        if (username == null || !/^[a-zA-Z0-9_]+$/.test(username)) {
+            return res.status(400).json({
+                message: "Username can only contain letters, numbers and underscores"
+            });
+        }
+        if (password && password.length < 6) {
+            return res.status(400).json({
+                message: "Password must be at least 6 characters"
+            });
+        }
         if (!username || !email || !password) {
             return res.status(400).json({
                 message: "Missing required fields"
@@ -132,36 +190,31 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
             });
         }
 
-        await SignupSession.deleteMany({
-            email: normalizedEmail
-        });
-
         const passwordHash = await bcrypt.hash(password, 12);
-
         const otp = crypto.randomInt(100000, 999999).toString();
+        const SALT = process.env.JWT_SECRET;
 
-        const otpHash = hash(otp);
+        const otpHash = hashOtp(otp);
 
-        const signup = await SignupSession.create({
-            email: normalizedEmail,
+        const user = await User.create({
             username,
             displayName,
+            email: normalizedEmail,
+            password: passwordHash,
             bio,
-            passwordHash,
-            otpHash,
-            expiresAt: Date.now() + 10 * 60 * 1000,
-            attempts: 0
+            verified: false
+        });
+        await OTP.create({
+            email: normalizedEmail,
+            code: otpHash,
+            expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutos
         });
 
-        await sendEmail({
-            to: normalizedEmail,
-            subject: "Seu código de verificação",
-            text: `Seu código é: ${otp}`
-        });
+        await sendEmail(normalizedEmail, "Seu código de verificação", `Seu código é: ${otp}`);
 
         return res.status(200).json({
             message: "If the email is valid, we sent a code",
-            signupId: signup._id
+            success: true
         });
 
     } catch (err) {
@@ -173,77 +226,197 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
 })
 
 Router.post("/verify-otp", async (req, res) => {
-  try {
-    const { signupId, code } = req.body;
+    try {
+        const { email, code } = req.body;
 
-    if (!signupId || !code) {
-      return res.status(400).json({
-        message: "Missing fields"
-      });
+        if (!email || !code) {
+            return res.status(400).json({
+                message: "Missing fields"
+            });
+        }
+
+        const otp = await OTP.findOne({ email });
+
+        if (!otp) {
+            return res.status(400).json({
+                message: "Invalid or expired OTP"
+            });
+        }
+
+        // check expiry
+        if (otp.expiresAt.getTime() < Date.now()) {
+            await OTP.deleteOne({ _id: otp._id });
+
+            return res.status(400).json({
+                message: "Code expired"
+            });
+        }
+
+        // verify OTP
+        const codeHash = hashOtp(code);
+
+        if (codeHash !== otp.code) {
+            if (otp.attempts >= 5) {
+                res.status(400).json({ message: "Too many attempts, please request a new code" });
+                return await OTP.deleteOne({ _id: otp._id });
+            }
+            otp.attempts += 1;
+            await otp.save();
+
+            return res.status(400).json({
+                message: "Invalid code"
+            });
+        }
+
+        await User.updateOne({ email }, { verified: true });
+        await OTP.deleteOne({ _id: otp._id });
+
+        const user = await User.findOne({ email })
+
+        const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+        const userAgent = req.headers["user-agent"];
+        const deviceId = crypto.randomUUID();
+        const refreshToken = await newSession(user, { deviceId, ip, userAgent });
+        const accessToken = jwt.sign({ sub: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
+
+        await updateLastLogin(user._id);
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+        });
+
+        return res.status(201).json({
+            message: "Account created successfully",
+            userId: user._id,
+            valid: true
+        });
+
+    } catch (err) {
+        console.error("Verify error:", err);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
     }
+});
 
-    const signup = await SignupSession.findById(signupId);
+Router.post("/resend-otp", async (req, res) => {
+    try {
+        const { email } = req.body;
 
-    if (!signup) {
-      return res.status(400).json({
-        message: "Invalid or expired session"
-      });
+        if (!email) {
+            return res.status(400).json({
+                message: "Email is required"
+            });
+        }
+
+        const normalizedEmail = email.toLowerCase().trim();
+
+        const user = await User.findOne({ email: normalizedEmail });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "If the email is valid, we will send a code"
+            });
+        }
+
+        if (user.verified) {
+            return res.status(400).json({
+                message: "Email already verified"
+            });
+        }
+
+        const otp = crypto.randomInt(100000, 999999).toString();
+        const otpHash = hashOtp(otp);
+
+        await OTP.findOneAndUpdate(
+            { email: normalizedEmail },
+            { code: otpHash, expiresAt: new Date(Date.now() + 15 * 60 * 1000), attempts: 0 },
+            { upsert: true }
+        );
+
+        await sendEmail(normalizedEmail, "Your verification code", `Your code is: ${otp}`);
+
+        return res.status(200).json({
+            message: "If the email is valid, we sent a code"
+        });
+
+    } catch (err) {
+        console.error("Resend OTP error:", err);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
     }
+});
 
-    // check expiry
-    if (signup.expiresAt < Date.now()) {
-      await SignupSession.deleteOne({ _id: signupId });
+Router.post("/refresh", async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
 
-      return res.status(400).json({
-        message: "Code expired"
-      });
+        if (!refreshToken) {
+            return res.status(401).json({ message: "No refresh token provided." });
+        }
+
+        const tokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+        const session = await Session.findOne({ tokenHash }).populate("user");
+
+        if (!session || session.expiresAt < new Date()) {
+            return res.status(401).json({ message: "Invalid or expired refresh token." });
+        }
+        
+        if (session.isRevoked) {
+            return res.status(401).json({ message: "Session revoked" });
+        }
+
+        const accessToken = jwt.sign(
+            { sub: session.user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "15m" }
+        );
+
+        const newRefreshToken = crypto.randomBytes(64).toString("hex");
+
+        const newTokenHash = crypto.createHash("sha256").update(newRefreshToken).digest("hex");
+
+        session.tokenHash = newTokenHash;
+        session.lastUsedAt = new Date();
+        session.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+        await session.save();
+    
+        res.cookie("refreshToken", newRefreshToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            path: "/",
+            maxAge: 30 * 24 * 60 * 60 * 1000
+        });
+
+        return res.json({ accessToken });
+
+    } catch (err) {
+        console.error("Refresh error:", err);
+        return res.status(500).json({ message: "Internal server error." });
     }
+});
 
-    // check attempts
-    if (signup.attempts >= 5) {
-      await SignupSession.deleteOne({ _id: signupId });
+Router.get("/logout", async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
 
-      return res.status(429).json({
-        message: "Too many attempts"
-      });
+        if (refreshToken) {
+            const tokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+            await Session.updateOne({ tokenHash }, { isRevoked: true, revokedAt: new Date() });
+            res.clearCookie("refreshToken");
+        }
+        return res.clearCookie("refreshToken", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", path: "/" }).json({ message: "Logged out successfully" });
+
+    } catch (err) {
+        console.error("Logout error:", err);
+        return res.status(500).json({ message: "Internal server error" });
     }
-
-    // verify OTP
-    const codeHash = hash(code);
-
-    if (codeHash !== signup.otpHash) {
-      signup.attempts += 1;
-      await signup.save();
-
-      return res.status(400).json({
-        message: "Invalid code"
-      });
-    }
-
-    // OTP OK → criar usuário REAL
-    const user = await User.create({
-      username: signup.username,
-      displayName: signup.displayName,
-      email: signup.email,
-      password: signup.passwordHash,
-      bio: signup.bio,
-      verified: true
-    });
-
-    // cleanup
-    await SignupSession.deleteOne({ _id: signupId });
-
-    return res.status(201).json({
-      message: "Account created successfully",
-      userId: user._id
-    });
-
-  } catch (err) {
-    console.error("Verify error:", err);
-    return res.status(500).json({
-      message: "Internal server error"
-    });
-  }
 });
 
 

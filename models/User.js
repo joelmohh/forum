@@ -32,13 +32,6 @@ const userSchema = new mongoose.Schema({
 
     lastLogin: Date,
 
-    devices: [{
-        deviceId: String,
-        userAgent: String,
-        ip: String,
-        lastUsed: Date
-    }],
-
     profilePicture: {
         type: String,
         default: "https://via.placeholder.com/150?text=Profile+Picture"
