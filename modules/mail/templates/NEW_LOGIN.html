@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Login Detected</title>
+</head>
+
+<body style="margin:0; padding:0; background:#eef2f7; font-family:Arial, sans-serif;">
+
+  <table role="presentation" width="100%" style="padding:50px 0;">
+    <tr>
+      <td align="center">
+
+        <!-- CARD -->
+        <table role="presentation" width="100%" style="max-width:520px;">
+
+          <tr>
+            <td style="background:#ffffff; border:1px solid #d1d5db; border-radius:12px; overflow:hidden;">
+
+              <!-- HEADER -->
+              <table width="100%">
+                <tr>
+                  <td style="background:#FF9D00; padding:22px; text-align:center; border-radius: 12px;">
+                    <div style="color:#fff; font-size:16px; font-weight:700;">
+                      Security Alert
+                    </div>
+                    <div style="color:#fff; font-size:12px; opacity:0.9; margin-top:4px;">
+                      New login detected on your account
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- BODY -->
+              <table width="100%">
+                <tr>
+                  <td style="padding:30px;">
+
+                    <p style="margin:0 0 18px 0; font-size:14px; color:#374151; text-align:center;">
+                      We detected a new login to your account.
+                    </p>
+
+                    <!-- DEVICE INFO BOX -->
+                    <div style="
+                        background:#f8fafc;
+                        border:1px solid #d1d5db;
+                        border-radius:10px;
+                        padding:16px;
+                        font-size:13px;
+                        color:#374151;
+                        line-height:1.6;
+                    ">
+
+                      <strong>Device:</strong> {{DEVICE}}<br>
+                      <strong>IP Address:</strong> {{IP_ADDRESS}}<br>
+                      <strong>Location:</strong> {{LOCATION}}<br>
+                      <strong>Time:</strong> {{TIME}}
+
+                    </div>
+
+                    <!-- WARNING -->
+                    <p style="margin-top:16px; font-size:12px; color:#6b7280; text-align:center;">
+                      If this was not you, secure your account immediately.
+                    </p>
+
+                    <!-- BUTTON -->
+                    <div style="text-align:center; margin-top:20px;">
+
+                      <a href="http://localhost:3000/users/{{USER_ID}}/settings#activity"
+                        style="
+                          display:inline-block;
+                          background:#FF9D00;
+                          color:#ffffff;
+                          text-decoration:none;
+                          padding:12px 18px;
+                          border-radius:8px;
+                          font-size:13px;
+                          font-weight:700;
+                        ">
+                        Review Activity
+                      </a>
+
+                    </div>
+
+                  </td>
+                </tr>
+              </table>
+
+              <!-- FOOTER -->
+              <table width="100%">
+                <tr>
+                  <td style="padding:14px; text-align:center; font-size:11px; color:#9ca3af; border-top:1px solid #e5e7eb;">
+                    © 2026 The Forum — Security Team
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

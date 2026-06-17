@@ -59,5 +59,19 @@ const verifyToken = (req, res, next) => {
     });
 };
 
+const validateSession = async (refreshToken) => {
+    const tokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
 
-module.exports = { generateToken, updateLastLogin, newSession, verifyToken };
+    const session = await Session.findOne({ tokenHash }).populate("user");
+
+    if (!session || session.expiresAt < new Date()) {
+        return null;
+    }
+
+    session.lastUsedAt = new Date();
+    await session.save();
+
+    return session.user;
+}
+
+module.exports = { generateToken, updateLastLogin, newSession, verifyToken, validateSession };

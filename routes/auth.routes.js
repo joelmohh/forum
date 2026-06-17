@@ -2,6 +2,7 @@ const Router = require('express').Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const crypto = require("crypto");
+const fs = require("fs");
 
 const sendEmail = require('../modules/mail/SMTP').sendEmail;
 
@@ -12,7 +13,7 @@ const OTP = require('../models/Otp');
 const Session = require('../models/Sessions');
 
 const multer = require('multer');
-const upload = multer()
+const upload = multer({ dest: "uploads/", limits: { fileSize: 20 * 1024 * 1024 } });
 
 function hashOtp(otp) {
     return crypto
@@ -52,7 +53,44 @@ Router.post("/login", async (req, res) => {
         const refreshToken = await newSession(user, { deviceId, ip, userAgent });
         const accessToken = jwt.sign({ sub: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
 
+        const location = await fetch(`http://ip-api.com/json/${ip}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    return `${data.city}, ${data.regionName}, ${data.country}`;
+                } else {
+                    return "Unknown";
+                }
+            })
+            .catch(() => "Unknown");
+
+        function normalizeUserAgent(ua) {
+            if (/mobile/i.test(ua)) {
+                return "Mobile Device";
+            } else if (/like Mac OS X/.test(ua)) {
+                return "iOS Device";
+            } else if (/Android/.test(ua)) {
+                return "Android Device";
+            } else if (/Windows NT/.test(ua)) {
+                return "Windows PC";
+            } else if (/Macintosh/.test(ua)) {
+                return "Mac";
+            } else if (/Linux/.test(ua)) {
+                return "Linux PC";
+            } else {
+                return "Unknown Device";
+            }
+        }
+
         await updateLastLogin(user._id);
+
+        await sendEmail(user.email, "New login to your account", "login", {
+            USER_ID: user._id,
+            DEVICE: normalizeUserAgent(userAgent),
+            IP_ADDRESS: ip,
+            LOCATION: location,
+            TIME: new Date().toDateString() + " " + new Date().toLocaleTimeString()
+        });
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
@@ -154,6 +192,12 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
+        if (!username || !email || !password) {
+            return res.status(400).json({
+                message: "Missing required fields"
+            });
+        }
+
         const displayName = req.body.displayName || username;
         const bio = req.body.bio || "";
 
@@ -178,6 +222,34 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
             });
         }
 
+        const formData = new FormData();
+        const file = new Blob([
+            await fs.promises.readFile(req.file.path)
+        ]);
+        formData.append("file", file, `profile_${username}_${Date.now()}.${req.file.originalname.split('.').pop()}`);
+
+        let profilePicture
+
+        const rule = req.file.originalname.split('.').pop() 
+        if(!["jpg", "jpeg", "png", "gif", "webp"].includes(rule.toLowerCase())) {
+            await fs.promises.unlink(req.file.path);
+            profilePicture = "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png";
+        }   
+
+        const response = await fetch("https://cdn.hackclub.com/api/v4/upload", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${process.env.HC_CDN}`
+            },
+            body: formData
+        });
+        const result = await response.json();
+        profilePicture = result.url;
+        if(response.url === undefined || response.url === null) {
+            profilePicture = "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png";
+        }
+        await fs.promises.unlink(req.file.path);
+
         const normalizedEmail = email.toLowerCase().trim();
         const existingUser = await User.findOne({
             $or: [{ email: normalizedEmail }, { username }]
@@ -200,16 +272,17 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
             displayName,
             email: normalizedEmail,
             password: passwordHash,
+            profilePicture: profilePicture,
             bio,
             verified: false
         });
         await OTP.create({
             email: normalizedEmail,
             code: otpHash,
-            expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutos
+            expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
         });
 
-        await sendEmail(normalizedEmail, "Seu código de verificação", `Seu código é: ${otp}`);
+        await sendEmail(normalizedEmail, "Your verification code", `Your code is: ${otp}`);
 
         return res.status(200).json({
             message: "If the email is valid, we sent a code",
@@ -336,7 +409,7 @@ Router.post("/resend-otp", async (req, res) => {
             { upsert: true }
         );
 
-        await sendEmail(normalizedEmail, "Your verification code", `Your code is: ${otp}`);
+        await sendEmail(normalizedEmail, "Your verification code", "otp", otp);
 
         return res.status(200).json({
             message: "If the email is valid, we sent a code"
@@ -364,7 +437,7 @@ Router.post("/refresh", async (req, res) => {
         if (!session || session.expiresAt < new Date()) {
             return res.status(401).json({ message: "Invalid or expired refresh token." });
         }
-        
+
         if (session.isRevoked) {
             return res.status(401).json({ message: "Session revoked" });
         }
@@ -384,7 +457,7 @@ Router.post("/refresh", async (req, res) => {
         session.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
         await session.save();
-    
+
         res.cookie("refreshToken", newRefreshToken, {
             httpOnly: true,
             secure: false,
@@ -410,7 +483,7 @@ Router.get("/logout", async (req, res) => {
             await Session.updateOne({ tokenHash }, { isRevoked: true, revokedAt: new Date() });
             res.clearCookie("refreshToken");
         }
-        return res.clearCookie("refreshToken", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", path: "/" }).json({ message: "Logged out successfully" });
+        return res.clearCookie("refreshToken", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", path: "/" }).redirect("/");
 
     } catch (err) {
         console.error("Logout error:", err);

@@ -113,3 +113,30 @@ nav .nav-link.active:hover {
         display: none;
     }
 }
+.profilePicture {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 50%;
+    object-fit: cover;
+
+    border: 2px solid #e9ecef;
+}
+
+.profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+
+    cursor: pointer;
+}
+
+.profile-trigger:hover {
+    opacity: .85;
+}
+
+.notification-menu {
+    width: 320px;
+    max-height: 400px;
+    overflow-y: auto;
+}

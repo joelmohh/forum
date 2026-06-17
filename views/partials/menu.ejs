@@ -5,46 +5,142 @@
         <div
             class="col-12 col-md-3 col-lg-2 d-flex flex-row flex-sm-row flex-md-column flex-lg-row align-items-start align-items-sm-center align-items-md-start align-items-lg-center justify-content-between gap-3 px-4 py-3">
             <a href="/" class="d-inline text-decoration-none text-dark fw-semibold">LOGO</a>
-            <% if (pageType === 'main') { %>
+            <% if (pageType==='main' ) { %>
                 <div class="flex-grow-1 mx-2 d-block d-md-none">
                     <input type="search" class="form-control rounded-pill border-dark-subtle" placeholder="Search..."
                         aria-label="Search">
                 </div>
-                <label 
-                    for="menuToggle" 
-                    class="btn-open btn btn-outline-dark px-3 py-1 ms-sm-auto ms-md-0 ms-lg-auto d-md-none" role="button" 
-                    aria-label="Open Menu">
-                        ☰
+                <label for="menuToggle"
+                    class="btn-open btn btn-outline-dark px-3 py-1 ms-sm-auto ms-md-0 ms-lg-auto d-md-none"
+                    role="button" aria-label="Open Menu">
+                    ☰
                 </label>
-            <% } %>
+                <% } %>
         </div>
-        <% if (pageType === 'main') { %>
+        <% if (pageType==='main' ) { %>
             <div class="flex-grow-1 mx-2">
                 <input type="search" class="form-control d-none d-md-block" placeholder="Search..." aria-label="Search">
             </div>
-        <% } %>
-        <div class="col-12 col-lg-auto d-block d-md-flex align-items-center gap-2 px-4 py-3 justify-content-start justify-content-lg-end">
-            <% if (activePage === 'login' || activePage === 'signup') { %>
-                <a href="/" class="btn btn-link-primary">Return</a>
             <% } %>
+                <div
+                    class="col-12 col-lg-auto d-block d-md-flex align-items-center gap-2 px-4 py-3 justify-content-start justify-content-lg-end">
+                    <% if (user) { %>
+                        <div class="d-flex align-items-center gap-2">
 
-            <% if (activePage !== 'login') { %>
-                <a href="/login" class="btn <% if (pageType === 'main') { %>btn-link-primary<% } else { %>btn-primary<% } %>">Login</a>
-            <% } %>
+                            <!-- Notifications -->
+                            <div class="dropdown">
+                                <button class="btn btn-light position-relative me-2" data-bs-toggle="dropdown">
 
-            <% if (activePage !== 'signup') { %>
-                <a href="/signup" class="btn btn-primary">Sign Up</a>
-            <% } %>
-        </div>
-</header>
+                                    <i class="fa-regular fa-bell"></i>
+
+                                    <% if(1> 0) { %>
+                                        <span
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            <%= 2 %>
+                                        </span>
+                                        <% } %>
+
+                                </button>
+
+                                <div class="dropdown-menu dropdown-menu-end notification-menu">
+                                    <div class="px-3 py-2 border-bottom fw-semibold">
+                                        Notifications
+                                    </div>
+
+                                    <a href="#" class="dropdown-item py-2">
+                                        João respondeu sua pergunta
+                                    </a>
+
+                                    <a href="#" class="dropdown-item py-2">
+                                        Maria mencionou você
+                                    </a>
+
+                                    <div class="dropdown-divider"></div>
+
+                                    <a href="/notifications" class="dropdown-item text-center text-primary">
+                                        View all notifications
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Profile -->
+                            <div class="dropdown">
+                                <a class="profile-trigger text-decoration-none text-dark" data-bs-toggle="dropdown">
+
+                                    <img class="profilePicture" src="<%= user.profilePicture %>" alt="Profile Picture">
+
+                                    <span class="fw-medium">
+                                        <%= user.displayName %>
+                                    </span>
+
+                                    <i class="fa-solid fa-chevron-down small"></i>
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+
+                                    <li class="px-3 py-2">
+                                        <div class="fw-semibold">
+                                            <%= user.displayName %>
+                                        </div>
+
+                                        <small class="text-muted">
+                                            @<%= user.username %>
+                                        </small>
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" href="/users/<%= user.id %>">
+                                            Profile
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" href="/users/<%= user.id %>/settings">
+                                            Settings
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="/logout">
+                                            Logout
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                        </div>
+                        <% } else { %>
+                            <% if (activePage==='login' || activePage==='signup' ) { %>
+                                <a href="/" class="btn btn-link-primary">Return</a>
+                                <% } %>
+
+                                    <% if (activePage !=='login' ) { %>
+                                        <a href="/login"
+                                            class="btn <% if (pageType === 'main') { %>btn-link-primary<% } else { %>btn-primary<% } %>">Login</a>
+                                        <% } %>
+
+                                            <% if (activePage !=='signup' ) { %>
+                                                <a href="/signup" class="btn btn-primary">Sign Up</a>
+                                                <% }} %>
+                </div>
+    </header>
 
     <!-- ================= TOGGLE ================= -->
     <input id="menuToggle" type="checkbox" class="d-none">
 
     <!-- ================= APP LAYOUT ================= -->
-     
+
     <div class="app-shell">
-        <% if(pageType !== 'auth') { %>
+        <% if(pageType !=='auth' ) { %>
             <label for="menuToggle" class="mobile-overlay"></label>
 
             <!-- ================= SIDEBAR ================= -->
@@ -66,19 +162,23 @@
                 <!-- NAVIGATION -->
                 <nav class="nav flex-column gap-3">
 
-                    <a href="/" class="nav-link text-muted fw-medium <% if (activePage === 'index') { %> active <% } %>">
+                    <a href="/"
+                        class="nav-link text-muted fw-medium <% if (activePage === 'index') { %> active <% } %>">
                         <i class="fa-solid fa-house"></i> Home
                     </a>
 
-                    <a href="/questions" class="nav-link text-muted fw-medium <% if (activePage === 'questions') { %> active <% } %>">
+                    <a href="/questions"
+                        class="nav-link text-muted fw-medium <% if (activePage === 'questions') { %> active <% } %>">
                         <i class="fa-solid fa-circle-question"></i> Questions
                     </a>
 
-                    <a href="/tags" class="nav-link text-muted fw-medium <% if (activePage === 'tags') { %> active <% } %>">
+                    <a href="/tags"
+                        class="nav-link text-muted fw-medium <% if (activePage === 'tags') { %> active <% } %>">
                         <i class="fa-solid fa-tags"></i> Tags
                     </a>
 
-                    <a href="/users" class="nav-link text-muted fw-medium <% if (activePage === 'users') { %> active <% } %>">
+                    <a href="/users"
+                        class="nav-link text-muted fw-medium <% if (activePage === 'users') { %> active <% } %>">
                         <i class="fa-solid fa-users"></i> Users
                     </a>
 
@@ -98,8 +198,8 @@
                 </div>
 
             </aside>
-        <% } %>
+            <% } %>
 
-        <!-- ================= MAIN CONTENT WRAPPER ================= -->
-        <main class="<% if(pageType !== 'auth') { %>site-content<% } else { %>site-content-auth<% } %>">
-            <div class="main-content">
+                <!-- ================= MAIN CONTENT WRAPPER ================= -->
+                <main class="<% if(pageType !== 'auth') { %>site-content<% } else { %>site-content-auth<% } %>">
+                    <div class="main-content">
