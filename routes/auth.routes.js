@@ -12,7 +12,6 @@ const OTP = require('../models/Otp');
 const Session = require('../models/Sessions');
 
 const multer = require('multer');
-const { success } = require('zod');
 const upload = multer()
 
 function hashOtp(otp) {
