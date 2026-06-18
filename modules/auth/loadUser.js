@@ -22,4 +22,11 @@ const loadUser = async (req, res, next) => {
     }
 };
 
-module.exports = loadUser;
+const needAuth = (req, res, next) => {
+    if (!res.locals.user) {
+        return res.status(401).redirect('/login');
+    }
+    next();
+};
+
+module.exports = { loadUser, needAuth };

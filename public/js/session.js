@@ -66,22 +66,3 @@ async function api(url, options = {}) {
 
     return response.text();
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    const logoutButton = document.getElementById("logout-button");
-    const userData = api("/api/auth/me").catch(() => null);
-
-    const userDataDisplay = document.getElementById("user-display");
-
-    userData.then(user => {
-        if (user) {
-            userDataDisplay.textContent = user.displayName || user.username;
-            document.getElementById("username-display").textContent = user.displayName || user.username;
-        }
-    });
-
-    logoutButton.addEventListener("click", async () => {
-        await api("/api/auth/logout", { method: "POST" });
-        window.location.href = "/login";
-    });
-})

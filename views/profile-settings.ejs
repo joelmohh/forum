@@ -1,267 +1,235 @@
 <%- include('./partials/header') %>
 
 <body>
+
 <%- include('./partials/menu', { activePage: 'profile-settings', pageType: 'main' }) %>
-<%
-const user = {
-    username: 'john_doe',
-    displayName: 'John Doe',
-    email: 'john@example.com',
-    profilePicture: 'https://i.pravatar.cc/200?img=12',
-    bio: `# About Me
-
-Fullstack developer.
-
-## Skills
-
-- Node.js
-- Express
-- MongoDB
-
-### Example
-
-\`\`\`js
-const app = express();
-\`\`\`
-`,
-    lastLogin: '2025-01-14 19:22',
-    devices: [
-        {
-            userAgent: 'Chrome on Windows',
-            ip: '192.168.1.1',
-            lastUsed: '2 minutes ago'
-        },
-        {
-            userAgent: 'Safari on iPhone',
-            ip: '192.168.1.50',
-            lastUsed: '1 day ago'
-        }
-    ]
-};
-%>
 
 <div class="container py-5">
 
     <div class="row">
 
-        <!-- SIDEBAR -->
-        <div class="col-lg-3">
+        <!-- LEFT PROFILE CARD -->
+        <div class="col-lg-3 mb-4">
 
-            <div class="card shadow-sm">
-
+            <div class="card shadow-sm mb-3">
                 <div class="card-body text-center">
 
-                    <img
-                        src="<%= user.profilePicture || '/img/default-avatar.png' %>"
-                        class="rounded-circle mb-3"
-                        width="120"
-                        height="120"
-                    >
+                    <img src="<%= user.profilePicture || '/img/default-avatar.png' %>"
+                         class="rounded-circle mb-3"
+                         width="110" height="110">
 
-                    <h5>
+                    <h5 class="mb-0">
                         <%= user.displayName || user.username %>
                     </h5>
 
-                    <p class="text-muted mb-0">
+                    <small class="text-muted">
                         @<%= user.username %>
-                    </p>
+                    </small>
 
                 </div>
+            </div>
 
+            <!-- SETTINGS MENU -->
+            <div class="card shadow-sm">
+                <div class="list-group list-group-flush">
+
+                    <a href="#profile" class="list-group-item list-group-item-action active">
+                        Profile
+                    </a>
+
+                    <a href="#account" class="list-group-item list-group-item-action">
+                        Account
+                    </a>
+
+                    <a href="#security" class="list-group-item list-group-item-action">
+                        Security
+                    </a>
+
+                    <a href="#devices" class="list-group-item list-group-item-action">
+                        Devices
+                    </a>
+
+                </div>
             </div>
 
         </div>
 
-        <!-- CONTENT -->
+        <!-- RIGHT CONTENT -->
         <div class="col-lg-9">
 
             <form action="/settings/profile" method="POST">
 
-                <!-- PERFIL -->
-                <div class="card shadow-sm mb-4">
-
+                <!-- PROFILE -->
+                <div class="card shadow-sm mb-4" id="profile">
                     <div class="card-body">
 
-                        <h4 class="mb-4">
-                            Perfil
-                        </h4>
+                        <h4 class="mb-4">Profile</h4>
 
                         <div class="mb-3">
-                            <label class="form-label">
-                                Username
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                name="username"
-                                value="<%= user.username %>"
-                            >
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username"
+                                   value="<%= user.username %>">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">
-                                Nome de Exibição
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                name="displayName"
-                                value="<%= user.displayName || '' %>"
-                            >
+                            <label class="form-label">Display Name</label>
+                            <input type="text" class="form-control" name="displayName"
+                                   value="<%= user.displayName || '' %>">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">
-                                Foto de Perfil
-                            </label>
-
-                            <input
-                                type="url"
-                                class="form-control"
-                                name="profilePicture"
-                                value="<%= user.profilePicture || '' %>"
-                            >
+                            <label class="form-label">Profile Picture URL</label>
+                            <input type="url" class="form-control" name="profilePicture"
+                                   value="<%= user.profilePicture || '' %>">
                         </div>
 
                         <div class="mb-3">
-
-                            <label class="form-label">
-                                Bio
-                            </label>
-
-                            <textarea
-                                class="form-control"
-                                rows="5"
-                                maxlength="500"
-                                name="bio"
-                            ><%= user.bio || '' %></textarea>
+                            <label class="form-label">Bio</label>
+                            <textarea class="form-control" rows="4" maxlength="500"
+                                      name="bio"><%= user.bio || '' %></textarea>
 
                             <small class="text-muted">
-                                Máximo 500 caracteres
+                                Max 500 characters
                             </small>
-
                         </div>
 
                     </div>
-
                 </div>
 
-                <!-- CONTA -->
-                <div class="card shadow-sm mb-4">
-
+                <!-- ACCOUNT -->
+                <div class="card shadow-sm mb-4" id="account">
                     <div class="card-body">
 
-                        <h4 class="mb-4">
-                            Conta
-                        </h4>
+                        <h4 class="mb-4">Account</h4>
 
                         <div class="mb-3">
-
-                            <label class="form-label">
-                                Email
-                            </label>
-
-                            <input
-                                type="email"
-                                class="form-control"
-                                name="email"
-                                value="<%= user.email %>"
-                            >
-
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email"
+                                   value="<%= user.email %>">
                         </div>
 
                     </div>
-
                 </div>
 
-                <!-- ALTERAR SENHA -->
-                <div class="card shadow-sm mb-4">
-
+                <!-- SECURITY -->
+                <div class="card shadow-sm mb-4" id="security">
                     <div class="card-body">
 
-                        <h4 class="mb-4">
-                            Alterar Senha
-                        </h4>
+                        <h4 class="mb-4">Security</h4>
 
                         <div class="mb-3">
-                            <input
-                                type="password"
-                                class="form-control"
-                                name="currentPassword"
-                                placeholder="Senha atual"
-                            >
+                            <input type="password" class="form-control"
+                                   name="currentPassword"
+                                   placeholder="Current password">
                         </div>
 
                         <div class="mb-3">
-                            <input
-                                type="password"
-                                class="form-control"
-                                name="newPassword"
-                                placeholder="Nova senha"
-                            >
+                            <input type="password" class="form-control"
+                                   name="newPassword"
+                                   placeholder="New password">
                         </div>
 
                         <div>
-                            <input
-                                type="password"
-                                class="form-control"
-                                name="confirmPassword"
-                                placeholder="Confirmar nova senha"
-                            >
+                            <input type="password" class="form-control"
+                                   name="confirmPassword"
+                                   placeholder="Confirm new password">
                         </div>
 
                     </div>
-
                 </div>
 
+                <!-- SAVE BUTTON -->
                 <div class="d-flex justify-content-end">
-
                     <button class="btn btn-primary px-4">
-                        Salvar Alterações
+                        Save Changes
                     </button>
-
                 </div>
 
             </form>
 
-            <!-- DISPOSITIVOS -->
+<!-- DEVICES -->
+<div class="card shadow-sm mt-4" id="devices">
 
-            <div class="card shadow-sm mt-4">
+    <div class="card-body">
 
-                <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">Connected Devices</h4>
+            <small class="text-muted">
+                Sessions linked to your account
+            </small>
+        </div>
 
-                    <h4 class="mb-4">
-                        Dispositivos Conectados
-                    </h4>
+        <% devices.forEach(device => { %>
 
-                    <% user.devices.forEach(device => { %>
+            <div class="border rounded p-3 mb-3 d-flex justify-content-between align-items-start">
 
-                    <div class="border rounded p-3 mb-3">
+                <!-- LEFT -->
+                <div class="d-flex gap-3">
+
+                    <!-- ICON -->
+                    <div class="fs-3">
+
+                        <% if (device.userAgent.toLowerCase().includes('mobile')) { %>
+                            📱
+                        <% } else if (device.userAgent.toLowerCase().includes('windows') || device.userAgent.toLowerCase().includes('mac')) { %>
+                            💻
+                        <% } else { %>
+                            🖥️
+                        <% } %>
+
+                    </div>
+
+                    <!-- INFO -->
+                    <div>
 
                         <div class="fw-semibold">
                             <%= device.userAgent %>
                         </div>
 
-                        <small class="text-muted">
+                        <div class="text-muted small">
                             IP: <%= device.ip %>
-                        </small>
+                        </div>
 
-                        <br>
+                        <div class="text-muted small">
+                            Last active: <%= device.lastUsedAt.toLocaleString() %>
+                        </div>
 
-                        <small class="text-muted">
-                            Último acesso:
-                            <%= device.lastUsed.toLocaleString() %>
-                        </small>
+                        <div class="mt-2">
+                            <span class="badge bg-<%= device.revoked ? 'danger' : 'success' %>">
+                                <%= device.revoked ? 'Revoked' : 'Active' %>
+                            </span>
+
+                            <% if (device.isCurrent) { %>
+                                <span class="badge bg-secondary">
+                                    Current session
+                                </span>
+                            <% } %>
+                        </div>
 
                     </div>
 
-                    <% }) %>
+                </div>
+
+                <!-- ACTION -->
+                <div>
+
+                    <% if (!device.revoked) { %>
+                        <button class="btn btn-sm btn-outline-danger">
+                            Log out of this device
+                        </button>
+                    <% } else { %>
+                        <small class="text-muted">Not logged in</small>
+                    <% } %>
 
                 </div>
 
             </div>
+
+        <% }) %>
+
+    </div>
+
+</div>
 
         </div>
 
@@ -269,5 +237,8 @@ const app = express();
 
 </div>
 
+<script src="/js/session.js"></script>
+
 <%- include('./partials/footer') %>
+
 </body>
