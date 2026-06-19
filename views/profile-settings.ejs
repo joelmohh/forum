@@ -8,56 +8,27 @@
 
     <div class="row">
 
-        <!-- LEFT PROFILE CARD -->
+        <!-- LEFT -->
         <div class="col-lg-3 mb-4">
 
             <div class="card shadow-sm mb-3">
                 <div class="card-body text-center">
 
                     <img src="<%= user.profilePicture || '/img/default-avatar.png' %>"
-                         class="rounded-circle mb-3"
-                         width="110" height="110">
+                         class="rounded-circle mb-3" width="110" height="110">
 
-                    <h5 class="mb-0">
-                        <%= user.displayName || user.username %>
-                    </h5>
-
-                    <small class="text-muted">
-                        @<%= user.username %>
-                    </small>
-
-                </div>
-            </div>
-
-            <!-- SETTINGS MENU -->
-            <div class="card shadow-sm">
-                <div class="list-group list-group-flush">
-
-                    <a href="#profile" class="list-group-item list-group-item-action active">
-                        Profile
-                    </a>
-
-                    <a href="#account" class="list-group-item list-group-item-action">
-                        Account
-                    </a>
-
-                    <a href="#security" class="list-group-item list-group-item-action">
-                        Security
-                    </a>
-
-                    <a href="#devices" class="list-group-item list-group-item-action">
-                        Devices
-                    </a>
+                    <h5 class="mb-0"><%= user.displayName || user.username %></h5>
+                    <small class="text-muted">@<%= user.username %></small>
 
                 </div>
             </div>
 
         </div>
 
-        <!-- RIGHT CONTENT -->
+        <!-- RIGHT -->
         <div class="col-lg-9">
 
-            <form action="/settings/profile" method="POST">
+            <form id="profileForm" enctype="multipart/form-data">
 
                 <!-- PROFILE -->
                 <div class="card shadow-sm mb-4" id="profile">
@@ -66,170 +37,83 @@
                         <h4 class="mb-4">Profile</h4>
 
                         <div class="mb-3">
-                            <label class="form-label">Username</label>
-                            <input type="text" class="form-control" name="username"
-                                   value="<%= user.username %>">
-                        </div>
-
-                        <div class="mb-3">
                             <label class="form-label">Display Name</label>
-                            <input type="text" class="form-control" name="displayName"
-                                   value="<%= user.displayName || '' %>">
+                            <input type="text" class="form-control" id="displayName"
+                                   name="displayName" value="<%= user.displayName || '' %>">
+
+                            <div class="validation-messages" id="displayName-message"></div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Profile Picture URL</label>
-                            <input type="url" class="form-control" name="profilePicture"
-                                   value="<%= user.profilePicture || '' %>">
+                            <label class="form-label">Profile Picture</label>
+                            <input type="file" class="form-control" id="profilePicture"
+                                   name="profilePicture"
+                                   accept="image/png,image/jpeg,image/webp,image/gif">
+
+                            <div class="validation-messages" id="profilePicture-message"></div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Bio</label>
-                            <textarea class="form-control" rows="4" maxlength="500"
-                                      name="bio"><%= user.bio || '' %></textarea>
+                            <textarea class="form-control" rows="4"
+                                      id="bio" name="bio"
+                                      maxlength="500"><%= user.bio || '' %></textarea>
 
-                            <small class="text-muted">
-                                Max 500 characters
-                            </small>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- ACCOUNT -->
-                <div class="card shadow-sm mb-4" id="account">
-                    <div class="card-body">
-
-                        <h4 class="mb-4">Account</h4>
-
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email"
-                                   value="<%= user.email %>">
+                            <div class="validation-messages" id="bio-message"></div>
                         </div>
 
                     </div>
                 </div>
 
                 <!-- SECURITY -->
-                <div class="card shadow-sm mb-4" id="security">
+                <div class="card shadow-sm mb-4">
+
                     <div class="card-body">
 
                         <h4 class="mb-4">Security</h4>
 
-                        <div class="mb-3">
+                        <!-- OLD PASSWORD -->
+                        <div class="input-group mb-3">
                             <input type="password" class="form-control"
-                                   name="currentPassword"
-                                   placeholder="Current password">
+                                   id="oldPassword" placeholder="Current password">
+
+                            <button type="button" class="btn btn-primary togglePassword">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
                         </div>
 
-                        <div class="mb-3">
+                        <!-- NEW PASSWORD -->
+                        <div class="input-group mb-3">
                             <input type="password" class="form-control"
-                                   name="newPassword"
-                                   placeholder="New password">
+                                   id="newPassword" placeholder="New password">
+
+                            <button type="button" class="btn btn-primary togglePassword">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
                         </div>
 
-                        <div>
+                        <!-- PASSWORD (EXTRA OPTIONAL FIELD) -->
+                        <div class="input-group mb-3">
                             <input type="password" class="form-control"
-                                   name="confirmPassword"
-                                   placeholder="Confirm new password">
+                                   id="password" placeholder="Confirm / extra password">
+
+                            <button type="button" class="btn btn-primary togglePassword">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
                         </div>
 
                     </div>
+
                 </div>
 
-                <!-- SAVE BUTTON -->
+                <!-- SAVE -->
                 <div class="d-flex justify-content-end">
-                    <button class="btn btn-primary px-4">
+                    <button type="button" id="saveProfileBtn" class="btn btn-primary px-4">
                         Save Changes
                     </button>
                 </div>
 
             </form>
-
-<!-- DEVICES -->
-<div class="card shadow-sm mt-4" id="devices">
-
-    <div class="card-body">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="mb-0">Connected Devices</h4>
-            <small class="text-muted">
-                Sessions linked to your account
-            </small>
-        </div>
-
-        <% devices.forEach(device => { %>
-
-            <div class="border rounded p-3 mb-3 d-flex justify-content-between align-items-start">
-
-                <!-- LEFT -->
-                <div class="d-flex gap-3">
-
-                    <!-- ICON -->
-                    <div class="fs-3">
-
-                        <% if (device.userAgent.toLowerCase().includes('mobile')) { %>
-                            📱
-                        <% } else if (device.userAgent.toLowerCase().includes('windows') || device.userAgent.toLowerCase().includes('mac')) { %>
-                            💻
-                        <% } else { %>
-                            🖥️
-                        <% } %>
-
-                    </div>
-
-                    <!-- INFO -->
-                    <div>
-
-                        <div class="fw-semibold">
-                            <%= device.userAgent %>
-                        </div>
-
-                        <div class="text-muted small">
-                            IP: <%= device.ip %>
-                        </div>
-
-                        <div class="text-muted small">
-                            Last active: <%= device.lastUsedAt.toLocaleString() %>
-                        </div>
-
-                        <div class="mt-2">
-                            <span class="badge bg-<%= device.revoked ? 'danger' : 'success' %>">
-                                <%= device.revoked ? 'Revoked' : 'Active' %>
-                            </span>
-
-                            <% if (device.isCurrent) { %>
-                                <span class="badge bg-secondary">
-                                    Current session
-                                </span>
-                            <% } %>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- ACTION -->
-                <div>
-
-                    <% if (!device.revoked) { %>
-                        <button class="btn btn-sm btn-outline-danger">
-                            Log out of this device
-                        </button>
-                    <% } else { %>
-                        <small class="text-muted">Not logged in</small>
-                    <% } %>
-
-                </div>
-
-            </div>
-
-        <% }) %>
-
-    </div>
-
-</div>
 
         </div>
 
@@ -238,6 +122,7 @@
 </div>
 
 <script src="/js/session.js"></script>
+<script src="/js/profileUpdate.js"></script>
 
 <%- include('./partials/footer') %>
 

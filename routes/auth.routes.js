@@ -231,25 +231,26 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
 
         let profilePicture
 
-        const rule = req.file.originalname.split('.').pop() 
-        if(!["jpg", "jpeg", "png", "gif", "webp"].includes(rule.toLowerCase())) {
+        const rule = req.file.originalname.split('.').pop()
+        if (!["jpg", "jpeg", "png", "gif", "webp"].includes(rule.toLowerCase())) {
             await fs.promises.unlink(req.file.path);
             profilePicture = "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png";
-        }   
+        } else {
 
-        const response = await fetch("https://cdn.hackclub.com/api/v4/upload", {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${process.env.HC_CDN}`
-            },
-            body: formData
-        });
-        const result = await response.json();
-        profilePicture = result.url;
-        if(response.url === undefined || response.url === null) {
-            profilePicture = "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png";
+            const response = await fetch("https://cdn.hackclub.com/api/v4/upload", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${process.env.HC_CDN}`
+                },
+                body: formData
+            });
+            const result = await response.json();
+            profilePicture = result.url;
+            if (response.url === undefined || response.url === null) {
+                profilePicture = "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png";
+            }
+            await fs.promises.unlink(req.file.path);
         }
-        await fs.promises.unlink(req.file.path);
 
         const normalizedEmail = email.toLowerCase().trim();
         const existingUser = await User.findOne({

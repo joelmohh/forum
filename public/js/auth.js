@@ -275,54 +275,28 @@ async function validateStep(step) {
         };
 
         if (!isValidUsernameFormat(username.value)) {
-            showError(
-                username,
-                usernameMessage,
-                errorMessages.username.length
-            );
+            showError(username, usernameMessage, errorMessages.username.length);
             isValid = false;
         }
 
         if (!isValidEmail(email.value)) {
-            showError(
-                email,
-                emailMessage,
-                email.value
-                    ? errorMessages.email.invalid
-                    : errorMessages.email.empty
-            );
+            showError(email, emailMessage, email.value ? errorMessages.email.invalid : errorMessages.email.empty);
             isValid = false;
         }
 
         if (!password.value) {
-            showError(
-                password,
-                passwordMessage,
-                errorMessages.password.empty
-            );
+            showError(password, passwordMessage, errorMessages.password.empty);
             isValid = false;
         } else if (!isPasswordValid(password.value)) {
-            showError(
-                password,
-                passwordMessage,
-                errorMessages.password.weak
-            );
+            showError(password, passwordMessage, errorMessages.password.weak);
             isValid = false;
         }
 
         if (!confirmPassword.value) {
-            showError(
-                confirmPassword,
-                confirmPasswordMessage,
-                errorMessages.confirmPassword.empty
-            );
+            showError(confirmPassword, confirmPasswordMessage, errorMessages.confirmPassword.empty);
             isValid = false;
         } else if (confirmPassword.value !== password.value) {
-            showError(
-                confirmPassword,
-                confirmPasswordMessage,
-                errorMessages.confirmPassword.mismatch
-            );
+            showError(confirmPassword, confirmPasswordMessage, errorMessages.confirmPassword.mismatch);
             isValid = false;
         }
 
@@ -345,53 +319,25 @@ async function validateStep(step) {
         const data = await response.json();
 
         if (!data.usernameAvailable) {
-            showError(
-                username,
-                usernameMessage,
-                errorMessages.username.taken
-            );
+            showError(username, usernameMessage, errorMessages.username.taken);
             isValid = false;
         } else {
-            showSuccess(
-                username,
-                usernameMessage,
-                true,
-                'Username valid.'
-            );
+            showSuccess(username, usernameMessage, true, 'Username valid.');
         }
 
         if (!data.emailAvailable) {
-            showError(
-                email,
-                emailMessage,
-                errorMessages.email.taken
-            );
+            showError(email, emailMessage, errorMessages.email.taken);
             isValid = false;
         } else {
-            showSuccess(
-                email,
-                emailMessage,
-                true,
-                'Email valid.'
-            );
+            showSuccess(email, emailMessage, true, 'Email valid.');
         }
 
         if (isPasswordValid(password.value)) {
-            showSuccess(
-                password,
-                passwordMessage,
-                true,
-                'Password valid.'
-            );
+            showSuccess(password, passwordMessage, true, 'Password valid.');
         }
 
         if (confirmPassword.value === password.value) {
-            showSuccess(
-                confirmPassword,
-                confirmPasswordMessage,
-                true,
-                'Passwords match.'
-            );
+            showSuccess(confirmPassword, confirmPasswordMessage, true, 'Passwords match.');
         }
 
         return isValid;
@@ -729,23 +675,14 @@ if (resendOtpBtn) {
                 return;
             }
 
-            showSuccess(
-                null,
-                otpMessage,
-                true,
-                "OTP resent successfully."
-            );
+            showSuccess(null, otpMessage, true, "OTP resent successfully.");
 
             startCooldown();
 
         } catch (err) {
             console.error(err);
 
-            showError(
-                null,
-                document.getElementById("otp-message"),
-                "Error resending OTP"
-            );
+            showError(null, document.getElementById("otp-message"), "Error resending OTP");
         }
     });
 }

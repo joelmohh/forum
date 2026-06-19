@@ -47,6 +47,8 @@ function sendEmail(to, subject, type, content) {
             .replace('{{TIME}}', content.TIME);
         mailOptions.html = htmlContent;
         mailOptions.text = null;
+        // dont send email for now, just in production
+        return 
     }
 
     transporter.sendMail(mailOptions, (error, info) => {
