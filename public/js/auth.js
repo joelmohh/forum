@@ -350,9 +350,7 @@ async function validateStep(step) {
     if (step === 3) {
         const otpInputs = document.querySelectorAll('.input-group.otp input');
 
-        const otp = Array.from(otpInputs)
-            .map(input => input.value.trim())
-            .join('');
+        const otp = Array.from(otpInputs).map(input => input.value.trim()).join('');
 
         const otpMessage = document.getElementById('otp-message');
 
@@ -379,6 +377,9 @@ async function validateStep(step) {
             if (!response.ok || !data.valid) {
                 showOtpError(data.message || 'Invalid or expired OTP code.');
                 return false;
+            }
+            if(data.accessToken) {
+                localStorage.setItem("token", data.accessToken);
             }
 
             window.location.href = "/";
@@ -612,14 +613,11 @@ if (loginBtn) {
             const data = await response.json();
 
             if (!response.ok) {
-                updateLoginFieldState(
-                    loginPasswordInput,
-                    loginMessages.password,
-                    false,
-                    "",
-                    data.message || "Invalid credentials"
-                );
+                updateLoginFieldState(loginPasswordInput, loginMessages.password, false, "", data.message || "Invalid credentials");
                 return;
+            }
+            if(response.ok){
+                localStorage.setItem("token", data.accessToken);
             }
 
             window.location.href = "/";

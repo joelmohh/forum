@@ -30,6 +30,18 @@ const userSchema = new mongoose.Schema({
         select: false
     },
 
+    followers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: []
+    }],
+
+    following: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: []
+    }],
+
     lastLogin: Date,
 
     profilePicture: {

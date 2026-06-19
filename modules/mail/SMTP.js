@@ -39,7 +39,6 @@ function sendEmail(to, subject, type, content) {
         mailOptions.text = null
     }
     if(type === "login") {
-        console.log(content)
         const htmlContent = loginTemplate.replace('{{USER_ID}}', content.USER_ID)
             .replace('{{DEVICE}}', content.DEVICE)
             .replace('{{IP_ADDRESS}}', content.IP_ADDRESS)

@@ -1,12 +1,16 @@
 const Router = require('express').Router();
 const fs = require('fs');
+const sharp = require("sharp");
 
 const multer = require("multer")
 const upload = multer({ dest: 'uploads/' });
 
 const dbUser = require('../models/User');
+const Session = require('../models/Sessions');
 
 const { verifyToken } = require('../modules/auth/AuthManager');
+const { loadUser } = require('../modules/auth/loadUser');
+const User = require('../models/User');
 
 Router.get("/me", verifyToken, async (req, res) => {
     try {
@@ -41,36 +45,64 @@ Router.post("/me/update", verifyToken, upload.single('profilePicture'), async (r
 
         if (req.file) {
 
-            const ext = req.file.originalname.split('.').pop().toLowerCase();
+            const allowedMimeTypes = [
+                "image/jpeg",
+                "image/png",
+                "image/webp",
+                "image/gif"
+            ];
 
-            if (!["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
-
-                updatedProfilePicture = "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png";
-
-            } else {
-
-                const formData = new FormData();
-                const file = new Blob([
-                    await fs.promises.readFile(req.file.path)
-                ]);
-                formData.append("file", file, `profile_${username}_${Date.now()}.${req.file.originalname.split('.').pop()}`);
-
-                const response = await fetch("https://cdn.hackclub.com/api/v4/upload", {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${process.env.HC_CDN}`
-                    },
-                    body: formData
-                })
-
-                const result = await response.json();
-                if (response.ok && result.url) {
-                    updatedProfilePicture = result.url;
-                } else {
-                    updatedProfilePicture = "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png";
-                }
+            if (!allowedMimeTypes.includes(req.file.mimetype)) {
+                return res.status(400).json({
+                    message: "Invalid image type"
+                });
             }
 
+            const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+            if (req.file.size > MAX_SIZE) {
+                return res.status(400).json({
+                    message: "Image too large"
+                });
+            }
+
+            const originalBuffer = await fs.promises.readFile(req.file.path);
+
+            let processedBuffer;
+
+            try {
+
+                processedBuffer = await sharp(originalBuffer).rotate().resize({ width: 512, height: 512,fit: "cover" }).webp({ quality: 85 }).toBuffer();
+
+            } catch (err) {
+
+                return res.status(400).json({
+                    message: "Invalid image"
+                });
+
+            }
+
+            const formData = new FormData();
+
+            formData.append("file", new Blob([processedBuffer], {type: "image/webp"}), `profile_${username}_${Date.now()}.webp`);
+
+            const response = await fetch("https://cdn.hackclub.com/api/v4/upload", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${process.env.HC_CDN}`
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.url) {
+                updatedProfilePicture = result.url;
+            } else {
+                return res.status(500).json({
+                    message: "Failed to upload image"
+                });
+            }
         }
         if (displayName) {
             User.displayName = displayName;
@@ -90,6 +122,41 @@ Router.post("/me/update", verifyToken, upload.single('profilePicture'), async (r
         if (req.file?.path) {
             fs.promises.unlink(req.file.path).catch(() => { });
         }
+    }
+});
+
+Router.post("/sessions/revoke-all", verifyToken, loadUser, async (req, res) => {
+    try {
+        const user = res.locals.user;
+        if (!user) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        await Session.updateMany({ user: user._id }, { isRevoked: true });
+
+        res.json({ message: "All sessions revoked successfully", ok: true });
+    } catch (err) {
+        console.error("Error in /sessions/revoke-all route:", err);
+        res.status(500).json({ message: "Internal server error", ok: false });
+    }
+});
+
+Router.post("/sessions/:sessionId/revoke", verifyToken, loadUser, async (req, res) => {
+    try {
+
+        const user = res.locals.user;
+        
+        if (!user) {
+            return res.status(401).json({ message: "Unauthorized A" });
+        }
+
+        const sessionId = req.params.sessionId;
+
+        await Session.updateOne({ _id: req.params.sessionId, user: user._id }, { isRevoked: true });
+
+        res.json({ message: "Session revoked successfully", ok: true });
+    } catch (err) {
+        res.status(500).json({ message: "Internal server error", ok: false });
     }
 });
 

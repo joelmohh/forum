@@ -48,7 +48,6 @@ Router.post("/login", async (req, res) => {
         }
 
         const ip = req.ip;
-        console.log(ip)
         const userAgent = req.headers["user-agent"];
         const deviceId = req.body.deviceId || crypto.randomUUID();
         const refreshToken = await newSession(user, { deviceId, ip, userAgent });
@@ -348,7 +347,6 @@ Router.post("/verify-otp", async (req, res) => {
         const user = await User.findOne({ email })
 
         const ip = req.ip
-        console.log(ip)
         const userAgent = req.headers["user-agent"];
         const deviceId = crypto.randomUUID();
         const refreshToken = await newSession(user, { deviceId, ip, userAgent });

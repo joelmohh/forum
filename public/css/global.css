@@ -247,3 +247,52 @@ a.text-decoration-none {
     background-color: #ff9d00 !important;
     color: #fff !important; 
 }
+
+.toast {
+    position: fixed;
+    right: 10px;
+    top: 70px;
+
+    margin-bottom: 10px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: #fff;
+    opacity: 0.9;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+
+    background-color: #000;
+
+    z-index: 999999;
+}
+
+.toast-info {
+    background-color: #007bff;
+}
+
+.toast-success {
+    background-color: #28a745;
+}
+
+.toast-error {
+    background-color: #dc3545;
+}
+
+.toast.fade-out {
+    opacity: 0;
+    transform: translateY(-20px);
+}   
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999999;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+    color: #000;
+}
+.dropdown-item:active {
+    background-color: #ff9d00;
+    color: #fff;
+}

@@ -1,129 +1,227 @@
 <%- include('./partials/header') %>
 
-<body>
+    <body>
+        <div id="toast-container"></div>
+        <%- include('./partials/menu', { activePage: 'profile-settings' , pageType: 'main' }) %>
 
-<%- include('./partials/menu', { activePage: 'profile-settings', pageType: 'main' }) %>
+            <div class="container py-5">
+                <div class="row">
 
-<div class="container py-5">
+                    <!-- LEFT -->
+                    <div class="col-lg-3 mb-4">
 
-    <div class="row">
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-body text-center">
 
-        <!-- LEFT -->
-        <div class="col-lg-3 mb-4">
+                                <img src="<%= user.profilePicture || '/img/default-avatar.png' %>"
+                                    class="rounded-circle mb-3" width="110" height="110">
 
-            <div class="card shadow-sm mb-3">
-                <div class="card-body text-center">
+                                <h5 class="mb-0">
+                                    <%= user.displayName || user.username %>
+                                </h5>
+                                <small class="text-muted">@<%= user.username %></small>
 
-                    <img src="<%= user.profilePicture || '/img/default-avatar.png' %>"
-                         class="rounded-circle mb-3" width="110" height="110">
+                            </div>
+                        </div>
 
-                    <h5 class="mb-0"><%= user.displayName || user.username %></h5>
-                    <small class="text-muted">@<%= user.username %></small>
+                    </div>
+
+                    <!-- RIGHT -->
+                    <div class="col-lg-9">
+
+                        <div id="profileForm">
+
+                            <!-- PROFILE -->
+                            <div class="card shadow-sm mb-4" id="profile">
+                                <div class="card-body">
+
+                                    <h4 class="mb-4">Profile</h4>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Display Name</label>
+                                        <input type="text" class="form-control" id="displayName" name="displayName"
+                                            value="<%= user.displayName || '' %>">
+
+                                        <div class="validation-messages" id="displayName-message"></div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Profile Picture</label>
+                                        <input type="file" class="form-control" id="profilePicture"
+                                            name="profilePicture" accept="image/png,image/jpeg,image/webp,image/gif">
+
+                                        <div class="validation-messages" id="profilePicture-message"></div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Bio</label>
+                                        <textarea class="form-control" rows="4" id="bio" name="bio"
+                                            maxlength="500"><%= user.bio || '' %></textarea>
+
+                                        <div class="validation-messages" id="bio-message"></div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- SECURITY -->
+                            <div class="card shadow-sm mb-4">
+
+                                <div class="card-body">
+
+                                    <h4 class="mb-4">Security</h4>
+
+                                    <!-- OLD PASSWORD -->
+                                    <div class="input-group mb-3">
+                                        <input type="password" class="form-control" id="oldPassword"
+                                            placeholder="Current password">
+
+                                        <button type="button" class="btn btn-primary togglePassword">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- NEW PASSWORD -->
+                                    <div class="input-group mb-3">
+                                        <input type="password" class="form-control" id="newPassword"
+                                            placeholder="New password">
+
+                                        <button type="button" class="btn btn-primary togglePassword">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- PASSWORD (EXTRA OPTIONAL FIELD) -->
+                                    <div class="input-group mb-3">
+                                        <input type="password" class="form-control" id="password"
+                                            placeholder="Confirm / extra password">
+
+                                        <button type="button" class="btn btn-primary togglePassword">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- SAVE -->
+                            <div class="d-flex justify-content-end mb-4">
+                                <button type="button" id="saveProfileBtn" class="btn btn-primary px-4">
+                                    Save Changes
+                                </button>
+                            </div>
+
+                        </div>
+                        <div class="card shadow-sm mb-4" id="devices">
+                            <div class="card-body">
+
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                                    <div>
+                                        <h4 class="mb-1">
+                                            <i class="fa-solid fa-laptop me-2"></i>
+                                            Devices
+                                        </h4>
+                                        <small class="text-muted">
+                                            Manage active sessions across your devices.
+                                        </small>
+                                    </div>
+
+                                    <button type="button" class="btn btn-outline-danger" id="revokeAllSessions">
+                                        Sign Out All Devices
+                                    </button>
+
+                                </div>
+
+                                <% if (devices && devices.length> 0) { %>
+
+                                    <div class="d-flex flex-column gap-3">
+
+                                        <% devices.forEach((device)=> { %>
+
+                                            <div class="border rounded p-3">
+
+                                                <div
+                                                    class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+                                                    <div class="flex-grow-1">
+
+                                                        <div class="fw-semibold mb-1">
+                                                            <i class="fa-solid fa-desktop me-2"></i>
+                                                            <%= device.userAgent %>
+                                                        </div>
+
+                                                        <div class="small text-muted">
+                                                            <i class="fa-solid fa-globe me-1"></i>
+                                                            <%= device.ip %>
+                                                        </div>
+
+                                                        <div class="small text-muted">
+                                                            <i class="fa-regular fa-clock me-1"></i>
+                                                            Last activity:
+                                                            <%= device.lastUsedAt.toLocaleString() %>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="text-end">
+
+                                                        <div class="d-flex flex-wrap gap-2 justify-content-end mb-2">
+
+                                                            <% if (device.isCurrent) { %>
+                                                                <span class="badge bg-primary">
+                                                                    Current Device
+                                                                </span>
+                                                                <% } %>
+
+                                                                    <span
+                                                                        class="badge <%= device.revoked ? 'bg-danger' : 'bg-success' %>">
+                                                                        <%= device.revoked ? 'Revoked' : 'Active' %>
+                                                                    </span>
+
+                                                        </div>
+
+                                                        <% if (!device.revoked && !device.isCurrent) { %>
+                                                            <button
+                                                                class="btn btn-sm btn-outline-danger revoke-session-btn"
+                                                                data-session-id="<%= device.id %>">
+                                                                Revoke
+                                                            </button>
+                                                            <% } %>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <% }); %>
+
+                                    </div>
+
+                                    <% } else { %>
+
+                                        <div class="text-center py-4">
+                                            <i class="fa-solid fa-laptop-slash fs-1 text-muted mb-3"></i>
+                                            <p class="text-muted mb-0">
+                                                No devices found.
+                                            </p>
+                                        </div>
+
+                                        <% } %>
+
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
+
             </div>
 
-        </div>
+            <script src="/js/session.js"></script>
+            <script src="/js/profileUpdate.js"></script>
 
-        <!-- RIGHT -->
-        <div class="col-lg-9">
+            <%- include('./partials/footer') %>
 
-            <form id="profileForm" enctype="multipart/form-data">
-
-                <!-- PROFILE -->
-                <div class="card shadow-sm mb-4" id="profile">
-                    <div class="card-body">
-
-                        <h4 class="mb-4">Profile</h4>
-
-                        <div class="mb-3">
-                            <label class="form-label">Display Name</label>
-                            <input type="text" class="form-control" id="displayName"
-                                   name="displayName" value="<%= user.displayName || '' %>">
-
-                            <div class="validation-messages" id="displayName-message"></div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Profile Picture</label>
-                            <input type="file" class="form-control" id="profilePicture"
-                                   name="profilePicture"
-                                   accept="image/png,image/jpeg,image/webp,image/gif">
-
-                            <div class="validation-messages" id="profilePicture-message"></div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Bio</label>
-                            <textarea class="form-control" rows="4"
-                                      id="bio" name="bio"
-                                      maxlength="500"><%= user.bio || '' %></textarea>
-
-                            <div class="validation-messages" id="bio-message"></div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- SECURITY -->
-                <div class="card shadow-sm mb-4">
-
-                    <div class="card-body">
-
-                        <h4 class="mb-4">Security</h4>
-
-                        <!-- OLD PASSWORD -->
-                        <div class="input-group mb-3">
-                            <input type="password" class="form-control"
-                                   id="oldPassword" placeholder="Current password">
-
-                            <button type="button" class="btn btn-primary togglePassword">
-                                <i class="fa-regular fa-eye"></i>
-                            </button>
-                        </div>
-
-                        <!-- NEW PASSWORD -->
-                        <div class="input-group mb-3">
-                            <input type="password" class="form-control"
-                                   id="newPassword" placeholder="New password">
-
-                            <button type="button" class="btn btn-primary togglePassword">
-                                <i class="fa-regular fa-eye"></i>
-                            </button>
-                        </div>
-
-                        <!-- PASSWORD (EXTRA OPTIONAL FIELD) -->
-                        <div class="input-group mb-3">
-                            <input type="password" class="form-control"
-                                   id="password" placeholder="Confirm / extra password">
-
-                            <button type="button" class="btn btn-primary togglePassword">
-                                <i class="fa-regular fa-eye"></i>
-                            </button>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- SAVE -->
-                <div class="d-flex justify-content-end">
-                    <button type="button" id="saveProfileBtn" class="btn btn-primary px-4">
-                        Save Changes
-                    </button>
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-
-<script src="/js/session.js"></script>
-<script src="/js/profileUpdate.js"></script>
-
-<%- include('./partials/footer') %>
-
-</body>
+    </body>

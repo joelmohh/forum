@@ -51,6 +51,9 @@ const verifyToken = (req, res, next) => {
 
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) {
+            if(err.name === "TokenExpiredError") {
+                return res.status(401).json({ message: "Token expired." });
+            }
             return res.status(401).json({ message: "Unauthorized." });
         }
 
@@ -65,6 +68,9 @@ const validateSession = async (refreshToken) => {
     const session = await Session.findOne({ tokenHash }).populate("user");
 
     if (!session || session.expiresAt < new Date()) {
+        return null;
+    }
+    if(!session || session.isRevoked) {
         return null;
     }
 
