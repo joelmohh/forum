@@ -48,7 +48,7 @@ const verifyToken = (req, res, next) => {
     }
 
     const token = authHeader.startsWith("Bearer ")? authHeader.slice(7): authHeader;
-
+    
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) {
             if(err.name === "TokenExpiredError") {

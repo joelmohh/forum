@@ -2,6 +2,9 @@ const Router = require('express').Router();
 
 const { loadUser, needAuth } = require('../modules/auth/loadUser.js');
 const Sessions = require("../models/Sessions");
+const User = require('../models/User');
+const Posts = require('../models/Posts');
+const Comments = require('../models/Comments');
 
 const crypto = require('crypto');
 
@@ -35,8 +38,9 @@ Router.get('/login', (req, res) => {
 Router.get('/signup', (req, res) => {
     res.render('signup')
 })
-Router.get('/users', (req, res) => {
-    res.render('users')
+Router.get('/users', async (req, res) => {
+    const users = await User.find().select('username displayName profilePicture followers following createdAt');
+    res.render('users', { users })
 })
 Router.get('/questions', (req, res) => {
     res.render('questions')
@@ -77,8 +81,16 @@ Router.get('/users/:id/settings', needAuth, async (req, res) => {
     }
     res.render('profile-settings', { devices })
 })
-Router.get('/users/:id', (req, res) => {
-    res.render('profile')
+Router.get('/users/:id', async (req, res) => {
+    const currentUser = res.locals.user_id;
+    if(req.params.id){
+
+        const user = await User.findById(req.params.id);
+        const posts = await Posts.find({ author: req.params.id });
+        const comments = await Comments.find({ author: req.params.id });
+
+        res.render('profile', { displayUser: user, posts: posts, comments: comments, currentUser: currentUser === req.params.id})
+    }
 })
 Router.get('/logout', needAuth, (req, res) => {
     res.redirect('/api/auth/logout');

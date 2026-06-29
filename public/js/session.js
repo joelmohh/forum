@@ -30,6 +30,12 @@ async function refreshToken() {
 }
 
 async function api(url, options = {}) {
+    if(options.headers && options.headers["Authorization"]) {
+        const token = localStorage.getItem("token");
+        if (token) {
+            options.headers["Authorization"] = `Bearer ${token}`;
+        }
+    }
     let response = await fetch(url, {
         ...options,
         credentials: "include",

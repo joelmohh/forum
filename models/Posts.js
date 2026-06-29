@@ -21,20 +21,9 @@ const postSchema = new mongoose.Schema({
         maxlength: 5000
     },
 
-    media: [{
-        url: {
-            type: String,
-            required: true
-        },
-        type: {
-            type: String,
-            enum: ['image', 'video']
-        }
-    }],
-
-    category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
+    tags: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'Tag',
         index: true
     },
 

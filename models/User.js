@@ -58,8 +58,36 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
         index: true
-    }
+    },
 
+    banner: {
+        type: String,
+        default: "https://via.placeholder.com/800x200?text=Banner"
+    },
+
+    bannerColor: {
+        type: String,
+        default: "#ff9d00"
+    },
+
+    role: {
+        type: String,
+        enum: ['user', 'moderator', 'admin'],
+        default: 'user',
+        index: true
+    },
+
+    isBanned: {
+        type: Boolean,
+        default: false,
+        index: true
+    },
+
+    banReason: {
+        type: String,
+        maxlength: 500
+    }
+    
 }, { timestamps: true });
 
 userSchema.index({ createdAt: -1 });

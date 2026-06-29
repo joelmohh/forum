@@ -1,0 +1,570 @@
+<%- include('./partials/header') %>
+
+<body>
+
+<%- include('./partials/menu', {
+    pageType: 'main',
+    activePage: 'users'
+}) %>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: #f6f7f9;
+        color: #1a1d23;
+    }
+
+    /* ── Banner + Avatar ── */
+    .profile-banner {
+        height: 160px;
+        background: #ff9d00;
+        border-radius: 16px 16px 0 0;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .profile-wrapper {
+        background: #fff;
+        border: 1px solid #e4e7ed;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 28px;
+        box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+
+    .profile-body {
+        padding: 0 28px 28px;
+    }
+
+    .avatar-ring {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        object-fit: cover;
+        margin-top: -54px;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 2px 12px rgba(0,0,0,.2);
+        background: #e4e7ed;
+        display: block;
+    }
+
+    /* ── Header row ── */
+    .profile-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 12px;
+    }
+
+    .profile-name {
+        font-size: 1.4rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 0;
+    }
+
+    .profile-handle {
+        color: #6b7280;
+        font-size: .875rem;
+        margin-top: 2px;
+    }
+
+    .verified-badge {
+        color: #ff9d00;
+        font-size: 1rem;
+        vertical-align: middle;
+    }
+
+    .profile-bio {
+        color: #4b5563;
+        font-size: .9rem;
+        margin-top: 14px;
+        line-height: 1.6;
+    }
+
+    /* ── Stats ── */
+    .profile-stats {
+        display: flex;
+        gap: 0;
+        margin-top: 20px;
+        border-top: 1px solid #e4e7ed;
+        padding-top: 20px;
+        flex-wrap: wrap;
+        gap: 32px;
+    }
+
+    .stat-item strong {
+        display: block;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1a1d23;
+    }
+
+    .stat-item span {
+        font-size: .78rem;
+        font-weight: 500;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    /* ── Follow button ── */
+    .btn-follow {
+        background: #ff9d00;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 20px;
+        font-size: .875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .15s, transform .1s;
+        white-space: nowrap;
+    }
+
+    .btn-follow:hover {
+        background: #ff7a00;
+        transform: translateY(-1px);
+    }
+
+    .btn-follow.following {
+        background: transparent;
+        border: 1.5px solid #d1d5db;
+        color: #6b7280;
+    }
+
+    .btn-follow.following:hover {
+        background: #fef2f2;
+        border-color: #f87171;
+        color: #dc2626;
+    }
+
+    /* ── Tabs ── */
+    .tabs-row {
+        display: flex;
+        gap: 0;
+        border-bottom: 2px solid #e4e7ed;
+        margin-bottom: 20px;
+    }
+
+    .tab-btn {
+        background: none;
+        border: none;
+        padding: 10px 20px;
+        font-size: .9rem;
+        font-weight: 600;
+        color: #9ca3af;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: color .15s, border-color .15s;
+    }
+
+    .tab-btn.active {
+        color: #ff9d00;
+        border-bottom-color: #ff9d00;
+    }
+
+    .tab-btn:hover:not(.active) {
+        color: #4b5563;
+    }
+
+    .tab-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f3f4f6;
+        border-radius: 999px;
+        font-size: .72rem;
+        font-weight: 700;
+        padding: 1px 7px;
+        margin-left: 6px;
+        color: #6b7280;
+    }
+
+    .tab-btn.active .tab-count {
+        background: #fff3e0;
+        color: #ff7a00;
+    }
+
+    /* ── Post card ── */
+    .card-item {
+        background: #fff;
+        border: 1px solid #e4e7ed;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 12px;
+        transition: border-color .15s, box-shadow .15s;
+    }
+
+    .card-item:hover {
+        border-color: #ffd080;
+        box-shadow: 0 2px 10px rgba(255,157,0,.10);
+    }
+
+    .card-item a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .card-item a:hover h5 {
+        color: #ff7a00;
+    }
+
+    .card-item h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 6px;
+        transition: color .15s;
+    }
+
+    .card-meta {
+        font-size: .8rem;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .category-pill {
+        background: #fff3e0;
+        color: #c97600;
+        border-radius: 999px;
+        padding: 1px 8px;
+        font-size: .72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .card-excerpt {
+        font-size: .875rem;
+        color: #4b5563;
+        line-height: 1.65;
+        margin: 12px 0 16px;
+        white-space: pre-line;
+    }
+
+    .card-footer-row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding-top: 14px;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .card-stat {
+        font-size: .8rem;
+        font-weight: 600;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .card-stat i {
+        color: #9ca3af;
+    }
+
+    .pinned-badge {
+        margin-left: auto;
+        background: #fef3c7;
+        color: #92400e;
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-size: .72rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* ── Comment card ── */
+    .comment-origin {
+        font-size: .8rem;
+        color: #9ca3af;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .comment-origin a {
+        color: #ff7a00;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .comment-origin a:hover {
+        text-decoration: underline;
+    }
+
+    .comment-text {
+        font-size: .875rem;
+        color: #1a1d23;
+        line-height: 1.6;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #9ca3af;
+    }
+
+    .empty-icon {
+        width: 52px;
+        height: 52px;
+        background: #f3f4f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 1.3rem;
+        color: #d1d5db;
+    }
+
+    .empty-state h6 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #4b5563;
+        margin: 0 0 6px;
+    }
+
+    .empty-state p {
+        font-size: .875rem;
+        margin: 0;
+    }
+
+    /* ── Tab pane ── */
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    @media (max-width: 640px) {
+        .profile-body { padding: 0 16px 20px; }
+        .avatar-ring { width: 80px; height: 80px; margin-top: -40px; }
+        .profile-banner { height: 130px; }
+        .profile-stats { gap: 20px; }
+    }
+</style>
+
+<div class="container py-4" style="max-width:780px">
+
+    <!-- PROFILE CARD -->
+    <div class="profile-wrapper">
+
+        <div class="profile-banner"></div>
+
+        <div class="profile-body">
+
+            <div class="d-flex justify-content-between align-items-start flex-wrap" style="gap:12px">
+
+                <img
+                    src="<%= displayUser.profilePicture %>"
+                    alt="<%= displayUser.username %>'s avatar"
+                    class="avatar-ring">
+
+                <% if(currentUser && currentUser._id.toString() !== displayUser._id.toString()){ %>
+                    <button
+                        id="followBtn"
+                        data-user-id="<%= displayUser._id %>"
+                        class="btn-follow"
+                        style="margin-top:12px">
+                        Follow
+                    </button>
+                <% } %>
+
+            </div>
+
+            <div class="profile-header-row">
+                <div>
+                    <h1 class="profile-name">
+                        <%= displayUser.displayName || displayUser.username %>
+                        <% if(displayUser.verified){ %>
+                            <i class="fa-solid fa-circle-check verified-badge"></i>
+                        <% } %>
+                    </h1>
+                    <div class="profile-handle">@<%= displayUser.username %></div>
+                </div>
+            </div>
+
+            <p class="profile-bio">
+                <%= displayUser.bio || 'This user hasn\'t added a bio yet.' %>
+            </p>
+
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <strong><%= posts.length %></strong>
+                    <span>Posts</span>
+                </div>
+                <div class="stat-item">
+                    <strong><%= comments.length %></strong>
+                    <span>Comments</span>
+                </div>
+                <div class="stat-item">
+                    <strong><%= displayUser.followers.length %></strong>
+                    <span>Followers</span>
+                </div>
+                <div class="stat-item">
+                    <strong><%= displayUser.following.length %></strong>
+                    <span>Following</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-row">
+        <button class="tab-btn active" data-target="posts">
+            Posts <span class="tab-count"><%= posts.length %></span>
+        </button>
+        <button class="tab-btn" data-target="comments">
+            Comments <span class="tab-count"><%= comments.length %></span>
+        </button>
+    </div>
+
+    <!-- POSTS -->
+    <div class="tab-pane active" id="posts">
+
+        <% if(posts && posts.length){ %>
+
+            <% posts.forEach(post => { %>
+                <div class="card-item">
+
+                    <div class="d-flex justify-content-between align-items-start" style="gap:12px">
+                        <div style="flex:1">
+                            <a href="/posts/<%= post.slug %>">
+                                <h5><%= post.title %></h5>
+                            </a>
+                            <div class="card-meta">
+                                <% if(post.category){ %>
+                                    <span class="category-pill"><%= post.category %></span>
+                                    <span>·</span>
+                                <% } %>
+                                <span><%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+                            </div>
+                        </div>
+                        <% if(post.isPinned){ %>
+                            <span class="pinned-badge">
+                                <i class="fa-solid fa-thumbtack"></i> Pinned
+                            </span>
+                        <% } %>
+                    </div>
+
+                    <p class="card-excerpt"><%=
+                        post.content.length > 300
+                            ? post.content.substring(0, 300) + '…'
+                            : post.content
+                    %></p>
+
+                    <div class="card-footer-row">
+                        <span class="card-stat">
+                            <i class="fa-solid fa-arrow-up"></i>
+                            <%= post.score %>
+                        </span>
+                        <span class="card-stat">
+                            <i class="fa-regular fa-comment"></i>
+                            <%= post.answersCount %>
+                            <span style="font-weight:400;color:#9ca3af">replies</span>
+                        </span>
+                    </div>
+
+                </div>
+            <% }) %>
+
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fa-regular fa-file-lines"></i></div>
+                <h6>No posts yet</h6>
+                <p>This user hasn't published anything.</p>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="tab-pane" id="comments">
+
+        <% if(comments && comments.length){ %>
+
+            <% comments.forEach(comment => { %>
+                <div class="card-item">
+
+                    <% if(comment.post){ %>
+                        <div class="comment-origin">
+                            <i class="fa-regular fa-comment-dots"></i>
+                            Commented on
+                            <a href="/posts/<%= comment.post.slug %>"><%= comment.post.title %></a>
+                        </div>
+                    <% } %>
+
+                    <p class="comment-text"><%= comment.content %></p>
+
+                    <div class="card-footer-row">
+                        <span class="card-stat">
+                            <i class="fa-solid fa-arrow-up"></i>
+                            <%= comment.score %>
+                        </span>
+                        <span class="card-stat" style="font-weight:400;color:#9ca3af">
+                            <%= new Date(comment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                        </span>
+                    </div>
+
+                </div>
+            <% }) %>
+
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fa-regular fa-comments"></i></div>
+                <h6>No comments yet</h6>
+                <p>This user hasn't commented on anything.</p>
+            </div>
+        <% } %>
+    </div>
+
+</div>
+
+<script>
+    /* ── Tabs ── */
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.target).classList.add('active');
+        });
+    });
+
+    /* ── Follow ── */
+    document.getElementById('followBtn')
+        ?.addEventListener('click', async function () {
+            const btn = this;
+            try {
+                const res = await fetch(`/users/${btn.dataset.userId}/follow`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    btn.classList.add('following');
+                    btn.textContent = 'Following';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+</script>
+
+<%- include('./partials/footer') %>
+
+</body>

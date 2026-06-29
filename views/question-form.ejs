@@ -108,9 +108,8 @@ Include relevant code snippets when possible."></textarea>
 
                                         <!-- Buttons -->
                                         <div class="d-flex gap-2 flex-wrap">
-                                            <button type="submit" class="btn btn-primary">Publish Your Question</button>
-                                            <button type="button" class="btn btn-outline-danger"
-                                                onclick="window.history.back()">Discard</button>
+                                            <button type="button" id="questionPublish" class="btn btn-primary">Publish Your Question</button>
+                                            <button type="button" class="btn btn-outline-danger" onclick="window.history.back()">Discard</button>
                                         </div>
                                     </form>
                                 </div>
@@ -195,6 +194,7 @@ Include relevant code snippets when possible."></textarea>
                 </div>
             </main>
 
+            <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
             <script src="/js/newQuestions.js"></script>
             <script src="/js/prism.js"></script>
             <link rel="stylesheet" href="/css/prism.css">

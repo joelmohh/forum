@@ -11,6 +11,7 @@ const Session = require('../models/Sessions');
 const { verifyToken } = require('../modules/auth/AuthManager');
 const { loadUser } = require('../modules/auth/loadUser');
 const User = require('../models/User');
+const Posts = require('../models/Posts');
 
 Router.get("/me", verifyToken, async (req, res) => {
     try {
@@ -72,7 +73,7 @@ Router.post("/me/update", verifyToken, upload.single('profilePicture'), async (r
 
             try {
 
-                processedBuffer = await sharp(originalBuffer).rotate().resize({ width: 512, height: 512,fit: "cover" }).webp({ quality: 85 }).toBuffer();
+                processedBuffer = await sharp(originalBuffer).rotate().resize({ width: 512, height: 512, fit: "cover" }).webp({ quality: 85 }).toBuffer();
 
             } catch (err) {
 
@@ -84,7 +85,7 @@ Router.post("/me/update", verifyToken, upload.single('profilePicture'), async (r
 
             const formData = new FormData();
 
-            formData.append("file", new Blob([processedBuffer], {type: "image/webp"}), `profile_${username}_${Date.now()}.webp`);
+            formData.append("file", new Blob([processedBuffer], { type: "image/webp" }), `profile_${username}_${Date.now()}.webp`);
 
             const response = await fetch("https://cdn.hackclub.com/api/v4/upload", {
                 method: "POST",
@@ -145,7 +146,7 @@ Router.post("/sessions/:sessionId/revoke", verifyToken, loadUser, async (req, re
     try {
 
         const user = res.locals.user;
-        
+
         if (!user) {
             return res.status(401).json({ message: "Unauthorized A" });
         }

@@ -1,3 +1,4 @@
+
 // Character counter for title
 const titleInput = document.getElementById('title');
 const titleCount = document.getElementById('titleCount');
@@ -5,6 +6,9 @@ const titleCount = document.getElementById('titleCount');
 if (titleInput) {
     titleInput.addEventListener('input', function () {
         titleCount.textContent = this.value.length;
+
+        validateForm("title");
+
         if (this.value.length > 150) {
             titleCount.classList.add('text-danger');
         } else {
@@ -30,6 +34,9 @@ if (tagsInput) {
                     tags.push(tag);
                     renderTags();
                     this.value = '';
+
+                    validateForm("tags");
+
                 }
             }
         }
@@ -60,161 +67,29 @@ function renderTags() {
 const previewContent = document.getElementById('previewContent');
 const questionDescription = document.getElementById('questionDescription');
 
-function escapeHTML(str) {
-    return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
+const renderer = new marked.Renderer();
 
-function renderMarkdown(input) {
-    if (!input) return '';
-
-    const lines = input.split('\n');
-    let html = '';
-
-    let inCodeBlock = false;
-    let codeBuffer = [];
-    let codeLang = '';
-
-    let inList = false;
-    let listBuffer = [];
-
-    function closeList() {
-        if (!inList) return;
-
-        const isCheckbox = listBuffer.length > 0 && typeof listBuffer[0] === 'object';
-
-        if (isCheckbox) {
-            html += `<div class="mb-2">`;
-            listBuffer.forEach(item => {
-                html += `
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" ${item.checked ? 'checked' : ''} disabled>
-                    <label class="form-check-label">${item.text}</label>
-                </div>`;
-            });
-            html += `</div>`;
-        } else {
-            html += '<ul class="list-group mb-2">';
-            listBuffer.forEach(i => {
-                html += `<li class="list-group-item">${i}</li>`;
-            });
-            html += '</ul>';
-        }
-
-        listBuffer = [];
-        inList = false;
-    }
-
-    for (let line of lines) {
-
-        // CODE BLOCK START/END
-        if (line.startsWith('```')) {
-            if (!inCodeBlock) {
-                inCodeBlock = true;
-                codeBuffer = [];
-                codeLang = line.replace('```', '').trim(); // <-- linguagem aqui
-            } else {
-                inCodeBlock = false;
-
-                const langClass = codeLang ? `language-${codeLang}` : '';
-
-                html += `
-<pre class="bg-dark text-light p-3 rounded">
-<code class="${langClass}">${escapeHTML(codeBuffer.join('\n'))}</code>
-</pre>`;
-
-                codeLang = '';
-            }
-            continue;
-        }
-
-        if (inCodeBlock) {
-            codeBuffer.push(line);
-            continue;
-        }
-
-        if (/^---+$/.test(line.trim())) {
-            closeList();
-            html += '<hr>';
-            continue;
-        }
-
-        if (line.startsWith('>')) {
-            closeList();
-            html += `<blockquote class="blockquote">${escapeHTML(line.replace(/^>\s?/, ''))}</blockquote>`;
-            continue;
-        }
-
-        if (/^- \[[ xX]\]/.test(line)) {
-            inList = true;
-
-            const checked = /^\- \[[xX]\]/.test(line);
-            const text = line.replace(/^- \[[ xX]\]\s?/, '');
-
-            listBuffer.push({
-                checked,
-                text: escapeHTML(text)
-            });
-
-            continue;
-        }
-
-        if (/^- /.test(line)) {
-            inList = true;
-            listBuffer.push(escapeHTML(line.replace(/^- /, '')));
-            continue;
-        }
-
-        closeList();
-
-        if (/^#{1,4} /.test(line)) {
-            const level = line.match(/^#+/)[0].length;
-            const content = escapeHTML(line.replace(/^#+ /, ''));
-            html += `<h${level}>${content}</h${level}>`;
-            continue;
-        }
-
-        let processed = escapeHTML(line);
-
-        processed = processed.replace(
-            /\[([^\]]+)\]\(([^)]+)\)/g,
-            '<a href="$2" target="_blank" rel="noopener">$1</a>'
-        );
-
-        processed = processed.replace(
-            /`([^`]+)`/g,
-            '<code class="bg-light px-1 rounded">$1</code>'
-        );
-
-        processed = processed
-            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-            .replace(/~~([^~]+)~~/g, '<del>$1</del>');
-
-        html += processed + '<br>';
-    }
-
-    closeList();
-
-    return html;
-}
-
-function applyPrism() {
-    if (window.Prism) {
-        Prism.highlightAllUnder(previewContent);
-    }
-}
+renderer.blockquote = function (token) {
+    const tokens = token?.tokens ?? [];
+    return `
+        <blockquote class="blockquote">
+            ${this.parser.parse(tokens)}
+        </blockquote>
+    `;
+};
 
 if (questionDescription) {
     questionDescription.addEventListener('input', function () {
-        previewContent.innerHTML = renderMarkdown(this.value);
-        applyPrism(); // <-- aqui ativa o Prism
+
+        previewContent.innerHTML = marked.parse(this.value, { renderer });
+
+        validateForm("description");
+
+        if (window.Prism) {
+            Prism.highlightAllUnder(previewContent);
+        }
     });
 }
-
-
 
 // FORM VALIDATION
 const form = document.querySelector('form');
@@ -254,66 +129,116 @@ function clearValidation(input, container) {
     container.innerHTML = '';
 }
 
-function validateForm() {
+function validateForm(field = 'all') {
     let isValid = true;
 
     const title = titleInput.value.trim();
     const description = descriptionInput.value.trim();
-    const tagsCount = tagsList ? tagsList.children.length : 0;
+    const tagsCount = tagsList?.children.length ?? 0;
 
-    if (!title) {
-        showError(titleInput, messageElements.title, 'Title is required.');
-        isValid = false;
-    } else if (title.length < 5) {
-        showError(titleInput, messageElements.title, 'Title is too short.');
-        isValid = false;
-    } else if (title.length > 150) {
-        showError(titleInput, messageElements.title, 'Max 150 characters.');
-        isValid = false;
-    } else {
-        showSuccess(titleInput, messageElements.title, 'Looks good.');
+    const validateTitle = field === 'all' || field === 'title';
+    const validateDescription = field === 'all' || field === 'description';
+    const validateTags = field === 'all' || field === 'tags';
+    const validateCheckboxes = field === 'all';
+
+    if (validateTitle) {
+        if (!title) {
+            showError(titleInput, messageElements.title, 'Title is required.');
+            isValid = false;
+        } else if (title.length < 5) {
+            showError(titleInput, messageElements.title, 'Title is too short.');
+            isValid = false;
+        } else if (title.length > 150) {
+            showError(titleInput, messageElements.title, 'Max 150 characters.');
+            isValid = false;
+        } else {
+            showSuccess(titleInput, messageElements.title, 'Looks good.');
+        }
     }
 
-    if (!description) {
-        showError(descriptionInput, messageElements.description, 'Description is required.');
-        isValid = false;
-    } else if (description.length < 30) {
-        showError(descriptionInput, messageElements.description, 'Write at least 30 characters.');
-        isValid = false;
-    } else {
-        showSuccess(descriptionInput, messageElements.description, 'Looks good.');
+    if (validateDescription) {
+        if (!description) {
+            showError(descriptionInput, messageElements.description, 'Description is required.');
+            isValid = false;
+        } else if (description.length < 30) {
+            showError(descriptionInput, messageElements.description, 'Write at least 30 characters.');
+            isValid = false;
+        } else {
+            showSuccess(descriptionInput, messageElements.description, 'Looks good.');
+        }
     }
 
-    if (tagsCount < 1) {
-        showError(tagsInput, messageElements.tags, 'Add at least 1 tag.');
-        isValid = false;
-    } else if (tagsCount > 5) {
-        showError(tagsInput, messageElements.tags, 'Max 5 tags allowed.');
-        isValid = false;
-    } else {
-        showSuccess(tagsInput, messageElements.tags, 'Tags OK.');
+    if (validateTags) {
+        if (tagsCount < 1) {
+            showError(tagsInput, messageElements.tags, 'Add at least 1 tag.');
+            isValid = false;
+        } else if (tagsCount > 5) {
+            showError(tagsInput, messageElements.tags, 'Max 5 tags allowed.');
+            isValid = false;
+        } else {
+            showSuccess(tagsInput, messageElements.tags, 'Tags OK.');
+        }
     }
 
-    if (!hasAttempted.checked || !isMinimal.checked) {
-        messageElements.checkboxes.innerHTML =
-            `<span class="validation-message error">You must confirm both checkboxes.</span>`;
-        isValid = false;
-    } else {
-        messageElements.checkboxes.innerHTML = '';
+    if (validateCheckboxes) {
+        if (!hasAttempted.checked || !isMinimal.checked) {
+            messageElements.checkboxes.innerHTML =
+                `<span class="validation-message error">You must confirm both checkboxes.</span>`;
+            isValid = false;
+        } else {
+            messageElements.checkboxes.innerHTML = '';
+        }
     }
 
     return isValid;
 }
-if (form) {
-    form.addEventListener('submit', (e) => {
-        if (!validateForm()) {
-            e.preventDefault();
+
+const submitButton = document.getElementById('questionPublish');
+
+if (submitButton) {
+    submitButton.addEventListener('click', (e) => {
+        if (!validateForm("all")) {
 
             const firstError = document.querySelector('.form-control.error');
             if (firstError) {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 firstError.focus();
             }
+
+        } else {
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
+
+            const formData = {
+                title: titleInput.value.trim(),
+                description: descriptionInput.value.trim(),
+                tags: tags,
+                hasAttempted: hasAttempted.checked,
+                isMinimal: isMinimal.checked
+            }
+            api('/api/question/new', {
+                method: 'POST',
+                body: JSON.stringify(formData),
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem('token')}`
+                }
+            }).then(data => {
+                    if (data.success) {
+                        alert('Question submitted successfully!');
+                    } else {
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Submit';
+                        alert('Error: ' + (data.message || 'An error occurred.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Submit';
+                    alert('An unexpected error occurred.');
+                });
         }
     });
 }
+
