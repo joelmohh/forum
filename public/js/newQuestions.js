@@ -242,3 +242,6 @@ if (submitButton) {
     });
 }
 
+
+// Post Answer 
+const answerbtn = document.getElementById('answerbtn');

@@ -1,45 +1,47 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const inputs = document.querySelectorAll('.imageUploadable');
+document.addEventListener("DOMContentLoaded", () => {
+    const inputs = document.querySelectorAll(".imageUploadable");
 
-    inputs.forEach(input => {
-        console.log("Image uploadable input found:", input);
-        input.addEventListener("paste", (event) => {
+    for (const input of inputs) {
+        input.addEventListener("paste", async (event) => {
             const items = event.clipboardData?.items;
+            if (!items) return;
 
-            if (!items) {
-                console.log("No items found in clipboardData");
-                return;
-            }
+            const imageItem = [...items].find(item => item.type.startsWith("image/"));
+            if (!imageItem) return;
 
-            for (let item of items) {
-                if (item.type.startsWith("image/")) {
-                    const file = item.getAsFile();
-                    const formData = new FormData();
-                    formData.append("file", file);
+            event.preventDefault();
 
-                    api("/api/upload", {
-                        method: "POST",
-                        body: formData,
-                        headers: {
-                            "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
-                        }
-                    }).then(data => {
-                        if (data.ok && data.url) {
-                            const cursorPosition = input.selectionStart;
-                            const textBeforeCursor = input.value.substring(0, cursorPosition);
-                            const textAfterCursor = input.value.substring(cursorPosition);
-                            input.value = `${textBeforeCursor}![Image](${data.url})${textAfterCursor}`;
-                        } else {
-                            console.error("Image upload failed:", data.message);
-                        }
-                    }).catch(err => {
-                        console.error("Error uploading image:", err);
-                    });
+            const file = imageItem.getAsFile();
+            if (!file) return;
 
-                    event.preventDefault();
+            const placeholder = "Uploading image...";
 
+            const start = input.selectionStart ?? input.value.length;
+            const end = input.selectionEnd ?? start;
+
+            input.setRangeText(placeholder, start, end, "end");
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const data = await api("/api/upload", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                    },
+                });
+
+                if (!data.ok || !data.url) {
+                    throw new Error(data.message || "Upload failed");
                 }
+
+                input.value = input.value.replace(placeholder, `![Image](${data.url})`);
+            } catch (err) {
+                input.value = input.value.replace(placeholder, "");
+                console.error("Error uploading image:", err);
             }
         });
-    })
+    }
 });

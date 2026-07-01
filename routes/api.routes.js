@@ -163,7 +163,6 @@ Router.post("/sessions/:sessionId/revoke", verifyToken, loadUser, async (req, re
 
 Router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
     try {
-        console.log("Received file:", req.file);
         if (!req.file) {
             return res.status(400).json({
                 ok: false,
