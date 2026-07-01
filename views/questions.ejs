@@ -3,8 +3,13 @@
     <body class="">
         <%- include('./partials/menu', { activePage: 'questions' , pageType: 'main' }) %>
             <div class="main-content">
-                <h2 class="display-6 d-inline">Top Questions</h2>
+                <h2 class="display-6 d-inline">All Questions</h2>
                 <a class="btn float-end btn-primary" href="/questions/ask">Ask Question</a>
+
+                <form>
+                    <input name="search" value="<%= query.search || '' %>">
+                </form>
+
                 <div class="filters">
                     <a href="#" class="active">Newest</a>
                     <a href="#">Active</a>
@@ -13,53 +18,40 @@
                 </div>
 
                 <div class="question-list">
-                    <% questions.forEach((question) => { %>
-                    <article class="question-item border-bottom p-3 d-flex gap-5">
-                        <div class="question-stats d-flex flex-column gap-2 text-center">
-                            <span class="text-muted"><%= question.upvotes %> votes</span> 
-                            <span class="text-muted"><%= question.downvotes %> downvotes</span>
-                            <span class="text-muted"><%= question.views %> views</span>
-                        </div>
-                        <div class="question-details">
-                            <a href="/questions/<%= question._id %>" class="h4 text-decoration-none text-dark"><%= question.title %></a>
-                            <div class="tags">
-                                <% question.tags.forEach(function(tag) { %>
-                                    <span class="badge bg-secondary"><%= tag.name %></span>
-                                <% }); %>
+                    <% questions.forEach((question)=> { %>
+                        <article class="question-item border-bottom p-3 d-flex gap-5">
+                            <div class="question-stats d-flex flex-column gap-2 text-center">
+                                <span class="text-muted">
+                                    <%= question.upvotes %> votes
+                                </span>
+                                <span class="text-muted">
+                                    <%= question.downvotes %> downvotes
+                                </span>
+                                <span class="text-muted">
+                                    <%= question.views %> views
+                                </span>
                             </div>
-                            <p class="question-meta text-muted">Asked by <a href="/users/<%= question.creator._id %>"><%= question.creator.username %></a> on <%= question.createdAt.toLocaleDateString() %></p>
-                        </div>
-                    </article>
-                    <% }) %>
+                            <div class="question-details">
+                                <a href="/questions/<%= question._id %>" class="h4 text-decoration-none text-dark">
+                                    <%= question.title %>
+                                </a>
+                                <div class="tags">
+                                    <% question.tags.forEach(function(tag) { %>
+                                        <span class="badge bg-secondary">
+                                            <%= tag.name %>
+                                        </span>
+                                        <% }); %>
+                                </div>
+                                <p class="question-meta text-muted">Asked by <a
+                                        href="/users/<%= question.creator._id %>">
+                                        <%= question.creator.username %>
+                                    </a> on <%= question.createdAt.toLocaleDateString() %>
+                                </p>
+                            </div>
+                        </article>
+                        <% }) %>
 
-                    <nav class="pagination-nav d-flex justify-content-between align-items-center mt-4">
-                        <div class="pagination filter-quantity">
-                            <span class="text-muted">Questions per page:</span>
-                            <select class="form-select d-inline-block w-auto">
-                                <option value="10">10</option>
-                                <option value="20">20</option>
-                                <option value="50">50</option>
-                            </select>  
-                        </div>
-
-                        <ul class="pagination justify-content-end">
-                            <li class="page-item disabled">
-                                <a class="pagi-link" href="#" tabindex="-1">Previous</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="pagi-link" href="#">1</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="pagi-link" href="#">2</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="pagi-link" href="#">3</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="pagi-link" href="#">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
+                            
                 </div>
     </body>
 

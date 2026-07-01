@@ -31,27 +31,10 @@
                         </div>
                     </article>
                     <% }) %>
-
-                    <nav class="pagination-nav">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <button class="pagi-link" href="#" tabindex="-1" disabled>Previous</button>
-                            </li>
-                            <li class="page-item">
-                                <button class="pagi-link" href="#" <% if(questions.length > 0) { %> disabled<% } %>>1</button>
-                            </li>
-                            <li class="page-item">
-                                <button class="pagi-link" href="#" <% if(questions.length > 0) { %> disabled<% } %>>2</button>
-                            </li>
-                            <li class="page-item">
-                                <button class="pagi-link" href="#" <% if(questions.length > 0) { %> disabled<% } %>>3</button>
-                            </li>
-                            <li class="page-item">
-                                <button class="pagi-link" href="#" <% if(questions.length > 0) { %> disabled<% } %>>Next</button>
-                            </li>
-                        </ul>
-                    </nav>
                 </div>
+                <p class="mt-4 text-center fs-5 fw-semibold">
+                    Want to see all questions? <a href="/questions" class="text-decoration-none">Click here</a>
+                </p>
     </body>
 
     <%- include('./partials/footer') %>

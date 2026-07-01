@@ -33,7 +33,7 @@ function normalizeUserAgent(ua) {
 
 
 Router.get('/', async (req, res) => {
-    const questions = await Posts.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name');
+    const questions = await Posts.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name').limit(10);
     res.render('index', { questions })
 })
 Router.get('/login', (req, res) => {
@@ -47,8 +47,8 @@ Router.get('/users', async (req, res) => {
     res.render('users', { users })
 })
 Router.get('/questions', async (req, res) => {
-    const questions = await Posts.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name');
-    res.render('questions', { questions })
+    const questions = await Posts.find(filter).populate('creator', 'username displayName profilePicture').populate('tags', 'name')
+    res.render('questions', { questions, query: req.query, page, limit, total })
 })
 
 Router.get('/tags', async (req, res) => {

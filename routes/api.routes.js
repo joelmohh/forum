@@ -253,5 +253,32 @@ Router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
     }
 });
 
+Router.get("/paginate", async (req, res) => {
+
+    const type = req.query.type;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    let filter = {};
+
+    if (type === "questions") {
+        const total = await Posts.countDocuments(filter);
+        const questions = await Posts.find(filter).populate('creator', 'username displayName profilePicture').populate('tags', 'name').skip(skip).limit(limit);
+        return res.json({ questions, page, limit, total });
+    } else if (type === "users") {
+        const total = await User.countDocuments(filter);
+        const users = await User.find().select('username displayName profilePicture followers following createdAt bio').skip(skip).limit(limit);
+        return res.json({ users, page, limit, total });
+    } else if(type === "tags") {
+        const total = await Tags.countDocuments(filter);
+        const tags = await Tags.find(filter).skip(skip).limit(limit);
+        return res.json({ tags, page, limit, total });
+    } else {
+        return res.status(400).json({ message: "Invalid type parameter" });
+    }
+
+})
+
 
 module.exports = Router;
