@@ -15,21 +15,35 @@
 
         <div class="d-flex gap-3 align-items-center mt-3">
             <div class="search-tags">
-                <input type="text" class="form-control" placeholder="Search tags...">
+                <input type="text" id="tagsSearch" class="form-control" placeholder="Search tags...">
+            </div>
+
+            <div>
+                <label class="small text-muted mb-1 d-block">Tags per page:</label>
+
+                <select id="tagsPageSize" class="form-select d-inline-block w-auto">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
             </div>
 
             <div class="filters">
-                <a href="#" class="active">Popular</a>
-                <a href="#">Name</a>
-                <a href="#">New</a>
+                <a href="#" class="active" data-pagination-sort="popular">Popular</a>
+                <a href="#" data-pagination-sort="name">Name</a>
+                <a href="#" data-pagination-sort="new">New</a>
             </div>
         </div>
 
-        <div class="tag-list mt-4">
+        <div class="tag-list mt-4" id="tagsList">
             <div class="row g-3">
 
                 <% tags.forEach(tag => { %>
-                    <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <div class="col-sm-6 col-lg-4 col-xl-3" data-pagination-item
+                        data-search="<%= tag.name.toLowerCase() %>"
+                        data-sort-popular="<%= Number(tag.questionCount || 0) + Number(tag.followerCount || 0) %>"
+                        data-sort-name="<%= tag.name.toLowerCase() %>"
+                        data-sort-new="<%= new Date(tag.createdAt).getTime() %>">
                         <div class="card h-100 border">
                             <div class="card-body">
                                 <span class="badge text-bg-warning text-decoration-none mb-3"><%= tag.name %></span>
@@ -54,39 +68,40 @@
             </div>
 
             <nav class="pagination-nav d-flex justify-content-between align-items-center mt-4">
-                <div class="pagination filter-quantity">
-                    <span class="text-muted">Tags per page:</span>
-
-                    <select class="form-select d-inline-block w-auto">
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                    </select>
-                </div>
-
-                <ul class="pagination justify-content-end">
-                    <li class="page-item disabled">
-                        <a class="pagi-link" href="#" tabindex="-1">Previous</a>
-                    </li>
-
-                    <li class="page-item">
-                        <a class="pagi-link" href="#">1</a>
-                    </li>
-
-                    <li class="page-item">
-                        <a class="pagi-link" href="#">2</a>
-                    </li>
-
-                    <li class="page-item">
-                        <a class="pagi-link" href="#">3</a>
-                    </li>
-
-                    <li class="page-item">
-                        <a class="pagi-link" href="#">Next</a>
-                    </li>
-                </ul>
+                <ul class="pagination justify-content-end mb-0" id="tagsPagination"></ul>
             </nav>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Pagination({
+                container: '#tagsList .row',
+                pagination: '#tagsPagination',
+                search: '#tagsSearch',
+                pageSize: '#tagsPageSize',
+                filters: '[data-pagination-sort]',
+                defaultSort: 'popular',
+                emptyMessage: 'Nenhuma tag encontrada.',
+                sorters: {
+                    popular: {
+                        sort: function (a, b) {
+                            return Number(b.dataset.sortPopular || 0) - Number(a.dataset.sortPopular || 0);
+                        }
+                    },
+                    name: {
+                        sort: function (a, b) {
+                            return (a.dataset.sortName || '').localeCompare(b.dataset.sortName || '', 'pt-BR');
+                        }
+                    },
+                    new: {
+                        sort: function (a, b) {
+                            return Number(b.dataset.sortNew || 0) - Number(a.dataset.sortNew || 0);
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 
     <%- include('./partials/footer') %>

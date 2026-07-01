@@ -2,7 +2,6 @@
 
     <body>
         <%- include('./partials/menu', { activePage: 'users' , pageType: 'main' }) %>
-            <script src="/js/pagination.js"></script>
             <link rel="stylesheet" href="/css/profile.css">
             <div class="container py-5">
 
@@ -46,6 +45,19 @@
                                 </select>
                             </div>
 
+                            <div>
+                                <label class="small text-muted mb-1 d-block">
+                                    Sort by
+                                </label>
+
+                                <select id="usersSort" class="form-select">
+                                    <option value="recent" selected>Recent</option>
+                                    <option value="name">Name A-Z</option>
+                                    <option value="followers">Followers</option>
+                                    <option value="following">Following</option>
+                                </select>
+                            </div>
+
                         </div>
 
                     </div>
@@ -54,7 +66,12 @@
                 <div class="row g-4" id="user-card">
 
                     <% users.forEach(user=> { %>
-                        <div class="col-md-6 col-xl-4">
+                        <div class="col-md-6 col-xl-4" data-pagination-item
+                            data-search="<%= [user.username, user.displayName || '', user.bio || ''].join(' ').toLowerCase() %>"
+                            data-sort-recent="<%= new Date(user.createdAt).getTime() %>"
+                            data-sort-name="<%= (user.displayName || user.username).toLowerCase() %>"
+                            data-sort-followers="<%= user.followers?.length || 0 %>"
+                            data-sort-following="<%= user.following?.length || 0 %>">
                             <div class="user-card p-4">
                                 <div class="d-flex gap-3">
                                     <img src="<%= user.profilePicture %>" alt="<%= user.username %>"
@@ -99,55 +116,46 @@
                         </div>
                         <% }) %>
 
-                            <ul class="pagination justify-content-end">
-                                <li class="page-item disabled">
-                                    <button class="pagi-link" href="#" id="prev" tabindex="-1">Previous</button>
-                                </li>
-                                <span id="info">
-
-                                </span>
-                                <li class="page-item">
-                                    <button class="pagi-link" href="#" id="next">Next</button>
-                                </li>
-                            </ul>
+                            <div class="d-flex justify-content-end align-items-center gap-3 mt-4">
+                                <span id="usersInfo" class="text-muted small"></span>
+                                <ul class="pagination justify-content-end mb-0" id="usersPagination"></ul>
+                            </div>
 
                             <script>
-                                const tbody = document.getElementById("tbody");
-
-                                const pagination = new Pagination({
-
-                                    data: users,
-
-                                    pageSize: 10,
-
-                                    render(items) {
-
-                                        tbody.innerHTML = "";
-
-                                        items.forEach(user => {
-
-                                            tbody.innerHTML += `
-                <tr>
-                    <td>${user.nome}</td>
-                    <td>${user.idade}</td>
-                    <td>${user.cargo}</td>
-                </tr>
-            `;
-
-                                        });
-
-                                    },
-
-                                    onUpdate(p) {
-
-                                        info.textContent =
-                                            `Página ${p.page} de ${p.totalPages} | ${p.totalItems} registros`;
-
-                                    }
-
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    new Pagination({
+                                        container: '#user-card',
+                                        pagination: '#usersPagination',
+                                        search: '#search',
+                                        pageSize: '#pageSize',
+                                        sortSelect: '#usersSort',
+                                        info: '#usersInfo',
+                                        defaultSort: 'recent',
+                                        emptyMessage: 'Nenhum usuário encontrado.',
+                                        sorters: {
+                                            recent: {
+                                                sort: function (a, b) {
+                                                    return Number(b.dataset.sortRecent || 0) - Number(a.dataset.sortRecent || 0);
+                                                }
+                                            },
+                                            name: {
+                                                sort: function (a, b) {
+                                                    return (a.dataset.sortName || '').localeCompare(b.dataset.sortName || '', 'pt-BR');
+                                                }
+                                            },
+                                            followers: {
+                                                sort: function (a, b) {
+                                                    return Number(b.dataset.sortFollowers || 0) - Number(a.dataset.sortFollowers || 0);
+                                                }
+                                            },
+                                            following: {
+                                                sort: function (a, b) {
+                                                    return Number(b.dataset.sortFollowing || 0) - Number(a.dataset.sortFollowing || 0);
+                                                }
+                                            }
+                                        }
+                                    });
                                 });
-
-                                pagination.update();
                             </script>
 
                 </div>
