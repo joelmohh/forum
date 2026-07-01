@@ -48,7 +48,7 @@ Router.get('/users', async (req, res) => {
 })
 Router.get('/questions', async (req, res) => {
     const questions = await Posts.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name')
-    res.render('questions', { questions, query: req.query, page, limit, total })
+    res.render('questions', { questions })
 })
 
 Router.get('/tags', async (req, res) => {
@@ -61,7 +61,7 @@ Router.get('/questions/ask', needAuth, (req, res) => {
 Router.get('/questions/edit/:id', needAuth, async (req, res) => {
     const question = await Posts.findById(req.params.id);
     if (!question) {
-        return res.status(404).send('Question not found');
+        return res.redirect('/questions');
     }
 
     if (question.creator.toString() !== res.locals.user._id.toString()) {
@@ -77,7 +77,7 @@ Router.get('/questions/:id/', async (req, res) => {
     question.content = marked.parse(question.content);
 
     if (!question) {
-        return res.status(404).send('Question not found');
+        return res.redirect('/questions');
     }
     res.render('question-detail', { question: question, comments: comments })
 })
@@ -90,10 +90,8 @@ Router.get('/users/:id/settings', needAuth, async (req, res) => {
     }
     
     let devices = [];
-    //console.log(res.locals.user._id)
     if (res.locals.user) {
         const userSessions = await Sessions.find({ user: res.locals.user._id });
-        // console.log(userSessions)
         devices = userSessions.map(session => ({
             id: session._id,
             ip: session.ip,

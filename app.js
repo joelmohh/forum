@@ -37,14 +37,15 @@ app.use('/', mainRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', apiRoutes);
 app.use('/api/question', questionRoutes);
+app.use('/api/search', require('./routes/search.api.routes'));
 
 app.use((req, res) => {
-    res.status(404).send('404', { title: '404 - Not Found' });
+    res.status(404).send('404 Page Not Found', { title: '404 - Not Found' });
 });
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('500', { title: '500 - Server Error' });
+    res.status(500).send('500 Internal Server Error', { title: '500 - Server Error' });
 });
 
 

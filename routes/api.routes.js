@@ -17,12 +17,12 @@ Router.get("/me", verifyToken, async (req, res) => {
     try {
         const user = res.locals.user;
         if (!user) {
-            return res.status(401).json({ message: "Unauthorized" });
+            return res.status(401).json({ message: "Unauthorized", ok: false });
         }
-        res.json({ user: { id: user._id, email: user.email, username: user.username, name: user.displayName, profilePicture: user.profilePicture, bio: user.bio } });
+        res.json({ user: { id: user._id, email: user.email, username: user.username, name: user.displayName, profilePicture: user.profilePicture, bio: user.bio }, ok: true });
     } catch (err) {
         console.error("Error in /me route:", err);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: "Internal server error", ok: false });
     }
 });
 
@@ -30,14 +30,14 @@ Router.post("/me/update", verifyToken, upload.single('profilePicture'), async (r
     try {
         const user = res.locals.user;
         if (!user) {
-            return res.status(401).json({ message: "Unauthorized" });
+            return res.status(401).json({ message: "Unauthorized", ok: false });
         }
 
         const User = await dbUser.findById(user._id);
         const { bio, displayName } = req.body;
 
         if (!User) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "User not found", ok: false });
         }
 
         const username = User.username;
@@ -55,7 +55,8 @@ Router.post("/me/update", verifyToken, upload.single('profilePicture'), async (r
 
             if (!allowedMimeTypes.includes(req.file.mimetype)) {
                 return res.status(400).json({
-                    message: "Invalid image type"
+                    message: "Invalid image type",
+                    ok: false
                 });
             }
 
@@ -63,7 +64,8 @@ Router.post("/me/update", verifyToken, upload.single('profilePicture'), async (r
 
             if (req.file.size > MAX_SIZE) {
                 return res.status(400).json({
-                    message: "Image too large"
+                    message: "Image too large",
+                    ok: false
                 });
             }
 
@@ -78,7 +80,8 @@ Router.post("/me/update", verifyToken, upload.single('profilePicture'), async (r
             } catch (err) {
 
                 return res.status(400).json({
-                    message: "Invalid image"
+                    message: "Invalid image",
+                    ok: false
                 });
 
             }
@@ -101,7 +104,8 @@ Router.post("/me/update", verifyToken, upload.single('profilePicture'), async (r
                 updatedProfilePicture = result.url;
             } else {
                 return res.status(500).json({
-                    message: "Failed to upload image"
+                    message: "Failed to upload image",
+                    ok: false
                 });
             }
         }
@@ -115,10 +119,10 @@ Router.post("/me/update", verifyToken, upload.single('profilePicture'), async (r
             User.bio = bio
         }
         await User.save();
-        res.json({ message: "Profile updated successfully" });
+        res.json({ message: "Profile updated successfully", ok: true });
     } catch (err) {
         console.error("Error in /me/update route:", err);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: "Internal server error", ok: false });
     } finally {
         if (req.file?.path) {
             fs.promises.unlink(req.file.path).catch(() => { });
@@ -130,7 +134,7 @@ Router.post("/sessions/revoke-all", verifyToken, loadUser, async (req, res) => {
     try {
         const user = res.locals.user;
         if (!user) {
-            return res.status(401).json({ message: "Unauthorized" });
+            return res.status(401).json({ message: "Unauthorized", ok: false });
         }
 
         await Session.updateMany({ user: user._id }, { isRevoked: true });
@@ -148,7 +152,7 @@ Router.post("/sessions/:sessionId/revoke", verifyToken, loadUser, async (req, re
         const user = res.locals.user;
 
         if (!user) {
-            return res.status(401).json({ message: "Unauthorized A" });
+            return res.status(401).json({ message: "Unauthorized", ok: false });
         }
 
         const sessionId = req.params.sessionId;
@@ -165,8 +169,8 @@ Router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({
-                ok: false,
                 message: "No image provided",
+                ok: false
             });
         }
 
@@ -179,8 +183,8 @@ Router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
 
         if (!allowedMimeTypes.includes(req.file.mimetype)) {
             return res.status(400).json({
-                ok: false,
                 message: "Invalid image type",
+                ok: false
             });
         }
 
@@ -188,8 +192,8 @@ Router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
 
         if (req.file.size > MAX_SIZE) {
             return res.status(400).json({
-                ok: false,
                 message: "Image too large",
+                ok: false
             });
         }
 
@@ -201,8 +205,8 @@ Router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
             processedBuffer = await sharp(originalBuffer).rotate().resize({ width: 512, fit: "inside", withoutEnlargement: true, }).webp({ quality: 85 }).toBuffer();
         } catch (err) {
             return res.status(400).json({
-                ok: false,
                 message: "Invalid image",
+                ok: false
             });
         }
 
@@ -252,33 +256,6 @@ Router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
         }
     }
 });
-
-Router.get("/paginate", async (req, res) => {
-
-    const type = req.query.type;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-    
-    let filter = {};
-
-    if (type === "questions") {
-        const total = await Posts.countDocuments(filter);
-        const questions = await Posts.find(filter).populate('creator', 'username displayName profilePicture').populate('tags', 'name').skip(skip).limit(limit);
-        return res.json({ questions, page, limit, total });
-    } else if (type === "users") {
-        const total = await User.countDocuments(filter);
-        const users = await User.find().select('username displayName profilePicture followers following createdAt bio').skip(skip).limit(limit);
-        return res.json({ users, page, limit, total });
-    } else if(type === "tags") {
-        const total = await Tags.countDocuments(filter);
-        const tags = await Tags.find(filter).skip(skip).limit(limit);
-        return res.json({ tags, page, limit, total });
-    } else {
-        return res.status(400).json({ message: "Invalid type parameter" });
-    }
-
-})
 
 
 module.exports = Router;
