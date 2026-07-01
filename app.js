@@ -49,7 +49,7 @@ app.use((err, req, res, next) => {
 });
 
 
-app.listen(PORT, async () => {
+app.listen(PORT || 3000, async () => {
     try {
         await transporter.verify();
         console.log("[INFO] Server is ready to take our messages");

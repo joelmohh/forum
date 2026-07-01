@@ -257,5 +257,56 @@ Router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
     }
 });
 
+Router.post("/follow/:userId", verifyToken, loadUser, async (req, res) => {
+    try {
+        const user = res.locals.user;
+        const remove = req.query.remove === "true";
+
+        if (!user) {
+            return res.status(401).json({ message: "Unauthorized", ok: false });
+        }
+
+        const targetUserId = req.params.userId;
+
+        if (user._id.toString() === targetUserId) {
+            return res.status(400).json({ message: "You cannot follow yourself.", ok: false });
+        }
+
+        const targetUser = await User.findById(targetUserId);
+
+        if (!targetUser) {
+            return res.status(404).json({ message: "User not found.", ok: false });
+        }
+
+        if (user.following.includes(targetUserId) && !remove) {
+            return res.status(400).json({ message: "You are already following this user.", ok: false });
+        }
+        if(!user.following.includes(targetUserId) && remove) {
+            return res.status(400).json({ message: "You are not following this user.", ok: false });
+        }
+
+        if (remove) {
+            user.following = user.following.filter(id => id.toString() !== targetUserId);
+            targetUser.followers = targetUser.followers.filter(id => id.toString() !== user._id.toString());
+
+            await user.save();
+            await targetUser.save();
+
+            return res.json({ message: "Successfully unfollowed the user.", ok: true });
+        }
+
+        user.following.push(targetUserId);
+        targetUser.followers.push(user._id);
+
+        await user.save();
+        await targetUser.save();
+
+        return res.json({ message: "Successfully followed the user.", ok: true });
+    } catch (err) {
+        console.error("[ERROR] /follow/:userId", err);
+        return res.status(500).json({ message: "Internal server error", ok: false });
+    }
+})
+
 
 module.exports = Router;
