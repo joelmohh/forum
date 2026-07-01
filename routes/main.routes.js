@@ -5,6 +5,9 @@ const Sessions = require("../models/Sessions");
 const User = require('../models/User');
 const Posts = require('../models/Posts');
 const Comments = require('../models/Comments');
+const Tags = require('../models/Tags');
+
+const marked = require('marked');
 
 const crypto = require('crypto');
 
@@ -29,8 +32,9 @@ function normalizeUserAgent(ua) {
 }
 
 
-Router.get('/', (req, res) => {
-    res.render('index')
+Router.get('/', async (req, res) => {
+    const questions = await Posts.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name');
+    res.render('index', { questions })
 })
 Router.get('/login', (req, res) => {
     res.render('login')
@@ -39,23 +43,43 @@ Router.get('/signup', (req, res) => {
     res.render('signup')
 })
 Router.get('/users', async (req, res) => {
-    const users = await User.find().select('username displayName profilePicture followers following createdAt');
+    const users = await User.find().select('username displayName profilePicture followers following createdAt bio');
     res.render('users', { users })
 })
-Router.get('/questions', (req, res) => {
-    res.render('questions')
+Router.get('/questions', async (req, res) => {
+    const questions = await Posts.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name');
+    res.render('questions', { questions })
 })
-Router.get('/tags', (req, res) => {
-    res.render('tags')
+
+Router.get('/tags', async (req, res) => {
+    const tags = await Tags.find();
+    res.render('tags', { tags })
 })
 Router.get('/questions/ask', needAuth, (req, res) => {
     res.render('question-form')
 })
-Router.get('/questions/edit/:id', needAuth, (req, res) => {
-    res.render('question-form')
+Router.get('/questions/edit/:id', needAuth, async (req, res) => {
+    const question = await Posts.findById(req.params.id);
+    if (!question) {
+        return res.status(404).send('Question not found');
+    }
+
+    if (question.creator.toString() !== res.locals.user._id.toString()) {
+        return res.render('question-detail', { question: question, error: 'You are not authorized to edit this question.', editMode: false });
+    }
+
+    res.render('question-form', { questionId: req.params.id, editMode: true, question: question })
 })
-Router.get('/questions/:id/', (req, res) => {
-    res.render('question-detail')
+Router.get('/questions/:id/', async (req, res) => {
+    const question = await Posts.findById(req.params.id).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
+    const comments = await Comments.find({ post: req.params.id }).populate('creator', 'username displayName profilePicture bio');
+
+    question.content = marked.parse(question.content);
+
+    if (!question) {
+        return res.status(404).send('Question not found');
+    }
+    res.render('question-detail', { question: question, comments: comments })
 })
 Router.get('/users/:id/settings', needAuth, async (req, res) => {
     let currentDevice 
@@ -86,8 +110,10 @@ Router.get('/users/:id', async (req, res) => {
     if(req.params.id){
 
         const user = await User.findById(req.params.id);
-        const posts = await Posts.find({ author: req.params.id });
-        const comments = await Comments.find({ author: req.params.id });
+        const posts = await Posts.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
+        const comments = await Comments.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture bio');
+
+        console.log(user)
 
         res.render('profile', { displayUser: user, posts: posts, comments: comments, currentUser: currentUser === req.params.id})
     }

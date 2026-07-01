@@ -1,7 +1,7 @@
 const validateSession = require('./AuthManager').validateSession;
 const loadUser = async (req, res, next) => {
     try {
-        const refreshToken = req.cookies.refreshToken;
+        const refreshToken = req.cookies?.refreshToken;
 
         if (!refreshToken) {
             res.locals.user = null;

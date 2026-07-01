@@ -13,41 +13,41 @@
                 </div>
 
                 <div class="question-list">
-                    <% for(let i = 0; i < 5; i++) { %>
+                    <% questions.forEach((question) => { %>
                     <article class="question-item border-bottom p-3 d-flex gap-5">
                         <div class="question-stats d-flex flex-column gap-2 text-center">
-                            <span class="text-muted">15 votes</span>
-                            <span class="text-muted">0 answers</span>
-                            <span class="text-muted">172 views</span>
+                            <span class="text-muted"><%= question.upvotes %> votes</span> 
+                            <span class="text-muted"><%= question.downvotes %> downvotes</span>
+                            <span class="text-muted"><%= question.views %> views</span>
                         </div>
                         <div class="question-details">
-                            <h3 class="h4"><a href="/questions/<%= i + 1 %>" class="text-dark text-decoration-none">How to center a div in CSS?</a></h3>
+                            <a href="/questions/<%= question._id %>" class="h4 text-decoration-none text-dark"><%= question.title %></a>
                             <div class="tags">
-                                <span class="badge bg-secondary">css</span>
-                                <span class="badge bg-secondary">html</span>
-                                <span class="badge bg-secondary">web-development</span>
+                                <% question.tags.forEach(function(tag) { %>
+                                    <span class="badge bg-secondary"><%= tag.name %></span>
+                                <% }); %>
                             </div>
-                            <p class="question-meta text-muted">Asked by <a href="#">user123</a> on Jan 1, 2024</p>
+                            <p class="question-meta text-muted">Asked by <a href="/users/<%= question.creator._id %>"><%= question.creator.username %></a> on <%= question.createdAt.toLocaleDateString() %></p>
                         </div>
                     </article>
-                    <% } %>
+                    <% }) %>
 
                     <nav class="pagination-nav">
                         <ul class="pagination justify-content-center">
                             <li class="page-item disabled">
-                                <a class="pagi-link" href="#" tabindex="-1">Previous</a>
+                                <button class="pagi-link" href="#" tabindex="-1" disabled>Previous</button>
                             </li>
                             <li class="page-item">
-                                <a class="pagi-link" href="#">1</a>
+                                <button class="pagi-link" href="#" <% if(questions.length > 0) { %> disabled<% } %>>1</button>
                             </li>
                             <li class="page-item">
-                                <a class="pagi-link" href="#">2</a>
+                                <button class="pagi-link" href="#" <% if(questions.length > 0) { %> disabled<% } %>>2</button>
                             </li>
                             <li class="page-item">
-                                <a class="pagi-link" href="#">3</a>
+                                <button class="pagi-link" href="#" <% if(questions.length > 0) { %> disabled<% } %>>3</button>
                             </li>
                             <li class="page-item">
-                                <a class="pagi-link" href="#">Next</a>
+                                <button class="pagi-link" href="#" <% if(questions.length > 0) { %> disabled<% } %>>Next</button>
                             </li>
                         </ul>
                     </nav>

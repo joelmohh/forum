@@ -22,17 +22,29 @@ Router.post('/new', verifyToken, loadUser, async (req, res) => {
             return res.status(400).json({ message: "Missing required fields", ok: false });
         }
 
-        let tagIds = [];
+        const tagIds = await Promise.all(
+            tags.map(async (tagName) => {
+                let tag = await Tags.findOne({ name: tagName });
 
-        tags.forEach(async (tagName) => {
-            let tag = await Tags.findOne({ name: tagName });
-            if (!tag) {
-                tag = new Tags({ name: tagName, createdBy: res.locals.user._id });
-                await tag.save();
-            }
-            tagIds.push(tag._id);
-        });
+                if (!tag) {
+                    tag = new Tags({
+                        name: tagName,
+                        createdBy: res.locals.user._id,
+                    });
 
+                    await tag.save();
+                }
+
+                return tag._id;
+            })
+        );
+
+        if (tagIds.length === 0) {
+            return res.status(400).json({
+                message: "No valid tags found",
+                ok: false,
+            });
+        }
 
         const question = new Posts({
             creator: res.locals.user._id,
@@ -46,7 +58,7 @@ Router.post('/new', verifyToken, loadUser, async (req, res) => {
 
         res.json({ message: "Question created successfully", ok: true, questionId: question._id });
 
-    }catch (err) { 
+    } catch (err) {
         console.log("[ERROR] /question/new route:", err);
         res.status(500).json({ message: "Internal server error", ok: false });
     }
@@ -83,7 +95,7 @@ Router.post('/edit', verifyToken, loadUser, async (req, res) => {
 
         res.json({ message: "Question updated successfully", ok: true, questionId: question._id });
 
-    }catch (err) { 
+    } catch (err) {
         console.log("[ERROR] /question/new route:", err);
         res.status(500).json({ message: "Internal server error", ok: false });
     }

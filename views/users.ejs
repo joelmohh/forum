@@ -1,155 +1,156 @@
 <%- include('./partials/header') %>
 
-<body>
-<%- include('./partials/menu', { activePage: 'users', pageType: 'main' }) %>
+    <body>
+        <%- include('./partials/menu', { activePage: 'users' , pageType: 'main' }) %>
+            <script src="/js/pagination.js"></script>
+            <link rel="stylesheet" href="/css/profile.css">
+            <div class="container py-5">
 
-<style>
-.users-header{
-    margin-bottom:2rem;
-}
+                <div class="users-hero mb-5">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4">
 
-.user-card{
-    background:#fff;
-    border:1px solid #e5e7eb;
-    border-radius:18px;
-    transition:.2s;
-    height:100%;
-}
+                        <div>
+                            <h1 class="display-5 fw-bold mb-2">
+                                <i class="bi bi-people-fill me-2"></i>
+                                Community Members
+                            </h1>
 
-.user-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 8px 24px rgba(0,0,0,.08);
-}
+                            <p class="text-light-emphasis mb-0">
+                                Explore our community and connect with
+                                <strong>
+                                    <%= users.length %>
+                                </strong> members.
+                            </p>
+                        </div>
 
-.user-avatar{
-    width:72px;
-    height:72px;
-    border-radius:50%;
-    object-fit:cover;
-}
+                        <div class="d-flex gap-3 flex-wrap align-items-center">
+                            <div class="search-box">
+                                <label class="small text-muted mb-1 d-block">
+                                    Find a user
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" id="search" class="form-control" placeholder="Search users...">
+                                    <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                                </div>
+                            </div>
 
-.user-username{
-    color:#111827;
-    text-decoration:none;
-    font-weight:700;
-    font-size:1.05rem;
-}
+                            <div>
+                                <label class="small text-muted mb-1 d-block">
+                                    Users per page
+                                </label>
 
-.user-username:hover{
-    color:#0d6efd;
-}
+                                <select id="pageSize" class="form-select">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                </select>
+                            </div>
 
-.user-stats{
-    display:flex;
-    gap:1rem;
-    margin-top:.75rem;
-    font-size:.9rem;
-    color:#6b7280;
-}
+                        </div>
 
-.user-bio{
-    color:#6b7280;
-    font-size:.92rem;
-    margin-top:.75rem;
-    min-height:45px;
-}
-
-.user-footer{
-    border-top:1px solid #f1f5f9;
-    margin-top:1rem;
-    padding-top:1rem;
-    font-size:.85rem;
-    color:#6b7280;
-}
-</style>
-
-<div class="container py-4">
-
-<div class="users-header">
-
-    <h1 class="fw-bold">
-        Community Members
-    </h1>
-
-    <p class="text-muted mb-0">
-        <%= users.length %> registered users
-    </p>
-
-</div>
-
-<div class="row g-4">
-
-    <% users.forEach(user => { %>
-
-    <div class="col-md-6 col-xl-4">
-
-        <div class="user-card p-4">
-
-            <div class="d-flex gap-3">
-
-                <img
-                    src="<%= user.profilePicture %>"
-                    alt="<%= user.username %>"
-                    class="user-avatar">
-
-                <div>
-
-                    <a
-                        href="/users/<%= user._id %>"
-                        class="user-username">
-
-                        <%= user.displayName || user.username %>
-
-                    </a>
-
-                    <div class="text-muted small">
-                        @<%= user.username %>
                     </div>
-
                 </div>
 
-            </div>
+                <div class="row g-4" id="user-card">
 
-            <% if(user.bio){ %>
-                <div class="user-bio">
-                    <%= user.bio.length > 120
-                        ? user.bio.substring(0,120) + '...'
-                        : user.bio %>
+                    <% users.forEach(user=> { %>
+                        <div class="col-md-6 col-xl-4">
+                            <div class="user-card p-4">
+                                <div class="d-flex gap-3">
+                                    <img src="<%= user.profilePicture %>" alt="<%= user.username %>"
+                                        class="user-avatar">
+                                    <div>
+                                        <a href="/users/<%= user._id %>" class="user-username">
+                                            <%= user.displayName || user.username %>
+                                        </a>
+                                        <div class="text-muted small">
+                                            @<%= user.username %>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% if(user.bio){ %>
+                                    <div class="user-bio">
+                                        <%= user.bio.length> 120 ? user.bio.substring(0,120) + '...' : user.bio %>
+                                    </div>
+                                    <% } else {%>
+                                        <div class="user-bio text-muted">
+                                            No bio available.
+                                        </div>
+                                        <% } %>
+                                            <div class="user-stats">
+                                                <span>
+                                                    <strong>
+                                                        <%= user.followers?.length || 0 %>
+                                                    </strong>
+                                                    followers
+                                                </span>
+                                                <span>
+                                                    <strong>
+                                                        <%= user.following?.length || 0 %>
+                                                    </strong>
+                                                    following
+                                                </span>
+                                            </div>
+
+                                            <div class="user-footer">Joined <%= user.createdAt.toLocaleDateString() %>
+                                            </div>
+
+                            </div>
+                        </div>
+                        <% }) %>
+
+                            <ul class="pagination justify-content-end">
+                                <li class="page-item disabled">
+                                    <button class="pagi-link" href="#" id="prev" tabindex="-1">Previous</button>
+                                </li>
+                                <span id="info">
+
+                                </span>
+                                <li class="page-item">
+                                    <button class="pagi-link" href="#" id="next">Next</button>
+                                </li>
+                            </ul>
+
+                            <script>
+                                const tbody = document.getElementById("tbody");
+
+                                const pagination = new Pagination({
+
+                                    data: users,
+
+                                    pageSize: 10,
+
+                                    render(items) {
+
+                                        tbody.innerHTML = "";
+
+                                        items.forEach(user => {
+
+                                            tbody.innerHTML += `
+                <tr>
+                    <td>${user.nome}</td>
+                    <td>${user.idade}</td>
+                    <td>${user.cargo}</td>
+                </tr>
+            `;
+
+                                        });
+
+                                    },
+
+                                    onUpdate(p) {
+
+                                        info.textContent =
+                                            `Página ${p.page} de ${p.totalPages} | ${p.totalItems} registros`;
+
+                                    }
+
+                                });
+
+                                pagination.update();
+                            </script>
+
                 </div>
-            <% } %>
-
-            <div class="user-stats">
-
-                <span>
-                    <strong>
-                        <%= user.followers?.length || 0 %>
-                    </strong>
-                    followers
-                </span>
-
-                <span>
-                    <strong>
-                        <%= user.following?.length || 0 %>
-                    </strong>
-                    following
-                </span>
-
             </div>
-
-            <div class="user-footer">
-
-                Joined
-                <%= user.createdAt.toLocaleDateString() %>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <% }) %>
-
-</div>
-</div>
-<%- include('./partials/footer') %>
-</body>
+            <%- include('./partials/footer') %>
+    </body>

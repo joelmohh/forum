@@ -161,5 +161,98 @@ Router.post("/sessions/:sessionId/revoke", verifyToken, loadUser, async (req, re
     }
 });
 
+Router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
+    try {
+        console.log("Received file:", req.file);
+        if (!req.file) {
+            return res.status(400).json({
+                ok: false,
+                message: "No image provided",
+            });
+        }
+
+        const allowedMimeTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif",
+        ];
+
+        if (!allowedMimeTypes.includes(req.file.mimetype)) {
+            return res.status(400).json({
+                ok: false,
+                message: "Invalid image type",
+            });
+        }
+
+        const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+        if (req.file.size > MAX_SIZE) {
+            return res.status(400).json({
+                ok: false,
+                message: "Image too large",
+            });
+        }
+
+        const originalBuffer = await fs.promises.readFile(req.file.path);
+
+        let processedBuffer;
+
+        try {
+            processedBuffer = await sharp(originalBuffer).rotate().resize({ width: 512, fit: "inside", withoutEnlargement: true, }).webp({ quality: 85 }).toBuffer();
+        } catch (err) {
+            return res.status(400).json({
+                ok: false,
+                message: "Invalid image",
+            });
+        }
+
+        const formData = new FormData();
+        const filename = `upload_${Date.now()}.webp`;
+
+        formData.append(
+            "file",
+            new Blob([processedBuffer], { type: "image/webp" }),
+            crypto.randomUUID().replaceAll("-", "") + Date.now().toString(36) + Math.random().toString(36).slice(2) + req.file.originalname.replace(/\s+/g, "_").toLowerCase()
+        );
+
+        const response = await fetch(
+            "https://cdn.hackclub.com/api/v4/upload",
+            {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${process.env.HC_CDN}`,
+                },
+                body: formData,
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.url) {
+            return res.status(500).json({
+                ok: false,
+                message: "Failed to upload image",
+            });
+        }
+
+        return res.status(200).json({
+            ok: true,
+            url: result.url,
+        });
+    } catch (err) {
+        console.error("[ERROR] /upload", err);
+
+        return res.status(500).json({
+            ok: false,
+            message: "Internal server error",
+        });
+    } finally {
+        if (req.file?.path) {
+            fs.promises.unlink(req.file.path).catch(() => { });
+        }
+    }
+});
+
 
 module.exports = Router;

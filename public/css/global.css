@@ -1,4 +1,5 @@
 @import url('./auth.css');
+@import url('./profile.css');
 /* Bootstrap CSS overwrites */
 
 .btn-primary {
@@ -380,4 +381,55 @@ table th, table td {
 }
 em {
     font-style: italic;
+}
+
+button[disabled] {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+    .question-card,
+.answer-card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+}
+
+.vote-btn{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    transition:.2s;
+}
+
+.vote-btn:hover{
+    transform:scale(1.05);
+}
+
+.accepted-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.5rem;
+    background:#dcfce7;
+    color:#166534;
+    border-radius:999px;
+    padding:.4rem .8rem;
+    font-size:.85rem;
+    font-weight:600;
+}
+
+.tag{
+    background:#eff6ff;
+    color:#1d4ed8;
+    border:none;
+    padding:6px 14px;
+    border-radius:999px;
+}
+
+.user-mini{
+    background:#f8fafc;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px;
 }

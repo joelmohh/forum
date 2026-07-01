@@ -30,33 +30,47 @@ async function refreshToken() {
 }
 
 async function api(url, options = {}) {
-    if(options.headers && options.headers["Authorization"]) {
-        const token = localStorage.getItem("token");
-        if (token) {
-            options.headers["Authorization"] = `Bearer ${token}`;
-        }
+
+    const token = localStorage.getItem("token");
+
+    const isFormData = options.body instanceof FormData;
+
+    const headers = {
+        ...(options.headers || {}),
+        ...(token ? { "Authorization": `Bearer ${token}` } : {})
+    };
+
+    if (!isFormData) {
+        headers["Content-Type"] = "application/json";
     }
+
     let response = await fetch(url, {
         ...options,
         credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            ...options.headers
-        }
+        headers
     });
 
     if (response.status === 401) {
         try {
             await refreshToken();
 
+            const newToken = localStorage.getItem("token");
+
+            const retryHeaders = {
+                ...(options.headers || {}),
+                ...(newToken ? { "Authorization": `Bearer ${newToken}` } : {})
+            };
+
+            if (!isFormData) {
+                retryHeaders["Content-Type"] = "application/json";
+            }
+
             response = await fetch(url, {
                 ...options,
                 credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                    ...options.headers
-                }
+                headers: retryHeaders
             });
+
         } catch {
             window.location.href = "/login";
             return;
@@ -76,11 +90,9 @@ async function api(url, options = {}) {
         throw new Error(error);
     }
 
-    if (contentType?.includes("application/json")) {
-        return response.json();
-    }
-
-    return response.json();
+    return contentType?.includes("application/json")
+        ? response.json()
+        : response.text();
 }
 
 

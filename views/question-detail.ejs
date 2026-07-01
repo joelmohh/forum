@@ -1,286 +1,300 @@
 <%- include('./partials/header') %>
 
-<body>
-<%- include('./partials/menu', { activePage: 'questions', pageType: 'main' }) %>
-<style>
-    .question-card,
-.answer-card{
-    background:#fff;
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:24px;
-}
+    <body>
+        <%- include('./partials/menu', { activePage: 'questions' , pageType: 'main' }) %>
 
-.vote-btn{
-    width:52px;
-    height:52px;
-    border-radius:50%;
-    transition:.2s;
-}
+            <style>
+                /* layout base */
+                .page-wrap {
+                    max-width: 1100px;
+                    margin: 0 auto;
+                }
 
-.vote-btn:hover{
-    transform:scale(1.05);
-}
+                /* content readability */
+                .question-content,
+                .answer-content {
+                    font-size: 1.05rem;
+                    line-height: 1.8;
+                }
 
-.accepted-badge{
-    display:inline-flex;
-    align-items:center;
-    gap:.5rem;
-    background:#dcfce7;
-    color:#166534;
-    border-radius:999px;
-    padding:.4rem .8rem;
-    font-size:.85rem;
-    font-weight:600;
-}
+                .question-content p,
+                .answer-content p {
+                    margin-bottom: 1rem;
+                }
 
-.tag{
-    background:#eff6ff;
-    color:#1d4ed8;
-    border:none;
-    padding:6px 14px;
-    border-radius:999px;
-}
+                .question-content pre,
+                .answer-content pre {
+                    background: #0d1117;
+                    border: 1px solid #30363d;
+                    color: #fff;
+                    padding: 1.25rem;
+                    border-radius: 10px;
+                    overflow-x: auto;
+                }
 
-.user-mini{
-    background:#f8fafc;
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:12px;
-}
-</style>
-<%
-const post = {
-    title: "How to center a div in CSS?",
-    content: `
-        <p>Estou tentando centralizar uma div horizontalmente e verticalmente.</p>
-        <p>Já tentei usar margin:auto mas não funcionou.</p>
+                /* vote */
+                .vote-box {
+                    position: sticky;
+                    top: 90px;
+                }
 
-        <pre><code>
-.container {
-    width: 300px;
-    height: 300px;
-}
-        </code></pre>
+                .vote-btn {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                }
 
-        <p>Qual é a forma correta atualmente?</p>
-    `,
-    score: 15,
-    answersCount: 3,
-    createdAt: "Jan 1, 2024",
-    views: "1.4k",
-    creator: {
-        username: "user123",
-        avatar: "https://i.pravatar.cc/100?img=1"
-    },
-    category: {
-        name: "CSS"
-    },
-    media: [
-        { type: "image", url: "https://picsum.photos/900/400" }
-    ]
-};
+                /* user card */
+                .user-mini {
+                    background: #f8f9fa;
+                    border: 1px solid #dee2e6;
+                    border-radius: 10px;
+                    padding: 12px;
+                    min-width: 220px;
+                }
 
-const answers = [
-    {
-        score: 12,
-        accepted: true,
-        content: `
-            <p>Use Flexbox:</p>
-            <pre><code>
-.parent {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
-            </code></pre>
-        `,
-        creator: {
-            username: "css_master",
-            avatar: "https://i.pravatar.cc/100?img=5"
-        },
-        createdAt: "Jan 2, 2024"
-    },
-    {
-        score: 8,
-        content: `
-            <p>Também pode usar Grid:</p>
-            <pre><code>
-.parent {
-    display:grid;
-    place-items:center;
-}
-            </code></pre>
-        `,
-        creator: {
-            username: "frontend_dev",
-            avatar: "https://i.pravatar.cc/100?img=8a"
-        },
-        createdAt: "Jan 3, 2024"
-    },
-    {
-        score: 3,
-        content: `<p>Flexbox costuma ser a solução mais usada hoje.</p>`,
-        creator: {
-            username: "john_doe",
-            avatar: "https://i.pravatar.cc/100?img=12"
-        },
-        createdAt: "Jan 4, 2024"
-    }
-];
-%>
+                /* answer separation */
+                .answer-item {
+                    border-top: 1px solid #e9ecef;
+                    padding: 2rem 0;
+                }
 
-<style>
-/* layout base */
-.page-wrap{
-    max-width:1100px;
-    margin:0 auto;
-}
+                /* tag */
+                .tag {
+                    background: #fff3df;
+                    border: 1px solid #ffe0a3;
+                    color: #8a5a00;
+                    border-radius: 999px;
+                    padding: 6px 12px;
+                    font-size: .85rem;
+                }
+            </style>
 
-/* content readability */
-.question-content,
-.answer-content{
-    font-size:1.05rem;
-    line-height:1.8;
-}
+            <div class="container-fluid px-3 page-wrap">
 
-.question-content p,
-.answer-content p{
-    margin-bottom:1rem;
-}
+                <div class="row">
 
-.question-content pre,
-.answer-content pre{
-    background:#0d1117;
-    border:1px solid #30363d;
-    color:#fff;
-    padding:1.25rem;
-    border-radius:10px;
-    overflow-x:auto;
-}
+                    <!-- MAIN -->
+                    <div class="col-lg-9">
 
-/* vote */
-.vote-box{
-    position:sticky;
-    top:90px;
-}
+                        <!-- HEADER -->
+                        <div class="border-bottom pb-3 mb-4">
 
-.vote-btn{
-    width:48px;
-    height:48px;
-    border-radius:50%;
-}
+                            <h1 class="fw-bold mb-3">
+                                <%= question.title %>
+                            </h1>
 
-/* user card */
-.user-mini{
-    background:#f8f9fa;
-    border:1px solid #dee2e6;
-    border-radius:10px;
-    padding:12px;
-    min-width:220px;
-}
+                            <div class="d-flex flex-wrap gap-3 text-muted small">
+                                <span>Asked <%= question.createdAt.toLocaleString() %></span>
+                                <span>
+                                    <%= question.views %> views
+                                </span>
+                                <span>
+                                    <%= question.answersCount %> answers
+                                </span>
+                            </div>
 
-/* answer separation */
-.answer-item{
-    border-top:1px solid #e9ecef;
-    padding:2rem 0;
-}
-
-/* tag */
-.tag{
-    background:#fff3df;
-    border:1px solid #ffe0a3;
-    color:#8a5a00;
-    border-radius:999px;
-    padding:6px 12px;
-    font-size:.85rem;
-}
-</style>
-
-<div class="container-fluid px-3 page-wrap">
-
-    <div class="row">
-
-        <!-- MAIN -->
-        <div class="col-lg-9">
-
-            <!-- HEADER -->
-            <div class="border-bottom pb-3 mb-4">
-
-                <h1 class="fw-bold mb-3">
-                    <%= post.title %>
-                </h1>
-
-                <div class="d-flex flex-wrap gap-3 text-muted small">
-                    <span>Asked <%= post.createdAt %></span>
-                    <span><%= post.views %> views</span>
-                    <span><%= post.answersCount %> answers</span>
-                </div>
-
-            </div>
-
-            <!-- QUESTION -->
-            <div class="row g-4">
-
-                <!-- VOTES -->
-                <div class="col-auto">
-
-                    <div class="vote-box d-flex flex-column align-items-center">
-
-                        <button class="btn btn-light border vote-btn">
-                            ▲
-                        </button>
-
-                        <div class="fs-3 fw-bold my-2">
-                            <%= post.score %>
                         </div>
 
-                        <button class="btn btn-light border vote-btn">
-                            ▼
-                        </button>
+                        <!-- QUESTION -->
+                        <div class="row g-4">
+
+                            <!-- VOTES -->
+                            <div class="col-auto">
+
+                                <div class="vote-box d-flex flex-column align-items-center">
+
+                                    <button class="btn btn-light border vote-btn">
+                                        ▲
+                                    </button>
+
+                                    <div class="fs-3 fw-bold my-2">
+                                        <%= question.score %>
+                                    </div>
+
+                                    <button class="btn btn-light border vote-btn">
+                                        ▼
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                            <!-- CONTENT -->
+                            <div class="col">
+
+                                <div class="question-content" id="question-content">
+                                    <%- question.content %>
+                                </div>
+
+                                <div class="mt-3">
+                                    <% question.tags.forEach(tag=> { %>
+                                        <span class="tag">
+                                            <%= tag.name %>
+                                        </span>
+                                        <% }) %>
+                                </div>
+
+                                <!-- author -->
+                                <div class="d-flex justify-content-end mt-4">
+
+                                    <div class="user-mini">
+
+                                        <small class="text-muted">Asked by</small>
+
+                                        <div class="d-flex align-items-center gap-2 mt-2">
+
+                                            <img src="<%= question.creator.profilePicture %>" class="rounded-circle"
+                                                width="40" height="40">
+
+                                            <div>
+                                                <div class="fw-semibold text-dark text-decoration-none">
+                                                    <a href="/users/<%= question.creator._id %>">
+                                                        <%= question.creator.displayName %>
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- ANSWERS -->
+                        <h2 class="h4 mt-5 mb-4">
+                            <%= comments.length %> Answers
+                        </h2>
+
+                        <% comments.forEach(c=> { %>
+
+                            <div class="answer-item">
+
+                                <div class="row g-4">
+
+                                    <!-- VOTES -->
+                                    <div class="col-auto">
+
+                                        <div class="d-flex flex-column align-items-center">
+
+                                            <button class="btn btn-light border vote-btn">
+                                                ▲
+                                            </button>
+
+                                            <div class="fw-bold my-2">
+                                                <%= c.score %>
+                                            </div>
+
+                                            <button class="btn btn-light border vote-btn">
+                                                ▼
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                    <!-- CONTENT -->
+                                    <div class="col">
+
+                                        <% if(c.accepted){ %>
+                                            <div class="text-success fw-semibold mb-2">
+                                                ✓ Accepted Answer
+                                            </div>
+                                            <% } %>
+
+                                                <div class="answer-content">
+                                                    <%- c.content %>
+                                                </div>
+
+                                                <div class="d-flex justify-content-end mt-4">
+
+                                                    <div class="user-mini">
+
+                                                        <small class="text-muted">
+                                                            Answered <%= c.createdAt %>
+                                                        </small>
+
+                                                        <div class="d-flex align-items-center gap-2 mt-2">
+
+                                                            <img src="<%= c.creator.profilePicture %>"
+                                                                class="rounded-circle" width="36" height="36">
+
+                                                            <span class="fw-semibold">
+                                                                <%= c.creator.username %>
+                                                            </span>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <% }) %>
+                            <% if(!user){ %>
+                                <div class="alert alert-info mt-4">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    You need to <a href="/login" class="alert-link">log in</a> to post an answer.
+                                </div>
+                                <% } else { %>
+
+                                <!-- FORM -->
+                                <div class="card border-0 shadow-sm mt-5">
+                                    <div class="card-body p-4">
+                                        <h3 class="h5 mb-3">Your Answer</h3>
+                                        <form>
+                                            <textarea class="form-control mb-3 imageUploadable" rows="8"
+                                                placeholder="Write your answer..."></textarea>
+                                            <div class="d-flex justify-content-between align-items-center">
+
+                                                <small class="text-muted">
+                                                    Markdown supported
+                                                </small>
+                                                <button class="btn btn-primary px-4">
+                                                    Post Answer
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <% } %>
 
                     </div>
 
-                </div>
+                    <!-- SIDEBAR -->
+                    <div class="col-lg-3">
 
-                <!-- CONTENT -->
-                <div class="col">
+                        <div class="sticky-top" style="top:90px;">
 
-                    <div class="question-content">
-                        <%- post.content %>
-                    </div>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="fw-bold">Related</h6>
+                                    <small class="text-muted">
+                                        • How to center a div flexbox<br>
+                                        • CSS grid vs flexbox<br>
+                                        • Center absolute div
+                                    </small>
+                                </div>
+                            </div>
 
-                    <% if(post.media.length){ %>
-                        <% post.media.forEach(m => { %>
-                            <img src="<%= m.url %>"
-                                 class="img-fluid rounded border my-3">
-                        <% }) %>
-                    <% } %>
-
-                    <div class="mt-3">
-                        <span class="tag">
-                            <%= post.category.name %>
-                        </span>
-                    </div>
-
-                    <!-- author -->
-                    <div class="d-flex justify-content-end mt-4">
-
-                        <div class="user-mini">
-
-                            <small class="text-muted">Asked by</small>
-
-                            <div class="d-flex align-items-center gap-2 mt-2">
-
-                                <img src="<%= post.creator.avatar %>"
-                                     class="rounded-circle"
-                                     width="40"
-                                     height="40">
-
-                                <div>
-                                    <div class="fw-semibold text-primary">
-                                        <%= post.creator.username %>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="fw-bold">Tags</h6>
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        <% question.tags.forEach(tag=> { %>
+                                            <span class="tag">
+                                                <%= tag.name %>
+                                            </span>
+                                            <% }) %>
                                     </div>
                                 </div>
 
@@ -291,151 +305,11 @@ const answers = [
                     </div>
 
                 </div>
+                <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-            </div>
+            <script src="/js/prism.js"></script>
+            <link rel="stylesheet" href="/css/prism.css">
+                <%- include('./partials/footer') %>
 
-            <!-- ANSWERS -->
-            <h2 class="h4 mt-5 mb-4">
-                <%= answers.length %> Answers
-            </h2>
-
-            <% answers.forEach(a => { %>
-
-            <div class="answer-item">
-
-                <div class="row g-4">
-
-                    <!-- VOTES -->
-                    <div class="col-auto">
-
-                        <div class="d-flex flex-column align-items-center">
-
-                            <button class="btn btn-light border vote-btn">
-                                ▲
-                            </button>
-
-                            <div class="fw-bold my-2">
-                                <%= a.score %>
-                            </div>
-
-                            <button class="btn btn-light border vote-btn">
-                                ▼
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                    <!-- CONTENT -->
-                    <div class="col">
-
-                        <% if(a.accepted){ %>
-                            <div class="text-success fw-semibold mb-2">
-                                ✓ Accepted Answer
-                            </div>
-                        <% } %>
-
-                        <div class="answer-content">
-                            <%- a.content %>
-                        </div>
-
-                        <div class="d-flex justify-content-end mt-4">
-
-                            <div class="user-mini">
-
-                                <small class="text-muted">
-                                    Answered <%= a.createdAt %>
-                                </small>
-
-                                <div class="d-flex align-items-center gap-2 mt-2">
-
-                                    <img src="<%= a.creator.avatar %>"
-                                         class="rounded-circle"
-                                         width="36"
-                                         height="36">
-
-                                    <span class="fw-semibold">
-                                        <%= a.creator.username %>
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <% }) %>
-
-            <!-- FORM -->
-            <div class="card border-0 shadow-sm mt-5">
-
-                <div class="card-body p-4">
-
-                    <h3 class="h5 mb-3">Your Answer</h3>
-
-                    <form>
-
-                        <textarea class="form-control mb-3"
-                                  rows="8"
-                                  placeholder="Write your answer..."></textarea>
-
-                        <div class="d-flex justify-content-between align-items-center">
-
-                            <small class="text-muted">
-                                Markdown supported
-                            </small>
-
-                            <button class="btn btn-primary px-4">
-                                Post Answer
-                            </button>
-
-                        </div>
-
-                    </form>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- SIDEBAR -->
-        <div class="col-lg-3">
-
-            <div class="sticky-top" style="top:90px;">
-
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h6 class="fw-bold">Related</h6>
-                        <small class="text-muted">
-                            • How to center a div flexbox<br>
-                            • CSS grid vs flexbox<br>
-                            • Center absolute div
-                        </small>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="fw-bold">Tags</h6>
-                        <span class="tag">CSS</span>
-                        <span class="tag">HTML</span>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<%- include('./partials/footer') %>
-</body>
+   
+    </body>

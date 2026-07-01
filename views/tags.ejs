@@ -28,21 +28,20 @@
         <div class="tag-list mt-4">
             <div class="row g-3">
 
-                <% for(let i = 0; i < 12; i++) { %>
+                <% tags.forEach(tag => { %>
                     <div class="col-sm-6 col-lg-4 col-xl-3">
                         <div class="card h-100 border">
                             <div class="card-body">
-                                <span class="badge text-bg-warning text-decoration-none mb-3">javascript</span>
-                                <p class="text-muted small mb-4"> A programming language commonly used in web development. </p>
+                                <span class="badge text-bg-warning text-decoration-none mb-3"><%= tag.name %></span>
 
                                 <div class="row text-center">
                                     <div class="col">
-                                        <div class="fw-semibold">1500</div>
+                                        <div class="fw-semibold"><%= tag.questionCount %></div>
                                         <small class="text-muted">Questions</small>
                                     </div>
 
                                     <div class="col">
-                                        <div class="fw-semibold">500</div>
+                                        <div class="fw-semibold"><%= tag.followerCount %></div>
                                         <small class="text-muted">Followers</small>
                                     </div>
                                 </div>
@@ -50,7 +49,7 @@
                             </div>
                         </div>
                     </div>
-                <% } %>
+                <% }) %>
 
             </div>
 
