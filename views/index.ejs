@@ -2,21 +2,37 @@
 
     <body class="">
         <%- include('./partials/menu', { activePage: 'index' , pageType: 'main' }) %>
-            <div class="main-content">
-                <h2 class="display-6 d-inline">Top Questions</h2>
-                <a class="btn float-end btn-primary" href="/questions/ask">Ask Question</a>
+            <div class="container py-5">
+
+                <div class="questions-hero mb-5">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4">
+                        <div>
+                            <h1 class="display-5 fw-bold mb-2">
+                                <i class="bi bi-fire me-2"></i>
+                                Top Questions
+                            </h1>
+                            <p class="text-light-emphasis mb-0">
+                                Check out the most relevant questions from our community.
+                            </p>
+                        </div>
+
+                        <div class="d-flex gap-3 flex-wrap align-items-center">
+                            <a class="btn btn-primary" href="/questions/ask">Ask Question</a>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="filters">
                     <a href="#" class="active">Newest</a>
                     <a href="#">Active</a>
                     <a href="#">Unanswered</a>
-                    <a href="#">More</a>
                 </div>
 
-                <div class="question-list">
+                <div class="question-list mt-3">
                     <% questions.forEach((question) => { %>
                     <article class="question-item border-bottom p-3 d-flex gap-5">
                         <div class="question-stats d-flex flex-column gap-2 text-center">
-                            <span class="text-muted"><%= question.upvotes %> votes</span> 
+                            <span class="text-muted"><%= question.upvotes %> votes</span>
                             <span class="text-muted"><%= question.downvotes %> downvotes</span>
                             <span class="text-muted"><%= question.views %> views</span>
                         </div>
@@ -32,9 +48,12 @@
                     </article>
                     <% }) %>
                 </div>
+
                 <p class="mt-4 text-center fs-5 fw-semibold">
                     Want to see all questions? <a href="/questions" class="text-decoration-none">Click here</a>
                 </p>
+
+            </div>
     </body>
 
     <%- include('./partials/footer') %>

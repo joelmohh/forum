@@ -1,42 +1,51 @@
-```ejs
 <%- include('./partials/header') %>
 
 <body>
     <%- include('./partials/menu', { activePage: 'tags', pageType: 'main' }) %>
 
-    <div class="main-content">
-        <h2 class="display-6">Tags</h2>
+    <div class="container py-5">
 
-        <span class="text-muted">
-            A tag is a keyword or label that categorizes your question with other,
-            similar questions. Using the right tags makes it easier for others to
-            find and answer your question.
-        </span>
+        <div class="tags-hero mb-5">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4">
+                <div>
+                    <h1 class="display-5 fw-bold mb-2">
+                        <i class="bi bi-tags-fill me-2"></i>
+                        Tags
+                    </h1>
+                    <p class="text-light-emphasis mb-0">
+                        Explore our <strong><%= tags.length %></strong> tags and discover the topics that interest you.
+                    </p>
+                </div>
 
-        <div class="d-flex gap-3 align-items-center mt-3">
-            <div class="search-tags">
-                <input type="text" id="tagsSearch" class="form-control" placeholder="Search tags...">
-            </div>
+                <div class="d-flex gap-3 flex-wrap align-items-center">
+                    <div class="search-box">
+                        <label class="small text-muted mb-1 d-block">Find a tag</label>
+                        <div class="input-group">
+                            <input type="text" id="tagsSearch" class="form-control" placeholder="Search tags...">
+                            <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
 
-            <div>
-                <label class="small text-muted mb-1 d-block">Tags per page:</label>
-
-                <select id="tagsPageSize" class="form-select d-inline-block w-auto">
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                </select>
-            </div>
-
-            <div class="filters">
-                <a href="#" class="active" data-pagination-sort="popular">Popular</a>
-                <a href="#" data-pagination-sort="name">Name</a>
-                <a href="#" data-pagination-sort="new">New</a>
+                    <div>
+                        <label class="small text-muted mb-1 d-block">Tags per page</label>
+                        <select id="tagsPageSize" class="form-select">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <div class="filters">
+            <a href="#" class="active" data-pagination-sort="popular">Popular</a>
+            <a href="#" data-pagination-sort="name">Name</a>
+            <a href="#" data-pagination-sort="new">New</a>
+        </div>
+
         <div class="tag-list mt-4" id="tagsList">
-            <div class="row g-3">
+            <div class="row g-4">
 
                 <% tags.forEach(tag => { %>
                     <div class="col-sm-6 col-lg-4 col-xl-3" data-pagination-item
@@ -67,9 +76,9 @@
 
             </div>
 
-            <nav class="pagination-nav d-flex justify-content-between align-items-center mt-4">
+            <div class="d-flex justify-content-end align-items-center gap-3 mt-4">
                 <ul class="pagination justify-content-end mb-0" id="tagsPagination"></ul>
-            </nav>
+            </div>
         </div>
     </div>
 

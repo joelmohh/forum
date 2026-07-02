@@ -224,8 +224,8 @@ if (submitButton) {
                     "Authorization": `Bearer ${localStorage.getItem('token')}`
                 }
             }).then(data => {
-                    if (data.success) {
-                        alert('Question submitted successfully!');
+                    if (data.ok) {
+                        window.location.href = `/questions/${data.questionId}?t=success&m=Question+created+successfully!`;
                     } else {
                         submitButton.disabled = false;
                         submitButton.textContent = 'Submit';

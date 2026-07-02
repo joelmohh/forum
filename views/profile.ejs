@@ -19,12 +19,17 @@
                             <img src="<%= displayUser.profilePicture %>" alt="<%= displayUser.username %>'s avatar"
                                 class="avatar-ring">
 
-                            <% if(currentUser && currentUser._id.toString() !==displayUser._id.toString()){ %>
+                            <% if(isSelf === false && currentUser.toString() !== displayUser._id.toString()){ %>
                                 <button id="followBtn" data-user-id="<%= displayUser._id %>" class="btn-follow"
                                     style="margin-top:12px">
                                     Follow
                                 </button>
-                                <% } %>
+                                <% }  else {%>
+                                    <a href="/users/<%= displayUser._id %>/settings" class="btn btn-outline-primary"
+                                        style="margin-top:12px">
+                                        Edit Profile
+                                    </a>
+                                    <% } %>
 
                         </div>
 

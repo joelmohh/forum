@@ -104,16 +104,19 @@ Router.get('/users/:id/settings', needAuth, async (req, res) => {
     res.render('profile-settings', { devices })
 })
 Router.get('/users/:id', async (req, res) => {
-    const currentUser = res.locals.user_id;
+    const currentUser = res.locals.user._id;
     if(req.params.id){
 
-        const user = await User.findById(req.params.id);
+        const user = await User.findById(req.params.id).select('username displayName profilePicture followers following createdAt bio').populate('followers', 'username displayName profilePicture').populate('following', 'username displayName profilePicture');
         const posts = await Posts.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
         const comments = await Comments.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture bio');
 
-        console.log(user)
+        let isSelf = false;
+        if(currentUser.toString() === req.params.id){
+            isSelf = true;
+        }
 
-        res.render('profile', { displayUser: user, posts: posts, comments: comments, currentUser: currentUser === req.params.id})
+        res.render('profile', { displayUser: user, posts: posts, comments: comments, currentUser: currentUser === req.params.id, isSelf: isSelf })
     }
 })
 Router.get('/logout', needAuth, (req, res) => {

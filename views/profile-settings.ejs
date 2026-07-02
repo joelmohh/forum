@@ -24,6 +24,7 @@
                             </div>
                         </div>
 
+
                     </div>
 
                     <!-- RIGHT -->
@@ -37,24 +38,97 @@
 
                                     <h4 class="mb-4">Profile</h4>
 
+                                    <!-- DISPLAY NAME -->
                                     <div class="mb-3">
                                         <label class="form-label">Display Name</label>
+
                                         <input type="text" class="form-control" id="displayName" name="displayName"
                                             value="<%= user.displayName || '' %>">
 
                                         <div class="validation-messages" id="displayName-message"></div>
                                     </div>
 
+                                    <!-- PROFILE PICTURE -->
                                     <div class="mb-3">
                                         <label class="form-label">Profile Picture</label>
+
                                         <input type="file" class="form-control" id="profilePicture"
                                             name="profilePicture" accept="image/png,image/jpeg,image/webp,image/gif">
 
                                         <div class="validation-messages" id="profilePicture-message"></div>
+
+                                        <button type="button" class="btn btn-outline-danger btn-sm mt-2"
+                                            id="removeProfilePicture">
+                                            Remove Profile Picture
+                                        </button>
                                     </div>
 
+                                    <!-- BANNER -->
+                                    <div class="mb-4">
+
+                                        <label class="form-label fw-semibold">Profile Banner</label>
+
+                                        <!-- PREVIEW -->
+                                        <div id="bannerPreview"
+                                            class="rounded border overflow-hidden position-relative mb-3"
+                                            style="height:180px; cursor:pointer; background:<%= user.bannerColor || '#000000' %>;">
+
+                                            <% if (user.banner) { %>
+                                                <img id="bannerPreviewImage" src="<%= user.banner %>"
+                                                    class="w-100 h-100 object-fit-cover">
+                                                <% } else { %>
+                                                    <img id="bannerPreviewImage"
+                                                        class="w-100 h-100 object-fit-cover d-none">
+                                                    <% } %>
+
+                                                        <div class="position-absolute top-50 start-50 translate-middle
+                    bg-dark bg-opacity-50 text-white px-3 py-2 rounded">
+                                                            <i class="fa-solid fa-image me-2"></i>
+                                                            Click to change banner
+                                                        </div>
+                                        </div>
+
+                                        <!-- INPUT FILE (HIDDEN) -->
+                                        <input type="file" id="banner" name="banner" class="d-none"
+                                            accept="image/png,image/jpeg,image/webp,image/gif">
+
+                                        <div class="validation-messages mb-3" id="banner-message"></div>
+
+                                        <button type="button" class="btn btn-outline-danger btn-sm mb-3"
+                                            id="removeBanner">
+                                            Remove Banner
+                                        </button>
+
+                                        <div class="row">
+
+                                            <div class="col-md-4">
+                                                <label class="form-label">Banner Color</label>
+
+                                                <input type="color" class="form-control form-control-color"
+                                                    id="bannerColor" name="bannerColor"
+                                                    value="<%= user.bannerColor || '#000000' %>">
+
+                                                <div class="validation-messages" id="bannerColor-message"></div>
+                                            </div>
+
+                                            <div class="col-md-8">
+                                                <label class="form-label">Selected file</label>
+
+                                                <div id="bannerFileName" class="form-control">
+                                                    <%= user.banner ? 'Current banner selected' : 'No file selected' %>
+                                                </div>
+
+                                                <small class="text-muted">
+                                                    PNG, JPG, WEBP or GIF • Max 5MB • Recommended 1500×500
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- BIO -->
                                     <div class="mb-3">
                                         <label class="form-label">Bio</label>
+
                                         <textarea class="form-control" rows="4" id="bio" name="bio"
                                             maxlength="500"><%= user.bio || '' %></textarea>
 
@@ -219,7 +293,6 @@
 
             </div>
 
-            <script src="/js/session.js"></script>
             <script src="/js/profileUpdate.js"></script>
 
             <%- include('./partials/footer') %>

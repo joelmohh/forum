@@ -95,45 +95,47 @@ async function api(url, options = {}) {
         : response.text();
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".revoke-session-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
 
-document.querySelectorAll(".revoke-session-btn").forEach(btn => {
-    btn.addEventListener("click", async () => {
+            const sessionId = btn.dataset.sessionId;
 
-        const sessionId = btn.dataset.sessionId;
+            if (!confirm("Revoke this session?")) return;
 
-        if (!confirm("Revoke this session?")) return;
+            const res = await api(`/api/sessions/${sessionId}/revoke`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
 
-        const res = await api(`/api/sessions/${sessionId}/revoke`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            if (res.ok) {
+                showToast("Session revoked successfully");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            }
+        });
+    });
+
+    document.getElementById("revokeAllSessions")
+        ?.addEventListener("click", async () => {
+
+            if (!confirm("Sign out from all other devices?")) return;
+
+            const res = await api("/api/sessions/revoke-all", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            console.log(res)
+
+            if (res.ok) {
+                window.location.reload();
             }
         });
 
-        if (res.ok) {
-            showToast("Session revoked successfully");
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500); 
-        }
-    });
-});
-
-document.getElementById("revokeAllSessions")
-?.addEventListener("click", async () => {
-
-    if (!confirm("Sign out from all other devices?")) return;
-
-    const res = await api("/api/sessions/revoke-all", {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-    });
-
-    console.log(res)
-
-    if (res.ok) {
-        window.location.reload();
-    }
-});
+})

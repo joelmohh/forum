@@ -1,21 +1,39 @@
 const displayNameInput = document.getElementById("displayName");
 const bioInput = document.getElementById("bio");
 const profilePictureInput = document.getElementById("profilePicture");
+const bannerInput = document.getElementById("banner");
+const bannerColorInput = document.getElementById("bannerColor");
+
+const bannerPreview = document.getElementById("bannerPreview");
+const bannerPreviewImage = document.getElementById("bannerPreviewImage");
+const bannerFileName = document.getElementById("bannerFileName");
+
+const removeProfilePictureBtn = document.getElementById("removeProfilePicture");
+const removeBannerBtn = document.getElementById("removeBanner");
+
+const ALLOWED_IMAGE_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif"
+];
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
+let removeProfilePictureFlag = false;
+let removeBannerFlag = false;
+let lastBannerObjectURL = null;
 
 function setValidation(input, valid, message) {
     const messageContainer = document.getElementById(`${input.id}-message`);
 
     input.classList.remove("is-valid", "is-invalid");
 
-    if (valid) {
-        input.classList.add("is-valid");
-        messageContainer.innerHTML =
-            `<div class="valid-feedback d-block">${message}</div>`;
-    } else {
-        input.classList.add("is-invalid");
-        messageContainer.innerHTML =
-            `<div class="invalid-feedback d-block">${message}</div>`;
-    }
+    messageContainer.innerHTML = valid
+        ? `<div class="valid-feedback d-block">${message}</div>`
+        : `<div class="invalid-feedback d-block">${message}</div>`;
+
+    input.classList.add(valid ? "is-valid" : "is-invalid");
 }
 
 function clearValidation(input) {
@@ -24,12 +42,37 @@ function clearValidation(input) {
     input.classList.remove("is-valid", "is-invalid");
     messageContainer.innerHTML = "";
 }
-displayNameInput.addEventListener("input", () => {
+
+function validateImage(input) {
+    const file = input.files[0];
+
+    if (!file) {
+        clearValidation(input);
+        return true;
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        setValidation(input, false, "Invalid format.");
+        input.value = "";
+        return false;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+        setValidation(input, false, "Image must be at most 5MB.");
+        input.value = "";
+        return false;
+    }
+
+    setValidation(input, true, "Valid image.");
+    return true;
+}
+
+function validateDisplayName() {
     const value = displayNameInput.value.trim();
 
     if (value.length === 0) {
         clearValidation(displayNameInput);
-        return;
+        return true;
     }
 
     if (value.length < 3) {
@@ -38,7 +81,7 @@ displayNameInput.addEventListener("input", () => {
             false,
             "Display name must be at least 3 characters long."
         );
-        return;
+        return false;
     }
 
     if (value.length > 50) {
@@ -47,52 +90,125 @@ displayNameInput.addEventListener("input", () => {
             false,
             "Display name cannot exceed 50 characters."
         );
-        return;
+        return false;
     }
 
     setValidation(displayNameInput, true, "Display name is valid.");
-});
-bioInput.addEventListener("input", () => {
+    return true;
+}
+
+function validateBio() {
     const value = bioInput.value;
 
     if (value.length > 500) {
-        setValidation(bioInput, false, "The bio cannot exceed 500 characters.");
-        return;
+        setValidation(
+            bioInput,
+            false,
+            "The bio cannot exceed 500 characters."
+        );
+        return false;
     }
 
     setValidation(bioInput, true, `${value.length}/500 characters`);
+    return true;
+}
+
+function validateBannerColor() {
+    const value = bannerColorInput.value;
+
+    if (!/^#[0-9A-Fa-f]{6}$/.test(value)) {
+        setValidation(
+            bannerColorInput,
+            false,
+            "Invalid hex color."
+        );
+        return false;
+    }
+
+    setValidation(bannerColorInput, true, "Valid color.");
+    return true;
+}
+
+displayNameInput.addEventListener("input", validateDisplayName);
+
+bioInput.addEventListener("input", validateBio);
+
+bannerColorInput.addEventListener("input", () => {
+    validateBannerColor();
+    bannerPreview.style.background = bannerColorInput.value;
 });
+
 profilePictureInput.addEventListener("change", () => {
-    const file = profilePictureInput.files[0];
+    removeProfilePictureFlag = false;
+    validateImage(profilePictureInput);
+});
+
+bannerPreview.addEventListener("click", () => {
+    bannerInput.click();
+});
+
+bannerInput.addEventListener("change", () => {
+
+    removeBannerFlag = false;
+
+    if (!validateImage(bannerInput)) {
+        return;
+    }
+
+    const file = bannerInput.files[0];
 
     if (!file) {
-        clearValidation(profilePictureInput);
         return;
     }
 
-    const allowedTypes = [
-        "image/jpeg",
-        "image/png",
-        "image/webp",
-        "image/gif"
-    ];
+    bannerFileName.textContent = file.name;
 
-    if (!allowedTypes.includes(file.type)) {
-        setValidation(profilePictureInput, false, "Invalid format.");
-        profilePictureInput.value = "";
-        return;
+    if (lastBannerObjectURL) {
+        URL.revokeObjectURL(lastBannerObjectURL);
     }
 
-    const maxSize = 5 * 1024 * 1024;
+    lastBannerObjectURL = URL.createObjectURL(file);
 
-    if (file.size > maxSize) {
-        setValidation(profilePictureInput, false, "Image must be at most 5MB.");
-        profilePictureInput.value = "";
-        return;
-    }
-
-    setValidation(profilePictureInput, true, "Valid image.");
+    bannerPreviewImage.src = lastBannerObjectURL;
+    bannerPreviewImage.classList.remove("d-none");
 });
+
+removeProfilePictureBtn.addEventListener("click", () => {
+
+    removeProfilePictureFlag = true;
+
+    profilePictureInput.value = "";
+
+    clearValidation(profilePictureInput);
+
+    const preview = document.getElementById("profilePicturePreview");
+
+    if (preview) {
+        preview.src = "/img/default-avatar.png";
+    }
+});
+
+removeBannerBtn.addEventListener("click", () => {
+
+    removeBannerFlag = true;
+
+    bannerInput.value = "";
+
+    clearValidation(bannerInput);
+
+    if (lastBannerObjectURL) {
+        URL.revokeObjectURL(lastBannerObjectURL);
+        lastBannerObjectURL = null;
+    }
+
+    bannerPreviewImage.src = "";
+    bannerPreviewImage.classList.add("d-none");
+
+    bannerFileName.textContent = "No file selected";
+
+    bannerPreview.style.background = bannerColorInput.value;
+});
+
 document.querySelectorAll(".togglePassword").forEach(button => {
     button.addEventListener("click", () => {
 
@@ -105,63 +221,79 @@ document.querySelectorAll(".togglePassword").forEach(button => {
             input.type = "password";
             button.innerHTML = '<i class="fa-regular fa-eye"></i>';
         }
+
     });
 });
 
 document.getElementById("saveProfileBtn").addEventListener("click", async () => {
 
-    let hasError = false;
+    const isValid = validateDisplayName() && validateBio() && validateBannerColor() && validateImage(profilePictureInput) && validateImage(bannerInput);
 
-    if (
-        displayNameInput.value.trim().length > 0 &&
-        displayNameInput.value.trim().length < 3
-    ) {
-        hasError = true;
-    }
-
-    const file = profilePictureInput.files[0];
-
-    if (file) {
-        const allowedTypes = [
-            "image/jpeg",
-            "image/png",
-            "image/webp",
-            "image/gif"
-        ];
-
-        if (!allowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024) {
-            hasError = true;
-        }
-    }
-
-    if (hasError) {
+    if (!isValid) {
         return;
     }
+    saveButton.disabled = true;
 
     const formData = new FormData();
 
-    formData.append("displayName", displayNameInput.value);
+    formData.append("displayName", displayNameInput.value.trim());
     formData.append("bio", bioInput.value);
+    formData.append("bannerColor", bannerColorInput.value);
 
-    if (file) {
-        formData.append("profilePicture", file);
+    formData.append("removeProfilePicture", removeProfilePictureFlag);
+    formData.append("removeBanner", removeBannerFlag);
+
+    const profilePicture = profilePictureInput.files[0];
+    const banner = bannerInput.files[0];
+
+    if (profilePicture && !removeProfilePictureFlag) {
+        formData.append("profilePicture", profilePicture);
     }
 
-    const response = await fetch("/api/me/update", {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: formData,
-        credentials: "include"
-    });
+    if (banner && !removeBannerFlag) {
+        formData.append("banner", banner);
+    }
 
-    const data = await response.json();
+    try {
 
-    if (response.ok) {
-        alert("Profile updated successfully.");
-        location.reload();
-    } else {
-        alert(data.message || "Error updating profile.");
+        const response = await api("/api/me/update", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            },
+            credentials: "include",
+            body: formData
+        });
+
+        let data = response
+
+        if (response.ok) {
+
+            if (lastBannerObjectURL) {
+                URL.revokeObjectURL(lastBannerObjectURL);
+                lastBannerObjectURL = null;
+            }
+
+            window.location.href = "/users/" + data.userId + "/settings?t=success&m=Profile+updated+successfully";
+
+        } else {
+            toast(data.message || "Error updating profile.", "error");
+            console.log(data)
+        }
+
+    } catch (err) {
+
+        console.error(err);
+        alert("Unable to connect to the server.");
+
+    } finally {
+        saveButton.disabled = false;
+    }
+
+});
+
+window.addEventListener("beforeunload", () => {
+    if (lastBannerObjectURL) {
+        URL.revokeObjectURL(lastBannerObjectURL);
     }
 });

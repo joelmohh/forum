@@ -433,3 +433,28 @@ button[disabled] {
     border-radius:12px;
     padding:12px;
 }
+
+.btn-outline-primary{
+    color:#ff9d00;
+    border:1px solid #ff9d00;
+    background:none;
+    transition:.2s;
+}
+.btn-outline-primary:hover{
+    background:#ff9d00;
+    color:#fff;
+    border:1px solid #ff9d00;
+}
+.btn-outline-primary:focus{
+    box-shadow:0 0 0 0.25rem rgba(255,157,0,.5);
+}
+.btn-outline-primary:active{
+    background:#ff7a00;
+    color:#fff;
+    border:1px solid #ff7a00;
+}
+.btn-outline-primary:focus{
+    background:#ff7a00;
+    color:#fff;
+    border:1px solid #ff7a00;
+}
