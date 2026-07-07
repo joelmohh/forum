@@ -7,7 +7,7 @@ const Posts = require('../models/Posts');
 const Comments = require('../models/Comments');
 const Tags = require('../models/Tags');
 
-const marked = require('marked');
+const { marked } = require('marked');
 
 const crypto = require('crypto');
 
