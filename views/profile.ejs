@@ -4,7 +4,8 @@
 
         <%- include('./partials/menu', { pageType: 'main' , activePage: 'users' }) %>
         <link rel="stylesheet" href="/css/profile.css">
-
+        <link rel="stylesheet" href="/css/prism.css">
+        <script src="/js/prism.js"></script>
             <div class="container py-4" style="max-width:780px">
 
                 <!-- PROFILE CARD -->
@@ -104,7 +105,7 @@
 
                                 <div class="d-flex justify-content-between align-items-start" style="gap:12px">
                                     <div style="flex:1">
-                                        <a href="/posts/<%= post.slug %>">
+                                        <a href="/questions/<%= post._id %>">
                                             <h5>
                                                 <%= post.title %>
                                             </h5>
@@ -129,12 +130,9 @@
                                         <% } %>
                                 </div>
 
-                                <p class="card-excerpt">
-                                    <%= post.content.length> 300
-                                        ? post.content.substring(0, 300) + '…'
-                                        : post.content
-                                        %>
-                                </p>
+                                <div class="card-excerpt">
+                                    <%- post.content %>
+                                </div>
 
                                 <div class="card-footer-row">
                                     <span class="card-stat">
@@ -163,7 +161,7 @@
                 <!-- COMMENTS -->
                 <div class="tab-pane" id="comments">
 
-                    <% if(comments && comments.length){ %>
+                    <% if(comments && comments.length > 0){ %>
 
                         <% comments.forEach(comment=> { %>
                             <div class="card-item">
@@ -172,7 +170,7 @@
                                     <div class="comment-origin">
                                         <i class="fa-regular fa-comment-dots"></i>
                                         Commented on
-                                        <a href="/posts/<%= comment.post.slug %>">
+                                        <a href="/questions/<%= comment.post._id %>">
                                             <%= comment.post.title %>
                                         </a>
                                     </div>

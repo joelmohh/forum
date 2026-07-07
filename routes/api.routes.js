@@ -26,107 +26,216 @@ Router.get("/me", verifyToken, async (req, res) => {
     }
 });
 
-Router.post("/me/update", verifyToken, upload.single('profilePicture'), async (req, res) => {
+Router.post("/me/update", verifyToken, upload.fields([{ name: "profilePicture", maxCount: 1 }, { name: "banner", maxCount: 1 }]), async (req, res) => {
     try {
+
         const user = res.locals.user;
+
         if (!user) {
-            return res.status(401).json({ message: "Unauthorized", ok: false });
+            return res.status(401).json({
+                message: "Unauthorized",
+                ok: false
+            });
         }
 
         const User = await dbUser.findById(user._id);
-        const { bio, displayName } = req.body;
 
         if (!User) {
-            return res.status(404).json({ message: "User not found", ok: false });
+            return res.status(404).json({
+                message: "User not found",
+                ok: false
+            });
         }
 
+        const { bio, displayName, bannerColor, removeProfilePicture, removeBanner } = req.body;
+
         const username = User.username;
-
+        const profilePicture = req.files?.profilePicture?.[0];
+        const banner = req.files?.banner?.[0];
+        const allowedMimeTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif"
+        ];
+        const MAX_SIZE = 5 * 1024 * 1024;
         let updatedProfilePicture = null;
+        let updatedBanner = null;
 
-        if (req.file) {
-
-            const allowedMimeTypes = [
-                "image/jpeg",
-                "image/png",
-                "image/webp",
-                "image/gif"
-            ];
-
-            if (!allowedMimeTypes.includes(req.file.mimetype)) {
+        if (profilePicture) {
+            if (!allowedMimeTypes.includes(profilePicture.mimetype)) {
                 return res.status(400).json({
-                    message: "Invalid image type",
+                    message: "Invalid profile picture.",
                     ok: false
                 });
             }
 
-            const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-
-            if (req.file.size > MAX_SIZE) {
+            if (profilePicture.size > MAX_SIZE) {
                 return res.status(400).json({
-                    message: "Image too large",
+                    message: "Profile picture too large.",
                     ok: false
                 });
             }
 
-            const originalBuffer = await fs.promises.readFile(req.file.path);
-
+            const originalBuffer = await fs.promises.readFile(profilePicture.path);
             let processedBuffer;
 
             try {
-
                 processedBuffer = await sharp(originalBuffer).rotate().resize({ width: 512, height: 512, fit: "cover" }).webp({ quality: 85 }).toBuffer();
-
-            } catch (err) {
-
+            } catch {
                 return res.status(400).json({
-                    message: "Invalid image",
+                    message: "Invalid profile picture.",
                     ok: false
                 });
 
+            }
+            const formData = new FormData();
+            formData.append(
+                "file",
+                new Blob([processedBuffer], {
+                    type: "image/webp"
+                }),
+                `profile_${username}_${Date.now()}.webp`
+            );
+            const response = await fetch(
+                "https://cdn.hackclub.com/api/v4/upload",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${process.env.HC_CDN}`
+                    },
+                    body: formData
+                }
+            );
+            const result = await response.json();
+            if (!response.ok || !result.url) {
+                return res.status(500).json({
+                    message: "Failed to upload profile picture.",
+                    ok: false
+                });
+            }
+            updatedProfilePicture = result.url;
+        }
+
+        if (banner) {
+
+            if (!allowedMimeTypes.includes(banner.mimetype)) {
+                return res.status(400).json({
+                    message: "Invalid banner.",
+                    ok: false
+                });
+            }
+
+            if (banner.size > MAX_SIZE) {
+                return res.status(400).json({
+                    message: "Banner too large.",
+                    ok: false
+                });
+            }
+
+            const originalBuffer = await fs.promises.readFile(banner.path);
+            let processedBuffer;
+
+            try {
+                processedBuffer = await sharp(originalBuffer).rotate().resize({ width: 1500, height: 500, fit: "cover" }).webp({ quality: 85 }).toBuffer();
+            } catch {
+                return res.status(400).json({
+                    message: "Invalid banner.",
+                    ok: false
+                });
             }
 
             const formData = new FormData();
 
-            formData.append("file", new Blob([processedBuffer], { type: "image/webp" }), `profile_${username}_${Date.now()}.webp`);
+            formData.append(
+                "file",
+                new Blob([processedBuffer], {
+                    type: "image/webp"
+                }),
+                `banner_${username}_${Date.now()}.webp`
+            );
 
-            const response = await fetch("https://cdn.hackclub.com/api/v4/upload", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${process.env.HC_CDN}`
-                },
-                body: formData
-            });
+            const response = await fetch(
+                "https://cdn.hackclub.com/api/v4/upload",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${process.env.HC_CDN}`
+                    },
+                    body: formData
+                }
+            );
 
             const result = await response.json();
 
-            if (response.ok && result.url) {
-                updatedProfilePicture = result.url;
-            } else {
+            if (!response.ok || !result.url) {
                 return res.status(500).json({
-                    message: "Failed to upload image",
+                    message: "Failed to upload banner.",
                     ok: false
                 });
             }
+
+            updatedBanner = result.url;
         }
-        if (displayName) {
-            User.displayName = displayName;
+
+        if (displayName !== undefined) {
+            User.displayName = displayName.trim();
         }
+
+        if (bio !== undefined) {
+            User.bio = bio;
+        }
+
+        if (bannerColor !== undefined) {
+            User.bannerColor = bannerColor;
+        }
+
         if (updatedProfilePicture) {
             User.profilePicture = updatedProfilePicture;
         }
-        if (bio) {
-            User.bio = bio
+
+        if (updatedBanner) {
+            User.banner = updatedBanner;
         }
+
+        if (removeProfilePicture === "true") {
+            User.profilePicture = null;
+        }
+
+        if (removeBanner === "true") {
+            User.banner = null;
+        }
+
         await User.save();
-        res.json({ message: "Profile updated successfully", ok: true });
+
+        res.json({
+            ok: true,
+            message: "Profile updated successfully.",
+            userId: User._id
+        });
+
     } catch (err) {
-        console.error("Error in /me/update route:", err);
-        res.status(500).json({ message: "Internal server error", ok: false });
+
+        console.error(err);
+
+        res.status(500).json({
+            ok: false,
+            message: "Internal server error."
+        });
+
     } finally {
-        if (req.file?.path) {
-            fs.promises.unlink(req.file.path).catch(() => { });
-        }
+
+        const files = [
+            ...(req.files?.profilePicture || []),
+            ...(req.files?.banner || [])
+        ];
+
+        await Promise.all(
+            files.map(file =>
+                fs.promises.unlink(file.path).catch(() => { })
+            )
+        );
+
     }
 });
 

@@ -109,7 +109,24 @@ Router.get('/users/:id', async (req, res) => {
 
         const user = await User.findById(req.params.id).select('username displayName profilePicture followers following createdAt bio').populate('followers', 'username displayName profilePicture').populate('following', 'username displayName profilePicture');
         const posts = await Posts.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
-        const comments = await Comments.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture bio');
+        const comments = await Comments.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture bio').populate('post', 'title slug');
+
+        posts.forEach(post => {
+            post.excerpt = post.content.length > 300 ? post.content.substring(0, 300) + '…': post.content;
+
+            post.content = marked.parse(post.excerpt);
+        })
+
+        comments.forEach(comment => {
+            comment.content = marked.parse(comment.content);
+            console.log(comment)
+        })
+
+        console.log(comments.length);
+
+        if (!user) {
+            return res.redirect('/users');
+        }
 
         let isSelf = false;
         if(currentUser.toString() === req.params.id){
