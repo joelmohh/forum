@@ -330,13 +330,13 @@ a.text-decoration-none {
     border-radius: 16px;
 }
 
-.post-item,
+.question-item,
 .comment-item {
     padding: 1rem;
     border-bottom: 1px solid #f1f5f9;
 }
 
-.post-item:last-child,
+.question-item:last-child,
 .comment-item:last-child {
     border-bottom: none;
 }

@@ -12,7 +12,7 @@ const notificationSchema = new mongoose.Schema({
         enum: ['reply', 'mention', 'vote']
     },
 
-    post: { type: ObjectId, ref: 'Post' },
+    question: { type: ObjectId, ref: 'Question' },
     comment: { type: ObjectId, ref: 'Comment' },
 
     isRead: {

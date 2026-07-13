@@ -3,7 +3,7 @@ const Router = require('express').Router();
 const { loadUser, needAuth } = require('../modules/auth/loadUser.js');
 const Sessions = require("../models/Sessions");
 const User = require('../models/User');
-const Posts = require('../models/Posts');
+const Question = require('../models/Question');
 const Comments = require('../models/Comments');
 const Tags = require('../models/Tags');
 
@@ -33,7 +33,7 @@ function normalizeUserAgent(ua) {
 
 
 Router.get('/', async (req, res) => {
-    const questions = await Posts.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name').limit(10);
+    const questions = await Question.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name').limit(10);
     res.render('index', { questions })
 })
 Router.get('/login', (req, res) => {
@@ -47,7 +47,7 @@ Router.get('/users', async (req, res) => {
     res.render('users', { users })
 })
 Router.get('/questions', async (req, res) => {
-    const questions = await Posts.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name')
+    const questions = await Question.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name')
     res.render('questions', { questions })
 })
 
@@ -60,7 +60,7 @@ Router.get('/questions/ask', needAuth, (req, res) => {
     res.render('question-form')
 })
 Router.get('/questions/edit/:id', needAuth, async (req, res) => {
-    const question = await Posts.findById(req.params.id);
+    const question = await Question.findById(req.params.id);
     if (!question) {
         return res.redirect('/questions');
     }
@@ -72,8 +72,8 @@ Router.get('/questions/edit/:id', needAuth, async (req, res) => {
     res.render('question-form', { questionId: req.params.id, editMode: true, question: question })
 })
 Router.get('/questions/:id/', async (req, res) => {
-    const question = await Posts.findById(req.params.id).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
-    const comments = await Comments.find({ post: req.params.id }).populate('creator', 'username displayName profilePicture bio');
+    const question = await Question.findById(req.params.id).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
+    const comments = await Comments.find({ question: req.params.id }).populate('creator', 'username displayName profilePicture bio');
 
     question.content = marked.parse(question.content);
 
@@ -108,22 +108,20 @@ Router.get('/users/:id', async (req, res) => {
     const currentUser = res.locals.user._id;
     if(req.params.id){
 
-        const user = await User.findById(req.params.id).select('username displayName profilePicture followers following createdAt bio').populate('followers', 'username displayName profilePicture').populate('following', 'username displayName profilePicture');
-        const posts = await Posts.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
-        const comments = await Comments.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture bio').populate('post', 'title slug');
+        const user = await User.findById(req.params.id).select('username displayName profilePicture followers following createdAt bio banner bannerColor').populate('followers', 'username displayName profilePicture').populate('following', 'username displayName profilePicture');
+        const questions = await Question.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
+        const comments = await Comments.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture bio').populate('question', 'title slug');
 
-        posts.forEach(post => {
-            post.excerpt = post.content.length > 300 ? post.content.substring(0, 300) + '…': post.content;
+        questions.forEach(question => {
+            question.excerpt = question.content.length > 300 ? question.content.substring(0, 300) + '…': question.content;
 
-            post.content = marked.parse(post.excerpt);
+            question.content = marked.parse(question.excerpt);
         })
 
         comments.forEach(comment => {
             comment.content = marked.parse(comment.content);
             console.log(comment)
         })
-
-        console.log(comments.length);
 
         if (!user) {
             return res.redirect('/users');
@@ -134,7 +132,7 @@ Router.get('/users/:id', async (req, res) => {
             isSelf = true;
         }
 
-        res.render('profile', { displayUser: user, posts: posts, comments: comments, currentUser: currentUser === req.params.id, isSelf: isSelf })
+        res.render('profile', { displayUser: user, questions: questions, comments: comments, currentUser: currentUser === req.params.id, isSelf: isSelf })
     }
 })
 Router.get('/logout', needAuth, (req, res) => {

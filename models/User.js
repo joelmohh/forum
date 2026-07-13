@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema({
 
     profilePicture: {
         type: String,
-        default: "https://via.placeholder.com/150?text=Profile+Picture"
+        default: "https://placehold.co/150x150"
     },
 
     bio: {
@@ -68,7 +68,7 @@ const userSchema = new mongoose.Schema({
 
     banner: {
         type: String,
-        default: "https://via.placeholder.com/800x200?text=Banner"
+        default: "https://placehold.co/800x200"
     },
 
     bannerColor: {

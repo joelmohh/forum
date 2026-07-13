@@ -11,7 +11,7 @@ const Session = require('../models/Sessions');
 const { verifyToken } = require('../modules/auth/AuthManager');
 const { loadUser } = require('../modules/auth/loadUser');
 const User = require('../models/User');
-const Posts = require('../models/Posts');
+const Question = require('../models/Question');
 
 Router.get("/me", verifyToken, async (req, res) => {
     try {

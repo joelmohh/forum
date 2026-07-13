@@ -74,4 +74,4 @@ postSchema.index({ category: 1, createdAt: -1 });
 postSchema.index({ score: -1, createdAt: -1 });
 postSchema.index({ isPinned: -1, createdAt: -1 });
 
-module.exports = mongoose.model('Post', postSchema);
+module.exports = mongoose.model('Question', postSchema);

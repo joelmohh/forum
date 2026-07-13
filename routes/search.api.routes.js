@@ -1,7 +1,7 @@
 const Router = require('express').Router();
 
 const User = require('../models/User');
-const Posts = require('../models/Posts');
+const Question = require('../models/Question');
 const Tags = require('../models/Tags');
 
 Router.get('/users', async (req, res) => {
@@ -28,8 +28,8 @@ Router.get('/questions', async (req, res) => {
 
         const filter = search ? { title: { $regex: search, $options: 'i' } } : {};
 
-        const total = await Posts.countDocuments(filter);
-        const questions = await Posts.find(filter).populate('creator', 'username displayName profilePicture').populate('tags', 'name').skip(skip).limit(limit);
+        const total = await Question.countDocuments(filter);
+        const questions = await Question.find(filter).populate('creator', 'username displayName profilePicture').populate('tags', 'name').skip(skip).limit(limit);
 
         res.json({ data: { questions, page, limit, total }, ok: true });
     } catch (err) {

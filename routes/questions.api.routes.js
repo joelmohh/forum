@@ -10,7 +10,7 @@ const Session = require('../models/Sessions');
 const { verifyToken } = require('../modules/auth/AuthManager');
 const { loadUser } = require('../modules/auth/loadUser');
 const User = require('../models/User');
-const Posts = require('../models/Posts');
+const Question = require('../models/Question');
 const Tags = require('../models/Tags');
 
 Router.post('/new', verifyToken, loadUser, async (req, res) => {
@@ -59,7 +59,7 @@ Router.post('/new', verifyToken, loadUser, async (req, res) => {
             })
         );
 
-        const question = new Posts({
+        const question = new Question({
             creator: res.locals.user._id,
             title,
             content: description,
@@ -76,7 +76,7 @@ Router.post('/new', verifyToken, loadUser, async (req, res) => {
             tagIds.map(tagId =>
                 Tags.findByIdAndUpdate(tagId, {
                     $inc: { postsCount: 1 },
-                    $addToSet: { posts: question._id }
+                    $addToSet: { questions: question._id }
                 })
             )
         );
@@ -113,7 +113,7 @@ Router.post('/edit', verifyToken, loadUser, async (req, res) => {
             });
         }
 
-        const question = await Posts.findById(questionId);
+        const question = await Question.findById(questionId);
 
         if (!question) {
             return res.status(404).json({
@@ -160,7 +160,7 @@ Router.post('/edit', verifyToken, loadUser, async (req, res) => {
             removedTags.map(tagId =>
                 Tags.findByIdAndUpdate(tagId, {
                     $inc: { postsCount: -1 },
-                    $pull: { posts: question._id }
+                    $pull: { questions: question._id }
                 })
             )
         );
@@ -169,7 +169,7 @@ Router.post('/edit', verifyToken, loadUser, async (req, res) => {
             addedTags.map(tagId =>
                 Tags.findByIdAndUpdate(tagId, {
                     $inc: { postsCount: 1 },
-                    $addToSet: { posts: question._id }
+                    $addToSet: { questions: question._id }
                 })
             )
         );
@@ -208,7 +208,7 @@ Router.post('/delete', verifyToken, loadUser, async (req, res) => {
             });
         }
 
-        const question = await Posts.findById(questionId);
+        const question = await Question.findById(questionId);
 
         if (!question) {
             return res.status(404).json({
@@ -228,12 +228,12 @@ Router.post('/delete', verifyToken, loadUser, async (req, res) => {
             question.tags.map(tagId =>
                 Tags.findByIdAndUpdate(tagId, {
                     $inc: { postsCount: -1 },
-                    $pull: { posts: question._id }
+                    $pull: { questions: question._id }
                 })
             )
         );
 
-        await Posts.findByIdAndDelete(questionId);
+        await Question.findByIdAndDelete(questionId);
 
         return res.json({
             message: "Question deleted successfully",

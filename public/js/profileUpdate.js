@@ -232,7 +232,7 @@ document.getElementById("saveProfileBtn").addEventListener("click", async () => 
     if (!isValid) {
         return;
     }
-    saveButton.disabled = true;
+    document.getElementById("saveProfileBtn").disabled = true;
 
     const formData = new FormData();
 
@@ -287,7 +287,7 @@ document.getElementById("saveProfileBtn").addEventListener("click", async () => 
         alert("Unable to connect to the server.");
 
     } finally {
-        saveButton.disabled = false;
+        document.getElementById("saveProfileBtn").disabled = false;
     }
 
 });

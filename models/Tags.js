@@ -17,9 +17,9 @@ const tagSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    posts: [{
+    questions: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Posts'
+        ref: 'Question'
     }],
     postsCount: {
         type: Number,
