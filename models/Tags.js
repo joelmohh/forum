@@ -28,6 +28,15 @@ const tagSchema = new mongoose.Schema({
     followers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
+    }],
+    followersCount: {
+        type: Number,
+        default: 0
+    },
+    aliases: [{
+        type: String,
+        trim: true,
+        maxlength: 100
     }]
 }, {
     timestamps: true

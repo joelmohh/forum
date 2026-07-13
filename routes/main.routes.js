@@ -53,7 +53,8 @@ Router.get('/questions', async (req, res) => {
 
 Router.get('/tags', async (req, res) => {
     const tags = await Tags.find();
-    res.render('tags', { tags })
+    const user = await User.findById(res.locals.user?._id).select('followedTags');
+    res.render('tags', { tags, user })
 })
 Router.get('/questions/ask', needAuth, (req, res) => {
     res.render('question-form')

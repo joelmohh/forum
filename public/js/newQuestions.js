@@ -20,6 +20,7 @@ if (titleInput) {
 // Tag handling
 const tagsInput = document.getElementById('tags');
 const tagsList = document.getElementById('tagsList');
+
 let tags = [];
 const maxTags = 5;
 
@@ -28,36 +29,46 @@ if (tagsInput) {
         if ((e.key === 'Enter' || e.key === ' ') && this.value.trim()) {
             e.preventDefault();
 
-            if (tags.length < maxTags) {
-                const tag = this.value.trim().toLowerCase();
-                if (tag && !tags.includes(tag)) {
-                    tags.push(tag);
-                    renderTags();
-                    this.value = '';
+            if (tags.length >= maxTags) return;
 
-                    validateForm("tags");
+            const tag = this.value.trim().toLowerCase();
 
-                }
+            if (!tags.includes(tag)) {
+                tags.push(tag);
+                this.value = '';
+
+                renderTags();
+                validateForm("tags");
             }
         }
     });
 }
 
+function removeTag(tag) {
+    tags = tags.filter(t => t !== tag);
+    renderTags();
+    validateForm("tags");
+}
+
 function renderTags() {
     tagsList.innerHTML = '';
+
     tags.forEach(tag => {
         const tagElement = document.createElement('span');
-        tagElement.className = 'badge bg-light text-secondary';
-        tagElement.style.cursor = 'pointer';
-        tagElement.innerHTML = `
-                    ${tag}
-                    <i class="bi bi-x-lg ms-1" style="cursor: pointer;"></i>
-                `;
+        tagElement.className = 'badge bg-light text-secondary d-inline-flex align-items-center gap-1';
 
-        tagElement.querySelector('i').addEventListener('click', function () {
-            tags = tags.filter(t => t !== tag);
-            renderTags();
-        });
+        tagElement.innerHTML = `
+            <span>${tag}</span>
+            <button
+                type="button"
+                class="btn-close btn-close-sm"
+                aria-label="Remover tag">
+            </button>
+        `;
+
+        tagElement
+            .querySelector('.btn-close')
+            .addEventListener('click', () => removeTag(tag));
 
         tagsList.appendChild(tagElement);
     });
@@ -163,6 +174,9 @@ function validateForm(field = 'all') {
         } else if (description.length < 30) {
             showError(descriptionInput, messageElements.description, 'Write at least 30 characters.');
             isValid = false;
+        } else if (description.length > 5000) {
+            showError(descriptionInput, messageElements.description, 'Max 5000 characters.');
+            isValid = false;
         } else {
             showSuccess(descriptionInput, messageElements.description, 'Looks good.');
         }
@@ -229,14 +243,14 @@ if (submitButton) {
                     } else {
                         submitButton.disabled = false;
                         submitButton.textContent = 'Submit';
-                        alert('Error: ' + (data.message || 'An error occurred.'));
+                        toast(data.message || 'An error occurred.', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     submitButton.disabled = false;
                     submitButton.textContent = 'Submit';
-                    alert('An unexpected error occurred.');
+                    toast('An unexpected error occurred.', 'error');
                 });
         }
     });

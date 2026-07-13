@@ -42,6 +42,12 @@ const userSchema = new mongoose.Schema({
         default: []
     }],
 
+    followedTags: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Tag',
+        default: []
+    }],
+
     lastLogin: Date,
 
     profilePicture: {

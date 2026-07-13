@@ -15,117 +15,238 @@ const Tags = require('../models/Tags');
 
 Router.post('/new', verifyToken, loadUser, async (req, res) => {
     try {
-
         const { title, description, tags } = req.body;
 
-        if (!title || !description || !tags) {
-            return res.status(400).json({ message: "Missing required fields", ok: false });
+        if (!title || !description || !Array.isArray(tags) || tags.length === 0) {
+            return res.status(400).json({
+                message: "Missing required fields",
+                ok: false
+            });
         }
 
+        if(description.length > 5000) {
+            return res.status(400).json({
+                message: "Description is too long. Maximum length is 5000 characters.",
+                ok: false
+            });
+        }
+
+        if(title.length > 200) {
+            return res.status(400).json({
+                message: "Title is too long. Maximum length is 200 characters.",
+                ok: false
+            });
+        }
+        
+        const uniqueTags = [...new Set(
+            tags
+                .map(tag => tag.trim().toLowerCase())
+                .filter(tag => tag.length > 0)
+        )];
+
         const tagIds = await Promise.all(
-            tags.map(async (tagName) => {
+            uniqueTags.map(async (tagName) => {
                 let tag = await Tags.findOne({ name: tagName });
 
                 if (!tag) {
-                    tag = new Tags({
+                    tag = await Tags.create({
                         name: tagName,
-                        createdBy: res.locals.user._id,
+                        createdBy: res.locals.user._id
                     });
-
-                    await tag.save();
                 }
 
                 return tag._id;
             })
         );
 
-        if (tagIds.length === 0) {
+        const question = new Posts({
+            creator: res.locals.user._id,
+            title,
+            content: description,
+            tags: tagIds,
+            slug: title
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '')
+        });
+
+        await question.save();
+
+        await Promise.all(
+            tagIds.map(tagId =>
+                Tags.findByIdAndUpdate(tagId, {
+                    $inc: { postsCount: 1 },
+                    $addToSet: { posts: question._id }
+                })
+            )
+        );
+
+        return res.json({
+            message: "Question created successfully",
+            ok: true,
+            questionId: question._id
+        });
+
+    } catch (err) {
+        console.error("[ERROR] /question/new route:", err);
+
+        return res.status(500).json({
+            message: "Internal server error",
+            ok: false
+        });
+    }
+});
+Router.post('/edit', verifyToken, loadUser, async (req, res) => {
+    try {
+        const { questionId, title, description, tags } = req.body;
+
+        if (
+            !questionId ||
+            !title ||
+            !description ||
+            !Array.isArray(tags) ||
+            tags.length === 0
+        ) {
             return res.status(400).json({
-                message: "No valid tags found",
-                ok: false,
+                message: "Missing required fields",
+                ok: false
             });
         }
 
-        const question = new Posts({
-            creator: res.locals.user._id,
-            title: title,
-            content: description,
-            tags: tagIds,
-            slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-        });
+        const question = await Posts.findById(questionId);
 
-        await question.save();
-
-        res.json({ message: "Question created successfully", ok: true, questionId: question._id });
-
-    } catch (err) {
-        console.log("[ERROR] /question/new route:", err);
-        res.status(500).json({ message: "Internal server error", ok: false });
-    }
-})
-Router.post('/edit', verifyToken, loadUser, async (req, res) => {
-    try {
-
-        const { title, description, tags } = req.body;
-
-        if (!title || !description || !tags) {
-            return res.status(400).json({ message: "Missing required fields", ok: false });
+        if (!question) {
+            return res.status(404).json({
+                message: "Question not found",
+                ok: false
+            });
         }
 
-        let tagIds = [];
+        if (question.creator.toString() !== res.locals.user._id.toString()) {
+            return res.status(403).json({
+                message: "You are not authorized to edit this question",
+                ok: false
+            });
+        }
 
-        tags.forEach(async (tagName) => {
-            let tag = await Tags.findOne({ name: tagName });
-            if (!tag) {
-                tag = new Tags({ name: tagName, createdBy: res.locals.user._id });
-                await tag.save();
-            }
-            tagIds.push(tag._id);
-        });
+        const uniqueTags = [...new Set(
+            tags
+                .map(tag => tag.trim().toLowerCase())
+                .filter(tag => tag.length > 0)
+        )];
 
-        const question = Posts.findByIdAndUpdate(req.params.questionId, {
-            creator: res.locals.user._id,
-            title: title,
-            content: description,
-            tags: tagIds,
-            slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-        }, { new: true });
+        const tagIds = await Promise.all(
+            uniqueTags.map(async (tagName) => {
+                let tag = await Tags.findOne({ name: tagName });
+
+                if (!tag) {
+                    tag = await Tags.create({
+                        name: tagName,
+                        createdBy: res.locals.user._id
+                    });
+                }
+
+                return tag._id;
+            })
+        );
+
+        const oldTags = question.tags.map(id => id.toString());
+        const newTags = tagIds.map(id => id.toString());
+
+        const removedTags = oldTags.filter(id => !newTags.includes(id));
+        const addedTags = newTags.filter(id => !oldTags.includes(id));
+
+        await Promise.all(
+            removedTags.map(tagId =>
+                Tags.findByIdAndUpdate(tagId, {
+                    $inc: { postsCount: -1 },
+                    $pull: { posts: question._id }
+                })
+            )
+        );
+
+        await Promise.all(
+            addedTags.map(tagId =>
+                Tags.findByIdAndUpdate(tagId, {
+                    $inc: { postsCount: 1 },
+                    $addToSet: { posts: question._id }
+                })
+            )
+        );
+
+        question.title = title;
+        question.content = description;
+        question.tags = tagIds;
+        question.slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
         await question.save();
 
-        res.json({ message: "Question updated successfully", ok: true, questionId: question._id });
+        return res.json({
+            message: "Question updated successfully",
+            ok: true,
+            questionId: question._id
+        });
 
     } catch (err) {
-        console.log("[ERROR] /question/new route:", err);
-        res.status(500).json({ message: "Internal server error", ok: false });
+        console.error("[ERROR] /question/edit route:", err);
+
+        return res.status(500).json({
+            message: "Internal server error",
+            ok: false
+        });
     }
-})
+});
 
 Router.post('/delete', verifyToken, loadUser, async (req, res) => {
     try {
         const { questionId } = req.body;
 
         if (!questionId) {
-            return res.status(400).json({ message: "Missing question ID", ok: false });
+            return res.status(400).json({
+                message: "Missing question ID",
+                ok: false
+            });
         }
 
         const question = await Posts.findById(questionId);
 
         if (!question) {
-            return res.status(404).json({ message: "Question not found", ok: false });
+            return res.status(404).json({
+                message: "Question not found",
+                ok: false
+            });
         }
 
         if (question.creator.toString() !== res.locals.user._id.toString()) {
-            return res.status(403).json({ message: "You are not authorized to delete this question", ok: false });
+            return res.status(403).json({
+                message: "You are not authorized to delete this question",
+                ok: false
+            });
         }
 
-        await Posts.deleteOne({ _id: questionId });
+        await Promise.all(
+            question.tags.map(tagId =>
+                Tags.findByIdAndUpdate(tagId, {
+                    $inc: { postsCount: -1 },
+                    $pull: { posts: question._id }
+                })
+            )
+        );
 
-        res.json({ message: "Question deleted successfully", ok: true });
+        await Posts.findByIdAndDelete(questionId);
+
+        return res.json({
+            message: "Question deleted successfully",
+            ok: true
+        });
 
     } catch (err) {
-        console.log("[ERROR] /question/delete route:", err);
-        res.status(500).json({ message: "Internal server error", ok: false });
+        console.error("[ERROR] /question/delete route:", err);
+
+        return res.status(500).json({
+            message: "Internal server error",
+            ok: false
+        });
     }
 });
 

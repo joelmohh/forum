@@ -38,6 +38,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api', apiRoutes);
 app.use('/api/question', questionRoutes);
 app.use('/api/search', require('./routes/search.api.routes'));
+app.use('/api/tags', require('./routes/tags.routes'));
 
 app.use((req, res) => {
     res.status(404).send('404 Page Not Found', { title: '404 - Not Found' });
