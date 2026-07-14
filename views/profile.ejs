@@ -12,7 +12,7 @@
                 <div class="profile-wrapper">
 
                     <div class="profile-banner">
-                        <% if(!displayUser.banner.endsWith('800x200')){ %>
+                        <% if (displayUser.banner && !displayUser.banner.endsWith('800x200')) { %>
                             <img src="<%= displayUser.banner %>" alt="Banner">
                             <% } %>
                     </div>
