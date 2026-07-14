@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "update": "git pull && npm install --production && pm2 restart forum"
   },
   "repository": {
     "type": "git",

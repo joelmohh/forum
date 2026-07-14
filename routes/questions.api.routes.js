@@ -197,9 +197,9 @@ Router.post('/edit', verifyToken, loadUser, async (req, res) => {
     }
 });
 
-Router.post('/delete', verifyToken, loadUser, async (req, res) => {
+Router.post('/delete/:id', verifyToken, loadUser, async (req, res) => {
     try {
-        const { questionId } = req.body;
+        const { questionId } = req.params;
 
         if (!questionId) {
             return res.status(400).json({

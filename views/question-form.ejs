@@ -7,9 +7,15 @@
                     <div class="row g-4">
                         <div class="col-12 col-lg-9">
                             <section class="mb-4">
-                                <h1 class="h3 fw-normal mb-2">Ask Your Question</h1>
-                                <p class="text-secondary">Make sure your question is clear and provides enough
-                                    information for our community to help</p>
+                                <% if (editMode === true) { %>
+                                    <h1 class="h3 fw-normal mb-2">Edit Your Question</h1>
+                                    <p class="text-secondary">Make sure your question is clear and provides enough
+                                        information for our community to help</p>
+                                <% } else { %>
+                                    <h1 class="h3 fw-normal mb-2">Ask Your Question</h1>
+                                    <p class="text-secondary">Make sure your question is clear and provides enough
+                                        information for our community to help</p>
+                                <% } %>
                             </section>
 
                             <div class="card border-0 shadow-sm">
@@ -18,7 +24,7 @@
                                         <div class="mb-4 pb-4 border-bottom">
                                             <label for="title" class="form-label fw-500">Title <span class="mandatory">*</span></label>
                                             <input type="text" class="form-control form-control-lg" id="title"
-                                                placeholder="What's your programming problem? Be specific.">
+                                                placeholder="What's your programming problem? Be specific." <% if(editMode === true) { %>value="<%= question.title %>"<% } %>>
                                             <ul class="text-secondary d-block mt-2 me-0">
                                                 <li>Pretend you're talking to a busy colleague. Avoid special characters
                                                 </li>
@@ -41,7 +47,7 @@
 - What did you expect to happen?
 - What actually happened?
 
-Include relevant code snippets when possible."></textarea>
+Include relevant code snippets when possible." ><% if(editMode === true) { %><%= question.content %> <% } %></textarea>
 
                                             <div class="alert alert-warning small mt-3 mb-3">
                                                 <strong>Tip:</strong> Use code formatting by wrapping it in three
@@ -72,7 +78,7 @@ Include relevant code snippets when possible."></textarea>
                                                 <!-- Tags will be added here dynamically -->
                                             </div>
                                         </div>
-
+                                        <% if (editMode !== true) { %>
                                         <div class="mb-4 pb-4 border-bottom">
                                             <div class="form-check mb-3">
                                                 <input class="form-check-input" type="checkbox" id="hasAttempted">
@@ -92,6 +98,7 @@ Include relevant code snippets when possible."></textarea>
                                                 </label>
                                             </div>
                                         </div>
+                                        
 
                                         <!-- Help Text -->
                                         <div class="alert alert-light border mb-4">
@@ -105,17 +112,18 @@ Include relevant code snippets when possible."></textarea>
                                                     describe the unexpected behavior</li>
                                             </ul>
                                         </div>
+                                        <% } %>
 
                                         <!-- Buttons -->
                                         <div class="d-flex gap-2 flex-wrap">
-                                            <button type="button" id="questionPublish" class="btn btn-primary">Publish Your Question</button>
+                                            <button type="button" id="questionPublish" class="btn btn-primary"><% if (editMode === false) { %>Publish Your Question<% } else { %>Update Question<% } %></button>
                                             <button type="button" class="btn btn-outline-danger" onclick="window.history.back()">Discard</button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
-
+                        <% if (editMode !== true) { %>
                         <!-- Sidebar Help -->
                         <div class="col-12 col-lg-3">
                             <!-- How to Ask -->
@@ -189,16 +197,25 @@ Include relevant code snippets when possible."></textarea>
                                     </ul>
                                 </div>
                             </div>
+
+                        <% } %>
                         </div>
                     </div>
                 </div>
             </main>
 
             <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-            <script src="/js/newQuestions.js"></script>
+            <script src="/js/questions.js"></script>
             <script src="/js/prism.js"></script>
             <link rel="stylesheet" href="/css/prism.css">
 
+            <% if (editMode === true) { %>
+                <script>
+                    const questionId = "<%= question._id %>";
+                    tags = "<%- tags %>".split(",");
+                    renderTags();
+                </script>
+            <% } %>
     </body>
 
     <%- include('./partials/footer') %>

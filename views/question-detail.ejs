@@ -84,14 +84,28 @@
                                 <%= question.title %>
                             </h1>
 
-                            <div class="d-flex flex-wrap gap-3 text-muted small">
+                            <div class="d-flex flex-wrap align-items-center gap-3 text-muted small">
                                 <span>Asked <%= question.createdAt.toLocaleString() %></span>
+
                                 <span>
                                     <%= question.views %> views
                                 </span>
+
                                 <span>
                                     <%= question.answersCount %> answers
                                 </span>
+
+                                <% if (isSelf) { %>
+                                    <div class="d-flex gap-2 ms-auto">
+                                        <a href="/questions/edit/<%= question._id %>"
+                                            class="btn btn-outline-primary btn-sm">
+                                            <i class="fa-solid fa-pen"></i> Edit Question
+                                        </a>
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            <i class="fa-solid fa-trash"></i> Delete Question
+                                        </button>
+                                    </div>
+                                    <% } %>
                             </div>
 
                         </div>
@@ -240,33 +254,33 @@
                             </div>
 
                             <% }) %>
-                            <% if(!user){ %>
-                                <div class="alert alert-info mt-4">
-                                    <i class="bi bi-info-circle me-2"></i>
-                                    You need to <a href="/login" class="alert-link">log in</a> to post an answer.
-                                </div>
-                                <% } else { %>
-
-                                <!-- FORM -->
-                                <div class="card border-0 shadow-sm mt-5">
-                                    <div class="card-body p-4">
-                                        <h3 class="h5 mb-3">Your Answer</h3>
-                                        <form>
-                                            <textarea class="form-control mb-3 imageUploadable" rows="8"
-                                                placeholder="Write your answer..."></textarea>
-                                            <div class="d-flex justify-content-between align-items-center">
-
-                                                <small class="text-muted">
-                                                    Markdown supported, paste images directly into the editor.
-                                                </small>
-                                                <button class="btn btn-primary px-4" id="answerbtn">
-                                                    Post Answer
-                                                </button>
-                                            </div>
-                                        </form>
+                                <% if(!user){ %>
+                                    <div class="alert alert-info mt-4">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        You need to <a href="/login" class="alert-link">log in</a> to post an answer.
                                     </div>
-                                </div>
-                                <% } %>
+                                    <% } else { %>
+
+                                        <!-- FORM -->
+                                        <div class="card border-0 shadow-sm mt-5">
+                                            <div class="card-body p-4">
+                                                <h3 class="h5 mb-3">Your Answer</h3>
+                                                <form>
+                                                    <textarea class="form-control mb-3 imageUploadable" rows="8"
+                                                        placeholder="Write your answer..."></textarea>
+                                                    <div class="d-flex justify-content-between align-items-center">
+
+                                                        <small class="text-muted">
+                                                            Markdown supported, paste images directly into the editor.
+                                                        </small>
+                                                        <button class="btn btn-primary px-4" id="answerbtn">
+                                                            Post Answer
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <% } %>
 
                     </div>
 
@@ -307,9 +321,9 @@
                 </div>
                 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-            <script src="/js/prism.js"></script>
-            <link rel="stylesheet" href="/css/prism.css">
+                <script src="/js/prism.js"></script>
+                <link rel="stylesheet" href="/css/prism.css">
                 <%- include('./partials/footer') %>
 
-   
+
     </body>

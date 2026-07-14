@@ -89,17 +89,23 @@ renderer.blockquote = function (token) {
     `;
 };
 
+function updatePreview() {
+    if (!questionDescription || !previewContent) return;
+
+    previewContent.innerHTML = marked.parse(questionDescription.value, { renderer });
+
+    if (window.Prism) {
+        Prism.highlightAllUnder(previewContent);
+    }
+}
+
 if (questionDescription) {
     questionDescription.addEventListener('input', function () {
-
-        previewContent.innerHTML = marked.parse(this.value, { renderer });
-
+        updatePreview();
         validateForm("description");
-
-        if (window.Prism) {
-            Prism.highlightAllUnder(previewContent);
-        }
     });
+
+    updatePreview();
 }
 
 // FORM VALIDATION
@@ -118,10 +124,21 @@ const messageElements = {
     checkboxes: document.createElement('div')
 };
 
-titleInput.parentNode.appendChild(messageElements.title);
-descriptionInput.parentNode.appendChild(messageElements.description);
-tagsInput.parentNode.appendChild(messageElements.tags);
-isMinimal.parentNode.parentNode.appendChild(messageElements.checkboxes);
+if (titleInput) {
+    titleInput.parentNode.appendChild(messageElements.title);
+}
+
+if (descriptionInput) {
+    descriptionInput.parentNode.appendChild(messageElements.description);
+}
+
+if (tagsInput) {
+    tagsInput.parentNode.appendChild(messageElements.tags);
+}
+
+if (isMinimal) {
+    isMinimal.parentNode.parentNode.appendChild(messageElements.checkboxes);
+}
 
 function showError(input, container, msg) {
     input.classList.remove('success');
@@ -150,7 +167,9 @@ function validateForm(field = 'all') {
     const validateTitle = field === 'all' || field === 'title';
     const validateDescription = field === 'all' || field === 'description';
     const validateTags = field === 'all' || field === 'tags';
-    const validateCheckboxes = field === 'all';
+
+    const isEdit = typeof questionId !== "undefined";
+    const validateCheckboxes = field === 'all' && !isEdit;
 
     if (validateTitle) {
         if (!title) {
@@ -195,7 +214,7 @@ function validateForm(field = 'all') {
     }
 
     if (validateCheckboxes) {
-        if (!hasAttempted.checked || !isMinimal.checked) {
+        if (hasAttempted && isMinimal && (!hasAttempted.checked || !isMinimal.checked)) {
             messageElements.checkboxes.innerHTML =
                 `<span class="validation-message error">You must confirm both checkboxes.</span>`;
             isValid = false;
@@ -224,33 +243,39 @@ if (submitButton) {
             submitButton.disabled = true;
             submitButton.textContent = 'Submitting...';
 
+            const isEdit = typeof questionId !== "undefined";
+
             const formData = {
                 title: titleInput.value.trim(),
                 description: descriptionInput.value.trim(),
-                tags: tags,
-                hasAttempted: hasAttempted.checked,
-                isMinimal: isMinimal.checked
+                tags: tags
+            };
+
+            if (isEdit) {
+                formData.questionId = questionId;
             }
-            api('/api/question/new', {
+
+
+            api(isEdit ? '/api/question/edit' : '/api/question/new', {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem('token')}`
                 }
             }).then(data => {
-                    if (data.ok) {
-                        window.location.href = `/questions/${data.questionId}?t=success&m=Question+created+successfully!`;
-                    } else {
-                        submitButton.disabled = false;
-                        submitButton.textContent = 'Submit';
-                        toast(data.message || 'An error occurred.', 'error');
-                    }
-                })
+                if (data.ok) {
+                    window.location.href = `/questions/${data.questionId}?t=success&m=Question+${isEdit ? 'updated' : 'created'}+successfully!`;
+                } else {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Submit';
+                    showToast(data.message || 'An error occurred.', 'error');
+                }
+            })
                 .catch(error => {
                     console.error('Error:', error);
                     submitButton.disabled = false;
                     submitButton.textContent = 'Submit';
-                    toast('An unexpected error occurred.', 'error');
+                    showToast('An unexpected error occurred.', 'error');
                 });
         }
     });

@@ -3,16 +3,18 @@
     <body>
 
         <%- include('./partials/menu', { pageType: 'main' , activePage: 'users' }) %>
-        <link rel="stylesheet" href="/css/profile.css">
-        <link rel="stylesheet" href="/css/prism.css">
-        <script src="/js/prism.js"></script>
+            <link rel="stylesheet" href="/css/profile.css">
+            <link rel="stylesheet" href="/css/prism.css">
+            <script src="/js/prism.js"></script>
             <div class="container py-4" style="max-width:780px">
 
                 <!-- PROFILE CARD -->
                 <div class="profile-wrapper">
 
                     <div class="profile-banner">
-                        <img src="<%= displayUser.banner %>" alt="Banner">
+                        <% if(!displayUser.banner.endsWith('800x200')){ %>
+                            <img src="<%= displayUser.banner %>" alt="Banner">
+                            <% } %>
                     </div>
 
                     <div class="profile-body">
@@ -22,15 +24,16 @@
                             <img src="<%= displayUser.profilePicture %>" alt="<%= displayUser.username %>'s avatar"
                                 class="avatar-ring">
 
-                            <% if(isSelf === false && currentUser.toString() !== displayUser._id.toString()){ %>
-                                <button id="followBtn" data-user-id="<%= displayUser._id %>" class="btn-follow"
-                                    style="margin-top:12px">
-                                    Follow
+                            <% if(isSelf===false && currentUser.toString() !==displayUser._id.toString()){ %>
+                                <button id="followBtn" class="btn-follow" data-user-id="<%= displayUser._id %>"
+                                    data-following="<%= following ? 'true' : 'false' %>" style="margin-top:12px">
+                                    <%- following ? '<i class="fa-solid fa-user-minus"></i> Unfollow'
+                                        : '<i class="fa-solid fa-user-plus"></i> Follow' %>
                                 </button>
-                                <% }  else {%>
+                                <% } else {%>
                                     <a href="/users/<%= displayUser._id %>/settings" class="btn btn-outline-primary"
                                         style="margin-top:12px">
-                                        Edit Profile
+                                        <i class="fa-solid fa-user-pen"></i> Edit Profile
                                     </a>
                                     <% } %>
 
@@ -67,7 +70,7 @@
                                 <span>Comments</span>
                             </div>
                             <div class="stat-item">
-                                <strong>
+                                <strong id="followersCount">
                                     <%= displayUser.followers.length %>
                                 </strong>
                                 <span>Followers</span>
@@ -163,7 +166,7 @@
                 <!-- COMMENTS -->
                 <div class="tab-pane" id="comments">
 
-                    <% if(comments && comments.length > 0){ %>
+                    <% if(comments && comments.length> 0){ %>
 
                         <% comments.forEach(comment=> { %>
                             <div class="card-item">
@@ -217,25 +220,8 @@
                         document.getElementById(btn.dataset.target).classList.add('active');
                     });
                 });
-
-                /* ── Follow ── */
-                document.getElementById('followBtn')
-                    ?.addEventListener('click', async function () {
-                        const btn = this;
-                        try {
-                            const res = await fetch(`/users/${btn.dataset.userId}/follow`, {
-                                method: 'POST',
-                                credentials: 'include'
-                            });
-                            if (res.ok) {
-                                btn.classList.add('following');
-                                btn.textContent = 'Following';
-                            }
-                        } catch (err) {
-                            console.error(err);
-                        }
-                    });
             </script>
+            <script src="/js/profile.js"></script>
 
             <%- include('./partials/footer') %>
 

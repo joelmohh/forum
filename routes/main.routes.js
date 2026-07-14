@@ -61,16 +61,39 @@ Router.get('/questions/ask', needAuth, (req, res) => {
 })
 Router.get('/questions/edit/:id', needAuth, async (req, res) => {
     const question = await Question.findById(req.params.id);
+    const allTags = await Tags.find();
+
     if (!question) {
         return res.redirect('/questions');
     }
 
     if (question.creator.toString() !== res.locals.user._id.toString()) {
-        return res.render('question-detail', { question: question, error: 'You are not authorized to edit this question.', editMode: false });
+        return res.render('question-detail', {
+            question,
+            error: 'You are not authorized to edit this question.',
+            editMode: false
+        });
     }
 
-    res.render('question-form', { questionId: req.params.id, editMode: true, question: question })
-})
+    const selectedTags = [];
+
+    question.tags.forEach(tagId => {
+        const tag = allTags.find(t => t._id.toString() === tagId.toString());
+
+        if (tag) {
+            selectedTags.push(tag.name);
+        }
+    });
+
+    res.render('question-form', {
+        questionId: req.params.id,
+        editMode: true,
+        question,
+        tags: selectedTags,
+        allTags
+    });
+});
+
 Router.get('/questions/:id/', async (req, res) => {
     const question = await Question.findById(req.params.id).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
     const comments = await Comments.find({ question: req.params.id }).populate('creator', 'username displayName profilePicture bio');
@@ -80,16 +103,16 @@ Router.get('/questions/:id/', async (req, res) => {
     if (!question) {
         return res.redirect('/questions');
     }
-    res.render('question-detail', { question: question, comments: comments })
+    res.render('question-detail', { question: question, comments: comments, isSelf: res.locals.user?._id.toString() === question.creator._id.toString() })
 })
 Router.get('/users/:id/settings', needAuth, async (req, res) => {
-    let currentDevice 
+    let currentDevice
     if (res.locals.user) {
         const userSessions = await Sessions.find({ user: res.locals.user._id });
         const currentSession = userSessions.find(session => session.tokenHash.toString() === crypto.createHash("sha256").update(req.cookies.refreshToken).digest("hex"));
-        if(currentSession) currentDevice = currentSession._id;
+        if (currentSession) currentDevice = currentSession._id;
     }
-    
+
     let devices = [];
     if (res.locals.user) {
         const userSessions = await Sessions.find({ user: res.locals.user._id });
@@ -99,21 +122,25 @@ Router.get('/users/:id/settings', needAuth, async (req, res) => {
             userAgent: normalizeUserAgent(session.userAgent),
             lastUsedAt: session.lastUsedAt,
             revoked: session.isRevoked,
-            isCurrent: session._id.toString() === currentDevice.toString() 
+            isCurrent: session._id.toString() === currentDevice.toString()
         }));
     }
     res.render('profile-settings', { devices })
 })
 Router.get('/users/:id', async (req, res) => {
     const currentUser = res.locals.user._id;
-    if(req.params.id){
+    if (req.params.id) {
 
         const user = await User.findById(req.params.id).select('username displayName profilePicture followers following createdAt bio banner bannerColor').populate('followers', 'username displayName profilePicture').populate('following', 'username displayName profilePicture');
         const questions = await Question.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
         const comments = await Comments.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture bio').populate('question', 'title slug');
 
+
+        const currentU = await User.findById(res.locals.user._id).select("following");
+        const isFollowing = currentU.following.some(id => id.toString() === req.params.id)
+
         questions.forEach(question => {
-            question.excerpt = question.content.length > 300 ? question.content.substring(0, 300) + '…': question.content;
+            question.excerpt = question.content.length > 300 ? question.content.substring(0, 300) + '…' : question.content;
 
             question.content = marked.parse(question.excerpt);
         })
@@ -128,11 +155,11 @@ Router.get('/users/:id', async (req, res) => {
         }
 
         let isSelf = false;
-        if(currentUser.toString() === req.params.id){
+        if (currentUser.toString() === req.params.id) {
             isSelf = true;
         }
 
-        res.render('profile', { displayUser: user, questions: questions, comments: comments, currentUser: currentUser === req.params.id, isSelf: isSelf })
+        res.render('profile', { displayUser: user, questions: questions, comments: comments, currentUser: currentUser === req.params.id, isSelf: isSelf, following: isFollowing })
     }
 })
 Router.get('/logout', needAuth, (req, res) => {
