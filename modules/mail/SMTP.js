@@ -14,15 +14,6 @@ const transporter = nodemailer.createTransport({
         pass: process.env.SMTP_PASS,
     },
 });
-/* 
-await sendEmail(user.email, "New login to your account", "login", {
-            USER_ID: user._id,
-            DEVICE: normalizeUserAgent(userAgent),
-            IP_ADDRESS: ip,
-            LOCATION: location,
-            TIME: new Date().toISOString()
-        });
-*/
 
 function sendEmail(to, subject, type, content) {
 
@@ -46,8 +37,6 @@ function sendEmail(to, subject, type, content) {
             .replace('{{TIME}}', content.TIME);
         mailOptions.html = htmlContent;
         mailOptions.text = null;
-        // dont send email for now, just in production
-        return 
     }
 
     transporter.sendMail(mailOptions, (error, info) => {

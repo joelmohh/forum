@@ -14,11 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(cookieParser());
-
-app.use(cors({
-    origin: "http://localhost:5173", // ajusta pro teu front
-    credentials: true
-}));
+app.set('trust proxy', true);
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
     console.log('[INFO] Connected to MongoDB');
