@@ -47,6 +47,10 @@ const postSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    answers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Answer'
+    }],
     isPinned: {
         type: Boolean,
         default: false,

@@ -282,5 +282,191 @@ if (submitButton) {
 }
 
 
-// Post Answer 
-const answerbtn = document.getElementById('answerbtn');
+document.addEventListener('DOMContentLoaded', () => {
+
+    const answerbtn = document.getElementById('answerbtn');
+    const answeInput = document.getElementById('answeInput');
+    const answerLength = document.getElementById('answerLength');
+    const previewContent = document.getElementById('previewContent');
+    const previewTab = document.getElementById('preview-tab');
+    const textToolsButtons = document.querySelectorAll('.text-tool-btn');
+
+    textToolsButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const action = button.getAttribute('data-action');
+            const textarea = answeInput;
+            if (!textarea) return;
+
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+
+            let newText = '';
+
+            switch (action) {
+                case 'bold':
+                    newText = `**${selectedText}**`;
+                    break;
+                case 'italic':
+                    newText = `*${selectedText}*`;
+                    break;
+                case 'code':
+                    newText = selectedText.includes('\n')
+                        ? `\`\`\`\n${selectedText}\n\`\`\``
+                        : `\`${selectedText}\``;
+                    break;
+                case 'link':
+                    newText = `[${selectedText || 'text'}](url)`;
+                    break;
+                case 'image':
+                    newText = `![${selectedText || 'alt'}](url)`;
+                    break;
+                case 'blockquote':
+                    newText = `> ${selectedText}`;
+                    break;
+                case 'ul':
+                    newText = selectedText.split('\n').map(line => `- ${line}`).join('\n');
+                    break;
+                case 'ol':
+                    newText = selectedText.split('\n').map((line, i) => `${i + 1}. ${line}`).join('\n');
+                    break;
+                default:
+                    return;
+            }
+
+            textarea.focus();
+            textarea.setRangeText(newText, start, end, 'end');
+            textarea.dispatchEvent(new Event('input'));
+        });
+    });
+
+    // ---------- Preview ----------
+    function renderPreview() {
+        if (!previewContent || !answeInput) return;
+
+        const raw = answeInput.value.trim();
+
+        if (!raw) {
+            previewContent.innerHTML = '<p class="text-muted mb-0">Nothing to preview yet...</p>';
+            return;
+        }
+
+        if (typeof marked === 'undefined') {
+            previewContent.innerHTML = '<p class="text-danger mb-0">Preview unavailable (marked not loaded).</p>';
+            return;
+        }
+
+        previewContent.innerHTML = marked.parse(raw);
+
+        if (window.Prism) {
+            Prism.highlightAllUnder(previewContent);
+        }
+    }
+
+    if (previewTab) {
+        previewTab.addEventListener('shown.bs.tab', renderPreview);
+        // fallback caso o evento do bootstrap não dispare
+        previewTab.addEventListener('click', () => setTimeout(renderPreview, 0));
+    }
+
+    // ---------- Character counter + validation ----------
+    if (answeInput) {
+        answeInput.addEventListener('input', function () {
+            const length = this.value.trim().length;
+            answerLength.textContent = `${length}/5000`;
+
+            const invalid = length < 10 || length > 5000;
+
+            this.classList.toggle('is-invalid', invalid);
+            answerLength.classList.toggle('text-danger', invalid);
+
+            if (answerbtn) {
+                answerbtn.disabled = invalid;
+                answerbtn.classList.toggle('disabled', invalid);
+            }
+
+            renderPreview();
+        });
+    }
+
+    // ---------- Post answer ----------
+    if (answerbtn) {
+        answerbtn.addEventListener('click', async () => {
+            const content = answeInput.value.trim();
+            const questionId = answerbtn.getAttribute('data-question-id');
+
+            if (content.length < 10 || content.length > 5000) return;
+
+            answerbtn.disabled = true;
+            answerbtn.classList.add('disabled');
+            const originalText = answerbtn.innerHTML;
+            answerbtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Posting...`;
+
+            try {
+                const data = await api(`/api/question/${questionId}/answer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content, questionId })
+                });
+
+                if (data.ok) {
+                    window.location.href = `/questions/${questionId}?t=success&m=Answer+posted+successfully!`;
+                } else {
+                    alert(data.message || 'Erro ao enviar resposta.');
+                }
+            } catch (err) {
+                console.error('[ERROR] posting answer:', err);
+                alert('Erro ao enviar resposta.');
+            } finally {
+                answerbtn.innerHTML = originalText;
+                answerbtn.disabled = false;
+                answerbtn.classList.remove('disabled');
+            }
+        });
+    }
+
+    document.querySelectorAll('.answer-comment-form').forEach(form => {
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const questionId = form.dataset.questionId;
+            const answerId = form.dataset.answerId;
+            const textarea = form.querySelector('textarea');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const content = textarea.value.trim();
+
+            if (content.length < 2 || content.length > 500) return;
+
+            submitBtn.disabled = true;
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Posting...';
+
+            try {
+                const data = await api(`/api/question/${questionId}/answer/${answerId}/comment`, {
+                    method: 'POST',
+                    body: JSON.stringify({ content })
+                });
+
+                if (data.ok) {
+                    window.location.reload();
+                }
+            } catch (err) {
+                console.error('[ERROR] posting comment:', err);
+                alert(err.message || 'Erro ao enviar comentário.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    });
+
+    // ---------- Question votes ----------
+    document.querySelectorAll('.vote-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            // TODO: plugar na rota /vote/:id com voteType up/down
+        });
+    });
+
+});

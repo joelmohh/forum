@@ -24,7 +24,7 @@
                             <img src="<%= displayUser.profilePicture %>" alt="<%= displayUser.username %>'s avatar"
                                 class="avatar-ring">
 
-                            <% if(isSelf===false && currentUser.toString() !==displayUser._id.toString()){ %>
+                            <% if(isSelf===false && isSelf.toString() !==displayUser._id.toString()){ %>
                                 <button id="followBtn" class="btn-follow" data-user-id="<%= displayUser._id %>"
                                     data-following="<%= following ? 'true' : 'false' %>" style="margin-top:12px">
                                     <%- following ? '<i class="fa-solid fa-user-minus"></i> Unfollow'
@@ -65,9 +65,9 @@
                             </div>
                             <div class="stat-item">
                                 <strong>
-                                    <%= comments.length %>
+                                    <%= answers.length %>
                                 </strong>
-                                <span>Comments</span>
+                                <span>Answers</span>
                             </div>
                             <div class="stat-item">
                                 <strong id="followersCount">
@@ -93,9 +93,9 @@
                             <%= questions.length %>
                         </span>
                     </button>
-                    <button class="tab-btn" data-target="comments">
-                        Comments <span class="tab-count">
-                            <%= comments.length %>
+                    <button class="tab-btn" data-target="answers">
+                        Answers <span class="tab-count">
+                            <%= answers.length %>
                         </span>
                     </button>
                 </div>
@@ -145,7 +145,7 @@
                                         <%= question.score %>
                                     </span>
                                     <span class="card-stat">
-                                        <i class="fa-regular fa-comment"></i>
+                                        <i class="fa-regular fa-answers"></i>
                                         <%= question.answersCount %>
                                             <span style="font-weight:400;color:#9ca3af">replies</span>
                                     </span>
@@ -163,35 +163,35 @@
                                     <% } %>
                 </div>
 
-                <!-- COMMENTS -->
-                <div class="tab-pane" id="comments">
+                <!-- answers -->
+                <div class="tab-pane" id="answers">
 
-                    <% if(comments && comments.length> 0){ %>
+                    <% if(answers && answers.length> 0){ %>
 
-                        <% comments.forEach(comment=> { %>
+                        <% answers.forEach(answers=> { %>
                             <div class="card-item">
 
-                                <% if(comment.question){ %>
-                                    <div class="comment-origin">
-                                        <i class="fa-regular fa-comment-dots"></i>
-                                        Commented on
-                                        <a href="/questions/<%= comment.question._id %>">
-                                            <%= comment.question.title %>
+                                <% if(answers.question){ %>
+                                    <div class="answers-origin">
+                                        <i class="fa-regular fa-answers-dots"></i>
+                                        Answered on
+                                        <a href="/questions/<%= answers.question._id %>">
+                                            <%= answers.question.title %>
                                         </a>
                                     </div>
                                     <% } %>
 
-                                        <p class="comment-text">
-                                            <%= comment.content %>
+                                        <p class="answers-text">
+                                            <%- answers.content %>
                                         </p>
 
                                         <div class="card-footer-row">
                                             <span class="card-stat">
                                                 <i class="fa-solid fa-arrow-up"></i>
-                                                <%= comment.score %>
+                                                <%= answers.score %>
                                             </span>
                                             <span class="card-stat" style="font-weight:400;color:#9ca3af">
-                                                <%= new Date(comment.createdAt).toLocaleDateString('en-US', {
+                                                <%= new Date(answers.createdAt).toLocaleDateString('en-US', {
                                                     month: 'short' , day: 'numeric' , year: 'numeric' }) %>
                                             </span>
                                         </div>
@@ -201,8 +201,8 @@
 
                                 <% } else { %>
                                     <div class="empty-state">
-                                        <div class="empty-icon"><i class="fa-regular fa-comments"></i></div>
-                                        <h6>No comments yet</h6>
+                                        <div class="empty-icon"><i class="fa-regular fa-answers"></i></div>
+                                        <h6>No answers yet</h6>
                                         <p>This user hasn't commented on anything.</p>
                                     </div>
                                     <% } %>

@@ -35,11 +35,11 @@ document.addEventListener("click", (event) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    if (window.location.search.includes("t=")) {
+    if (window.location.search.startsWith("?t=")) {
         const urlParams = new URLSearchParams(window.location.search);
         const type = urlParams.get("t");
         const message = urlParams.get("m");
-
+        
         showToast(message, type);
 
         const newUrl = window.location.origin + window.location.pathname;

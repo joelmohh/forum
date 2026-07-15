@@ -4,7 +4,7 @@ const { loadUser, needAuth } = require('../modules/auth/loadUser.js');
 const Sessions = require("../models/Sessions");
 const User = require('../models/User');
 const Question = require('../models/Question');
-const Comments = require('../models/Comments');
+const Answers = require('../models/Answers');
 const Tags = require('../models/Tags');
 
 const { marked } = require('marked');
@@ -57,7 +57,7 @@ Router.get('/tags', async (req, res) => {
     res.render('tags', { tags, user })
 })
 Router.get('/questions/ask', needAuth, (req, res) => {
-    res.render('question-form')
+    res.render('question-form', { editMode: false, questionId: null, question: null, tags: [], allTags: [] })
 })
 Router.get('/questions/edit/:id', needAuth, async (req, res) => {
     const question = await Question.findById(req.params.id);
@@ -96,14 +96,16 @@ Router.get('/questions/edit/:id', needAuth, async (req, res) => {
 
 Router.get('/questions/:id/', async (req, res) => {
     const question = await Question.findById(req.params.id).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
-    const comments = await Comments.find({ question: req.params.id }).populate('creator', 'username displayName profilePicture bio');
-
-    question.content = marked.parse(question.content);
 
     if (!question) {
         return res.redirect('/questions');
     }
-    res.render('question-detail', { question: question, comments: comments, isSelf: res.locals.user?._id.toString() === question.creator._id.toString() })
+
+    const answers = await Answers.find({ question: req.params.id }).sort({ score: -1, createdAt: 1 }).populate('creator', 'username displayName profilePicture bio').populate('comments.creator', 'username displayName profilePicture');
+
+    question.content = marked.parse(question.content);
+
+    res.render('question-detail', { question: question, answers: answers, isSelf: res.locals.user?._id.toString() === question.creator._id.toString() })
 })
 Router.get('/users/:id/settings', needAuth, async (req, res) => {
     let currentDevice
@@ -128,16 +130,24 @@ Router.get('/users/:id/settings', needAuth, async (req, res) => {
     res.render('profile-settings', { devices })
 })
 Router.get('/users/:id', async (req, res) => {
-    const currentUser = res.locals.user._id;
+    if (res.locals.user) {
+        const isSelf = res.locals.user._id;
+    }
     if (req.params.id) {
 
         const user = await User.findById(req.params.id).select('username displayName profilePicture followers following createdAt bio banner bannerColor').populate('followers', 'username displayName profilePicture').populate('following', 'username displayName profilePicture');
         const questions = await Question.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
-        const comments = await Comments.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture bio').populate('question', 'title slug');
+        const answers = await Answers.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture bio').populate('question', 'title slug');
 
+        let isFollowing;
 
-        const currentU = await User.findById(res.locals.user._id).select("following");
-        const isFollowing = currentU.following.some(id => id.toString() === req.params.id)
+        if (res.locals.user) {
+            const currentU = await User.findById(res.locals.user._id).select("following");
+            isFollowing = currentU.following.some(id => id.toString() === req.params.id)
+        } else {
+            isFollowing = false;
+        }
+
 
         questions.forEach(question => {
             question.excerpt = question.content.length > 300 ? question.content.substring(0, 300) + '…' : question.content;
@@ -145,9 +155,8 @@ Router.get('/users/:id', async (req, res) => {
             question.content = marked.parse(question.excerpt);
         })
 
-        comments.forEach(comment => {
-            comment.content = marked.parse(comment.content);
-            console.log(comment)
+        answers.forEach(answers => {
+            answers.content = marked.parse(answers.content);
         })
 
         if (!user) {
@@ -155,11 +164,11 @@ Router.get('/users/:id', async (req, res) => {
         }
 
         let isSelf = false;
-        if (currentUser.toString() === req.params.id) {
+        if (isSelf && isSelf.toString() === req.params.id) {
             isSelf = true;
         }
 
-        res.render('profile', { displayUser: user, questions: questions, comments: comments, currentUser: currentUser === req.params.id, isSelf: isSelf, following: isFollowing })
+        res.render('profile', { displayUser: user, questions: questions, answers: answers, isSelf: isSelf, following: isFollowing })
     }
 })
 Router.get('/logout', needAuth, (req, res) => {

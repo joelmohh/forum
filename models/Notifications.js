@@ -13,7 +13,7 @@ const notificationSchema = new mongoose.Schema({
     },
 
     question: { type: ObjectId, ref: 'Question' },
-    comment: { type: ObjectId, ref: 'Comment' },
+    answers: { type: ObjectId, ref: 'Answer' },
 
     isRead: {
         type: Boolean,

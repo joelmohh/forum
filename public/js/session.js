@@ -29,7 +29,7 @@ async function refreshToken() {
     return refreshPromise;
 }
 
-async function api(url, options = {}) {
+async function api(url, options = {}, originalUrl = window.location.href) {
 
     const token = localStorage.getItem("token");
 
@@ -72,7 +72,7 @@ async function api(url, options = {}) {
             });
 
         } catch {
-            window.location.href = "/login";
+            window.location.href = `/login?redirect=${encodeURIComponent(originalUrl)}`;
             return;
         }
     }

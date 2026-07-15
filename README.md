@@ -1,6 +1,6 @@
 # Forum App
 
-A simple forum application built with **Node.js**, **Express**, and **MongoDB**. It uses **EJS** for server-side rendering and includes features such as user authentication, questions, comments, tags, notifications, and image uploads.
+A simple forum application built with **Node.js**, **Express**, and **MongoDB**. It uses **EJS** for server-side rendering and includes features such as user authentication, questions, answers, tags, notifications, and image uploads.
 
 ![Time spent in the project](https://hackatime.hackclub.com/api/v1/badge/U0A19UWEN3G/joelmohh/forum)
 
@@ -16,7 +16,7 @@ A simple forum application built with **Node.js**, **Express**, and **MongoDB**.
 
 - User registration and login (OTP + JWT)
 - Create, edit, and delete questions
-- Comment on and vote for questions
+- Answer on and vote for questions
 - Browse questions by tags
 - Image uploads with automatic resizing
 - Email notifications (SMTP)

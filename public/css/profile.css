@@ -266,7 +266,7 @@
     gap: 4px;
 }
 
-.comment-origin {
+.answers-origin {
     font-size: .8rem;
     color: #9ca3af;
     margin-bottom: 10px;
@@ -275,17 +275,17 @@
     gap: 4px;
 }
 
-.comment-origin a {
+.answers-origin a {
     color: #ff7a00;
     font-weight: 600;
     text-decoration: none;
 }
 
-.comment-origin a:hover {
+.answers-origin a:hover {
     text-decoration: underline;
 }
 
-.comment-text {
+.answers-text {
     font-size: .875rem;
     color: #1a1d23;
     line-height: 1.6;

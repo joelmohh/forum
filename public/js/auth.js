@@ -378,11 +378,13 @@ async function validateStep(step) {
                 showOtpError(data.message || 'Invalid or expired OTP code.');
                 return false;
             }
-            if(data.accessToken) {
+            if (data.accessToken) {
                 localStorage.setItem("token", data.accessToken);
             }
 
-            window.location.href = "/";
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get("redirect");
+            window.location.href = redirectUrl || "/";
 
             return true;
 
@@ -616,11 +618,14 @@ if (loginBtn) {
                 updateLoginFieldState(loginPasswordInput, loginMessages.password, false, "", data.message || "Invalid credentials");
                 return;
             }
-            if(response.ok){
+            if (response.ok) {
                 localStorage.setItem("token", data.accessToken);
             }
 
-            window.location.href = "/";
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get("redirect");
+            window.location.href = redirectUrl || "/";
+
 
         } catch (err) {
             console.error("Login error:", err);

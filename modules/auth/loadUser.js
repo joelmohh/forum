@@ -24,7 +24,7 @@ const loadUser = async (req, res, next) => {
 
 const needAuth = (req, res, next) => {
     if (!res.locals.user) {
-        return res.status(401).redirect('/login');
+        return res.status(401).redirect(`/login?redirect=${encodeURIComponent(req.originalUrl)}`);
     }
     next();
 };
