@@ -300,6 +300,7 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
 
 Router.post("/verify-otp", async (req, res) => {
     try {
+        const verificationType = req.query.type === "reset-password" ? "reset-password" : "register";
         const { email, code } = req.body;
 
         if (!email || !code) {
@@ -308,7 +309,7 @@ Router.post("/verify-otp", async (req, res) => {
             });
         }
 
-        const otp = await OTP.findOne({ email });
+        const otp = await OTP.findOne({ email, type: verificationType });
 
         if (!otp) {
             return res.status(400).json({
@@ -330,9 +331,13 @@ Router.post("/verify-otp", async (req, res) => {
 
         if (codeHash !== otp.code) {
             if (otp.attempts >= 5) {
-                res.status(400).json({ message: "Too many attempts, please request a new code" });
-                return await OTP.deleteOne({ _id: otp._id });
+                await OTP.deleteOne({ _id: otp._id });
+
+                return res.status(400).json({
+                    message: "Too many attempts, please request a new code"
+                });
             }
+
             otp.attempts += 1;
             await otp.save();
 
@@ -341,12 +346,36 @@ Router.post("/verify-otp", async (req, res) => {
             });
         }
 
-        await User.updateOne({ email }, { verified: true });
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            await OTP.deleteOne({ _id: otp._id });
+
+            return res.status(400).json({
+                message: "User not found"
+            });
+        }
+
         await OTP.deleteOne({ _id: otp._id });
 
-        const user = await User.findOne({ email })
+        // ---- Fluxo de RESET DE SENHA ----
+        if (verificationType === "reset-password") {
+            const resetToken = jwt.sign(
+                { sub: user._id, purpose: "reset-password" },
+                process.env.JWT_SECRET,
+                { expiresIn: "15m" }
+            );
 
-        const ip = req.ip
+            return res.status(200).json({
+                message: "OTP verified",
+                resetToken,
+                valid: true
+            });
+        }
+
+        await User.updateOne({ email }, { verified: true });
+
+        const ip = req.ip;
         const userAgent = req.headers["user-agent"];
         const deviceId = crypto.randomUUID();
         const refreshToken = await newSession(user, { deviceId, ip, userAgent });

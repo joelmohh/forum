@@ -689,3 +689,82 @@ if (resendOtpBtn) {
         }
     });
 }
+
+
+//RESET 
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("login_form");
+    const emailInput = form.querySelector('input[name="email"]');
+    const emailMessage = document.getElementById("login-email-message");
+    const submitBtn = document.getElementById("login_btn");
+
+    const originalBtnText = submitBtn.textContent;
+
+    function setMessage(text, type = "error") {
+        emailMessage.textContent = text || "";
+        emailMessage.classList.remove("text-danger", "text-success");
+        if (text) {
+            emailMessage.classList.add(type === "error" ? "text-danger" : "text-success");
+        }
+    }
+
+    function setLoading(isLoading) {
+        submitBtn.disabled = isLoading;
+        submitBtn.textContent = isLoading ? "Sending..." : originalBtnText;
+    }
+
+    function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setMessage("");
+
+        const email = emailInput.value.trim();
+
+        if (!email) {
+            setMessage("Email is required");
+            emailInput.focus();
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            setMessage("Please enter a valid email address");
+            emailInput.focus();
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const res = await fetch("/auth/send-otp?type=reset-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setMessage(data.message || "Something went wrong, please try again");
+                setLoading(false);
+                return;
+            }
+
+            sessionStorage.setItem("reset_password_email", email);
+
+            setMessage("Verification code sent to your email", "success");
+
+            window.location.href = "/verify-otp?type=reset-password";
+
+        } catch (err) {
+            console.error("Reset password request error:", err);
+            setMessage("Could not connect to the server, please try again");
+            setLoading(false);
+        }
+    }
+
+    submitBtn.addEventListener("click", handleSubmit);
+    form.addEventListener("submit", handleSubmit);
+});

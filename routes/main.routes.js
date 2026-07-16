@@ -175,4 +175,8 @@ Router.get('/logout', needAuth, (req, res) => {
     res.redirect('/api/auth/logout');
 })
 
+Router.get('/forgot-password', (req, res) => {
+    res.render('resetAccount');
+});
+
 module.exports = Router;
