@@ -8,6 +8,7 @@ const sendEmail = require('../modules/mail/SMTP').sendEmail;
 
 const User = require('../models/User');
 const { newSession, updateLastLogin } = require('../modules/auth/AuthManager');
+const log = require("../modules/security/securityLogs");
 
 const OTP = require('../models/Otp');
 const Session = require('../models/Sessions');
@@ -91,6 +92,7 @@ Router.post("/login", async (req, res) => {
             content: `New login from ${normalizeUserAgent(userAgent)} at ${location} (${ip})`,
             link: `/users/${User._id}/settings/security`
         });
+        await log(user._id, "login", req);
 
         await sendEmail(user.email, "New login to your account", "login", {
             USER_ID: user._id,

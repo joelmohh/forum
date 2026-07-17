@@ -7,6 +7,7 @@ const Question = require('../models/Question');
 const Answers = require('../models/Answers');
 const Tags = require('../models/Tags');
 
+
 const { marked } = require('marked');
 
 const crypto = require('crypto');
@@ -122,27 +123,38 @@ Router.get('/questions/:id', async (req, res) => {
     });
 });
 Router.get('/users/:id/settings', needAuth, async (req, res) => {
-    let currentDevice
+    let currentDevice = null;
+
     if (res.locals.user) {
         const userSessions = await Sessions.find({ user: res.locals.user._id });
         const currentSession = userSessions.find(session => session.tokenHash.toString() === crypto.createHash("sha256").update(req.cookies.refreshToken).digest("hex"));
         if (currentSession) currentDevice = currentSession._id;
     }
 
+    const activityLogs = (await User.findById(res.locals.user._id).select("securityActivity")).securityActivity;
+
     let devices = [];
+
     if (res.locals.user) {
         const userSessions = await Sessions.find({ user: res.locals.user._id });
+
         devices = userSessions.map(session => ({
             id: session._id,
             ip: session.ip,
             userAgent: normalizeUserAgent(session.userAgent),
             lastUsedAt: session.lastUsedAt,
             revoked: session.isRevoked,
-            isCurrent: session._id.toString() === currentDevice.toString()
+            isCurrent: currentDevice
+                ? session._id.toString() === currentDevice.toString()
+                : false
         }));
     }
-    res.render('profile-settings', { devices })
-})
+
+    res.render("profile-settings", {
+        devices,
+        activityLogs
+    });
+});
 Router.get('/users/:id', async (req, res) => {
     if (res.locals.user) {
         const isSelf = res.locals.user._id;

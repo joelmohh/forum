@@ -15,6 +15,7 @@ const User = require('../models/User');
 const Question = require('../models/Question');
 const Notifications = require('../models/Notifications');
 const { sendEmail } = require('../modules/mail/SMTP');
+const log = require("../modules/security/securityLogs");
 
 Router.get("/me", verifyToken, async (req, res) => {
     try {
@@ -41,7 +42,7 @@ Router.post("/me/update", verifyToken, upload.fields([{ name: "profilePicture", 
             });
         }
 
-        const User = await dbUser.findById(user._id);
+        const User = await dbUser.findById(user._id).select("+password");
 
         if (!User) {
             return res.status(404).json({
@@ -142,9 +143,10 @@ Router.post("/me/update", verifyToken, upload.fields([{ name: "profilePicture", 
                 user: User._id,
                 type: "security",
                 content: "Your password has been changed. See activity log for more details.",
-                link: `/users/${User._id}/settings/security`
+                link: `/users/${User._id}/settings#activity`
             });
 
+            await log(User._id, "password_change", req);
             await Session.updateMany({ user: User._id }, { isRevoked: true });
 
             try {
@@ -222,32 +224,45 @@ Router.post("/me/update", verifyToken, upload.fields([{ name: "profilePicture", 
             updatedBanner = result.url;
         }
 
-        if (displayName !== undefined) {
+        let profileUpdated = false;
+
+        if (displayName !== undefined && displayName.trim() !== User.displayName) {
             User.displayName = displayName.trim();
+            profileUpdated = true;
         }
 
-        if (bio !== undefined) {
+        if (bio !== undefined && bio !== User.bio) {
             User.bio = bio;
+            profileUpdated = true;
         }
 
-        if (bannerColor !== undefined) {
+        if (bannerColor !== undefined && bannerColor !== User.bannerColor) {
             User.bannerColor = bannerColor;
+            profileUpdated = true;
         }
 
         if (updatedProfilePicture) {
             User.profilePicture = updatedProfilePicture;
+            profileUpdated = true;
         }
 
         if (updatedBanner) {
             User.banner = updatedBanner;
+            profileUpdated = true;
         }
 
         if (removeProfilePicture === "true") {
             User.profilePicture = null;
+            profileUpdated = true;
         }
 
         if (removeBanner === "true") {
             User.banner = null;
+            profileUpdated = true;
+        }
+
+        if (profileUpdated) {
+            await log(User._id, "profileUpdate", req);
         }
 
         await User.save();
