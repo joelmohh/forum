@@ -2,8 +2,6 @@ const Router = require('express').Router();
 const Notification = require('../models/Notifications');
 const { verifyToken } = require('../modules/auth/AuthManager');
 
-// Helper for other parts of the app to call, e.g.
-// createNotification(userId, 'reply', '/questions/123', 'João replied to your question')
 async function createNotification(userId, type, link, content) {
     const notification = new Notification({ user: userId, type, content, link });
     await notification.save();

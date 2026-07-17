@@ -112,6 +112,15 @@ const postSchema = new mongoose.Schema({
         unique: true,
         lowercase: true,
         trim: true
+    },
+    viewCount: {
+        type: Number,
+        default: 0
+    },
+    viewers: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'User',
+        default: []
     }
 
 }, {

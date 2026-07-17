@@ -97,7 +97,7 @@ const userSchema = new mongoose.Schema({
     securityActivity: [{
         type: {
             type: String,
-            enum: ['login', 'logout', 'passwordChange', 'profileUpdate', 'accountDeletion'],
+            enum: ['login', 'logout', 'passwordChange', 'profileUpdate', 'accountDeletion', 'other', 'password_change', 'follow'],
             required: true
         },
         ipAddress: {

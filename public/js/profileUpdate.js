@@ -292,7 +292,6 @@ document.getElementById("saveProfileBtn").addEventListener("click", async () => 
     formData.append("removeProfilePicture", removeProfilePictureFlag);
     formData.append("removeBanner", removeBannerFlag);
 
-    // Só envia troca de senha se o usuário preencheu os campos
     if (oldPasswordInput.value && newPasswordInput.value) {
         formData.append("oldPassword", oldPasswordInput.value);
         formData.append("newPassword", newPasswordInput.value);
@@ -333,7 +332,7 @@ document.getElementById("saveProfileBtn").addEventListener("click", async () => 
             newPasswordInput.value = "";
             confirmPasswordInput.value = "";
 
-            window.location.href = "/users/" + data.userId + "/settings?t=success&m=Profile+updated+successfully";
+            window.location.href = "/users/" + data.username + "/settings?t=success&m=Profile+updated+successfully";
 
         } else {
             toast(data.message || "Error updating profile.", "error");

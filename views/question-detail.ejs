@@ -3,41 +3,6 @@
 <body>
     <%- include('./partials/menu', { activePage: 'questions', pageType: 'main' }) %>
 
-    <style>
-        .page-wrap { max-width: 1100px; margin: 0 auto; }
-
-        .question-content, .answer-content { font-size: 1.05rem; line-height: 1.8; }
-        .question-content p, .answer-content p { margin-bottom: 1rem; }
-
-        .question-content pre, .answer-content pre {
-            background: #0d1117; border: 1px solid #30363d; color: #fff;
-            padding: 1.25rem; border-radius: 10px; overflow-x: auto;
-        }
-
-        .vote-box { position: sticky; top: 90px; }
-        .vote-btn { width: 48px; height: 48px; border-radius: 50%; }
-        .vote-btn.active-vote { background: #0d6efd; color: #fff; border-color: #0d6efd; }
-
-        .user-mini {
-            background: #f8f9fa; border: 1px solid #dee2e6;
-            border-radius: 10px; padding: 12px; min-width: 220px;
-        }
-
-        .answer-item { border-top: 1px solid #e9ecef; padding: 2rem 0; }
-        .answer-item.accepted-answer { border-left: 4px solid #198754; background: #f8fff9; }
-
-        .tag {
-            background: #fff3df; border: 1px solid #ffe0a3; color: #8a5a00;
-            border-radius: 999px; padding: 6px 12px; font-size: .85rem;
-        }
-
-        #answerTabsContent { min-height: 220px; }
-        #write-pane textarea { height: 220px; resize: none; box-shadow: none; }
-        #preview-pane .answer-content { height: 220px; overflow-y: auto; padding: 0.5rem 0.25rem 0; }
-        #preview-pane .answer-content p:last-child { margin-bottom: 0; }
-        #textTools .text-tool-btn { width: 40px; }
-    </style>
-
     <div class="container-fluid px-3 page-wrap">
         <div class="row">
 
@@ -50,7 +15,7 @@
 
                     <div class="d-flex flex-wrap align-items-center gap-3 text-muted small">
                         <span>Asked <%= question.createdAt.toLocaleString() %></span>
-                        <span><%= question.views %> views</span>
+                        <span><%= question.viewCount %> views</span>
                         <span><%= question.answersCount %> answers</span>
 
                         <% if (isSelf) { %>
@@ -138,7 +103,7 @@
                                             <div class="d-flex align-items-center justify-content-between gap-3 mb-2">
                                                 <div class="d-flex align-items-center gap-2">
                                                     <img src="<%= comment.creator.profilePicture %>" class="rounded-circle" width="24" height="24">
-                                                    <a href="/users/<%= comment.creator._id %>" class="fw-semibold small text-decoration-none">
+                                                    <a href="/users/<%= comment.creator.username %>" class="fw-semibold small text-decoration-none">
                                                         <%= comment.creator.displayName || comment.creator.username %>
                                                     </a>
                                                 </div>
@@ -320,7 +285,7 @@
                                                         <div class="d-flex align-items-center justify-content-between gap-3 mb-2">
                                                             <div class="d-flex align-items-center gap-2">
                                                                 <img src="<%= comment.creator.profilePicture %>" class="rounded-circle" width="24" height="24">
-                                                                <a href="/users/<%= comment.creator._id %>" class="fw-semibold small text-decoration-none">
+                                                                <a href="/users/<%= comment.creator.username %>" class="fw-semibold small text-decoration-none">
                                                                     <%= comment.creator.displayName || comment.creator.username %>
                                                                 </a>
                                                             </div>
@@ -329,7 +294,7 @@
                                                                     <%= comment.createdAt.toLocaleString() %><%= comment.isEdited ? ' (edited)' : '' %>
                                                                 </small>
 
-                                                                <% if (user && comment.creator._id.toString() === user._id.toString()) { %>
+                                                                <% if (user && comment.creator.username === user.username) { %>
                                                                     <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none"
                                                                         data-bs-toggle="collapse" data-bs-target="#edit-answer-comment-<%= comment._id %>">
                                                                         <i class="fa-solid fa-pen small"></i>
@@ -490,9 +455,16 @@
                         <div class="card-body">
                             <h6 class="fw-bold">Related</h6>
                             <small class="text-muted">
-                                • How to center a div flexbox<br>
-                                • CSS grid vs flexbox<br>
-                                • Center absolute div
+                                <% if (relatedQuestions.length === 0) { %>
+                                    No related questions found.
+                                <% } %>
+                                <% relatedQuestions.forEach(rq => { %>
+                                    <div class="mb-2">
+                                        <a href="/questions/<%= rq._id %>" class="text-decoration-none">
+                                            <%= rq.title %>
+                                        </a>
+                                    </div>
+                                <% }) %>
                             </small>
                         </div>
                     </div>

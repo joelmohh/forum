@@ -61,13 +61,13 @@
                             data-answers-count="<%= question.answersCount || 0 %>">
                             <div class="question-stats d-flex flex-column gap-2 text-center">
                                 <span class="text-muted">
-                                    <%= question.upvotes %> votes
+                                    <%= question.score %> votes
                                 </span>
                                 <span class="text-muted">
-                                    <%= question.downvotes %> downvotes
+                                    <%= question.answersCount || 0 %> answers
                                 </span>
                                 <span class="text-muted">
-                                    <%= question.views %> views
+                                    <%= question.viewCount || 0 %> views
                                 </span>
                             </div>
                             <div class="question-details">
@@ -82,7 +82,7 @@
                                         <% }); %>
                                 </div>
                                 <p class="question-meta text-muted">Asked by 
-                                        <a href="/users/<%= question.creator._id %>">
+                                        <a href="/users/<%= question.creator.username %>">
                                         <%= question.creator.username %>
                                     </a> on <%= question.createdAt.toLocaleDateString() %>
                                 </p>

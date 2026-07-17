@@ -6,9 +6,10 @@
             class="col-12 col-md-3 col-lg-2 d-flex flex-row flex-sm-row flex-md-column flex-lg-row align-items-start align-items-sm-center align-items-md-start align-items-lg-center justify-content-between gap-3 px-4 py-3">
             <a href="/" class="d-inline text-decoration-none text-dark fw-semibold">LOGO</a>
             <% if (pageType==='main' ) { %>
-                <div class="flex-grow-1 mx-2 d-block d-md-none">
-                    <input type="search" class="form-control rounded-pill border-dark-subtle" placeholder="Search..."
-                        aria-label="Search">
+                <div class="flex-grow-1 mx-2 d-block d-md-none global-search-wrapper">
+                    <input type="search" class="form-control rounded-pill border-dark-subtle global-search-input"
+                        placeholder="Search..." aria-label="Search" autocomplete="off">
+                    <div class="global-search-results"></div>
                 </div>
                 <label for="menuToggle"
                     class="btn-open btn btn-outline-dark px-3 py-1 ms-sm-auto ms-md-0 ms-lg-auto d-md-none"
@@ -18,8 +19,10 @@
                 <% } %>
         </div>
         <% if (pageType==='main' ) { %>
-            <div class="flex-grow-1 mx-2">
-                <input type="search" class="form-control d-none d-md-block" placeholder="Search..." aria-label="Search">
+            <div class="flex-grow-1 mx-2 global-search-wrapper d-none d-md-block">
+                <input type="search" class="form-control global-search-input" placeholder="Search..."
+                    aria-label="Search" autocomplete="off">
+                <div class="global-search-results"></div>
             </div>
             <% } %>
                 <div
@@ -77,13 +80,13 @@
                                     </li>
 
                                     <li>
-                                        <a class="dropdown-item" href="/users/<%= user.id %>">
+                                        <a class="dropdown-item" href="/users/<%= user.username %>">
                                             Profile
                                         </a>
                                     </li>
 
                                     <li>
-                                        <a class="dropdown-item" href="/users/<%= user.id %>/settings">
+                                        <a class="dropdown-item" href="/users/<%= user.username %>/settings">
                                             Settings
                                         </a>
                                     </li>
@@ -190,3 +193,4 @@
                         <% if(user) { %>
                             <script src="/js/notifications.js"></script>
                             <% } %>
+                            <script src="/js/search.js" defer></script>

@@ -525,7 +525,6 @@ Router.post('/:questionId/answer/:answerId/accept', verifyToken, loadUser, async
             return res.status(404).json({ message: "Answer not found", ok: false });
         }
 
-        // Clicou na resposta já aceita -> desmarca
         if (question.acceptedAnswer && question.acceptedAnswer.toString() === answerId) {
             question.acceptedAnswer = null;
             answer.isAnswer = false;
@@ -535,7 +534,6 @@ Router.post('/:questionId/answer/:answerId/accept', verifyToken, loadUser, async
             return res.json({ message: "Answer unmarked as accepted", ok: true, accepted: false });
         }
 
-        // Desmarca a resposta aceita anterior, se houver
         if (question.acceptedAnswer) {
             await Answers.findByIdAndUpdate(question.acceptedAnswer, { isAnswer: false });
         }

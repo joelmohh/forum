@@ -90,7 +90,7 @@ Router.post("/login", async (req, res) => {
             user: user._id,
             type: "login",
             content: `New login from ${normalizeUserAgent(userAgent)} at ${location} (${ip})`,
-            link: `/users/${User._id}/settings/security`
+            link: `/users/${user.username}/settings`
         });
         await log(user._id, "login", req);
 
@@ -368,7 +368,6 @@ Router.post("/verify-otp", async (req, res) => {
 
         await OTP.deleteOne({ _id: otp._id });
 
-        // ---- Fluxo de RESET DE SENHA ----
         if (verificationType === "reset-password") {
             const resetToken = jwt.sign(
                 { sub: user._id, purpose: "reset-password" },

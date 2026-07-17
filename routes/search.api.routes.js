@@ -55,4 +55,51 @@ Router.get('/tags', async (req, res) => {
     }
 });
 
+Router.get('/global', async (req, res) => {
+    try {
+        const { search = '', limit = 5 } = req.query;
+        const lim = Math.min(parseInt(limit, 10) || 5, 20);
+        const term = search.trim();
+
+        if (!term) {
+            return res.json({
+                data: {
+                    users: [], tags: [], questions: [],
+                    totals: { users: 0, tags: 0, questions: 0 }
+                },
+                ok: true
+            });
+        }
+
+        const regexFilter = { $regex: term, $options: 'i' };
+
+        const [userTotal, users, tagTotal, tags, questionTotal, questions] = await Promise.all([
+            User.countDocuments({ username: regexFilter }),
+            User.find({ username: regexFilter })
+                .select('username displayName profilePicture')
+                .limit(lim),
+            Tags.countDocuments({ name: regexFilter }),
+            Tags.find({ name: regexFilter })
+                .select('name postsCount')
+                .limit(lim),
+            Question.countDocuments({ title: regexFilter }),
+            Question.find({ title: regexFilter })
+                .populate('creator', 'username displayName')
+                .select('title creator')
+                .limit(lim)
+        ]);
+
+        res.json({
+            data: {
+                users, tags, questions,
+                totals: { users: userTotal, tags: tagTotal, questions: questionTotal }
+            },
+            ok: true
+        });
+    } catch (err) {
+        console.error("Error in /search/global route:", err);
+        res.status(500).json({ message: "Internal server error", ok: false });
+    }
+});
+
 module.exports = Router;

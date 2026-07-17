@@ -24,14 +24,14 @@
                             <img src="<%= displayUser.profilePicture %>" alt="<%= displayUser.username %>'s avatar"
                                 class="avatar-ring">
 
-                            <% if(isSelf===false && isSelf.toString() !==displayUser._id.toString()){ %>
+                            <% if(isSelf===false){ %>
                                 <button id="followBtn" class="btn-follow" data-user-id="<%= displayUser._id %>"
                                     data-following="<%= following ? 'true' : 'false' %>" style="margin-top:12px">
                                     <%- following ? '<i class="fa-solid fa-user-minus"></i> Unfollow'
                                         : '<i class="fa-solid fa-user-plus"></i> Follow' %>
                                 </button>
                                 <% } else {%>
-                                    <a href="/users/<%= displayUser._id %>/settings" class="btn btn-outline-primary"
+                                    <a href="/users/<%= displayUser.username %>/settings" class="btn btn-outline-primary"
                                         style="margin-top:12px">
                                         <i class="fa-solid fa-user-pen"></i> Edit Profile
                                     </a>

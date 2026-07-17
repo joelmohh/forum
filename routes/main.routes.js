@@ -34,7 +34,7 @@ function normalizeUserAgent(ua) {
 
 
 Router.get('/', async (req, res) => {
-    const questions = await Question.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name').limit(10);
+    const questions = await Question.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name').limit(10).populate('upvotes downvotes acceptedAnswer answersCount viewCount score').sort({ createdAt: -1 });
     res.render('index', { questions })
 })
 Router.get('/login', (req, res) => {
@@ -48,13 +48,14 @@ Router.get('/users', async (req, res) => {
     res.render('users', { users })
 })
 Router.get('/questions', async (req, res) => {
-    const questions = await Question.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name')
+    const questions = await Question.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name').populate('upvotes downvotes acceptedAnswer answersCount viewCount score').sort({ createdAt: -1 });
     res.render('questions', { questions })
 })
 
 Router.get('/tags', async (req, res) => {
     const tags = await Tags.find();
-    const user = await User.findById(res.locals.user?._id).select('followedTags');
+    const user = await User.findById(res.locals.user?._id).select('followedTags username displayName profilePicture');
+
     res.render('tags', { tags, user })
 })
 Router.get('/questions/ask', needAuth, (req, res) => {
@@ -112,17 +113,30 @@ Router.get('/questions/:id', async (req, res) => {
 
     question.content = marked.parse(question.content);
 
+    question.viewers.includes(res.locals.user?._id) ? null : question.viewCount += 1;
+    question.viewers.includes(res.locals.user?._id) ? null : question.viewers.push(res.locals.user?._id);
+
+    await question.save();
+
     answers.forEach(answer => {
         answer.content = marked.parse(answer.content);
     });
+    const relatedQuestions = await Question.find({
+        _id: { $ne: question._id },              
+        tags: { $in: question.tags.map(t => t._id) } 
+    })
+        .select('title _id score answersCount')
+        .sort({ score: -1, createdAt: -1 })
+        .limit(5);
 
     res.render('question-detail', {
         question,
         answers,
-        isSelf: res.locals.user?._id.toString() === question.creator._id.toString()
+        isSelf: res.locals.user?._id.toString() === question.creator._id.toString(),
+        relatedQuestions: relatedQuestions
     });
 });
-Router.get('/users/:id/settings', needAuth, async (req, res) => {
+Router.get('/users/:username/settings', needAuth, async (req, res) => {
     let currentDevice = null;
 
     if (res.locals.user) {
@@ -155,21 +169,21 @@ Router.get('/users/:id/settings', needAuth, async (req, res) => {
         activityLogs
     });
 });
-Router.get('/users/:id', async (req, res) => {
+Router.get('/users/:username', async (req, res) => {
     if (res.locals.user) {
         const isSelf = res.locals.user._id;
     }
-    if (req.params.id) {
+    if (req.params.username) {
 
-        const user = await User.findById(req.params.id).select('username displayName profilePicture followers following createdAt bio banner bannerColor').populate('followers', 'username displayName profilePicture').populate('following', 'username displayName profilePicture');
-        const questions = await Question.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
-        const answers = await Answers.find({ creator: req.params.id }).populate('creator', 'username displayName profilePicture bio').populate('question', 'title slug');
+        const user = await User.findOne({ username: req.params.username }).select('_id username displayName profilePicture followers following createdAt bio banner bannerColor').populate('followers', 'username displayName profilePicture').populate('following', 'username displayName profilePicture');
+        const questions = await Question.find({ creator: user._id }).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
+        const answers = await Answers.find({ creator: user._id }).populate('creator', 'username displayName profilePicture bio').populate('question', 'title slug');
 
         let isFollowing;
 
         if (res.locals.user) {
             const currentU = await User.findById(res.locals.user._id).select("following");
-            isFollowing = currentU.following.some(id => id.toString() === req.params.id)
+            isFollowing = currentU.following.some(id => id.toString() === user._id.toString());
         } else {
             isFollowing = false;
         }
@@ -194,7 +208,7 @@ Router.get('/users/:id', async (req, res) => {
             isSelf = true;
         }
 
-        res.render('profile', { displayUser: user, questions: questions, answers: answers, isSelf: isSelf, following: isFollowing })
+        res.render('profile', { displayUser: user, questions: questions, answers: answers, isSelf: isSelf === req.params.id, following: isFollowing })
     }
 })
 Router.get('/logout', needAuth, (req, res) => {

@@ -143,7 +143,7 @@ Router.post("/me/update", verifyToken, upload.fields([{ name: "profilePicture", 
                 user: User._id,
                 type: "security",
                 content: "Your password has been changed. See activity log for more details.",
-                link: `/users/${User._id}/settings#activity`
+                link: `/users/${User.username}/settings#activity`
             });
 
             await log(User._id, "password_change", req);
@@ -499,7 +499,7 @@ Router.post("/users/:userId/follow", verifyToken, loadUser, async (req, res) => 
             user: targetUser._id,
             type: "follow",
             content: `${user.username} started following you.`,
-            link: `/users/${user._id}`
+            link: `/users/${user.username}/settings#activity`
         });
 
         await user.save();
