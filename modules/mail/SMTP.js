@@ -2,51 +2,65 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 
-const otpTemplate = fs.readFileSync(path.join(__dirname, 'templates', 'OTP_CODE.html'), 'utf-8');
-const loginTemplate = fs.readFileSync(path.join(__dirname, 'templates', 'NEW_LOGIN.html'), 'utf-8');
+const EMAIL_TYPES = {
+    otp: { file: 'OTP_CODE.html' },
+    login: { file: 'NEW_LOGIN.html' },
+    security: { file: 'SECURITY_ALERT.html' }
+};
+
+const templates = {};
+for (const [type, { file }] of Object.entries(EMAIL_TYPES)) {
+    templates[type] = fs.readFileSync(path.join(__dirname, 'templates', file), 'utf-8');
+}
 
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: true,
+    port: Number(process.env.SMTP_PORT),
+    secure: Number(process.env.SMTP_PORT) === 465, 
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
     },
 });
 
-function sendEmail(to, subject, type, content) {
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function renderTemplate(html, data) {
+    return html.replace(/{{\s*([A-Z_]+)\s*}}/g, (match, key) => {
+        return key in data ? escapeHtml(data[key]) : '';
+    });
+}
+
+async function sendEmail(to, subject, type, data) {
+    const templateConfig = EMAIL_TYPES[type];
+
+    if (!templateConfig) {
+        throw new Error(`Tipo de e-mail desconhecido: "${type}"`);
+    }
+
+    const html = renderTemplate(templates[type], data);
 
     const mailOptions = {
         from: process.env.SMTP_USER,
-        to: to,
-        subject: subject,
-        text: content
+        to,
+        subject,
+        html
     };
 
-    if(type === "otp") {
-        const htmlContent = otpTemplate.replace('{{OTP_CODE}}', content);
-        mailOptions.html = htmlContent;
-        mailOptions.text = null
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        return info;
+    } catch (err) {
+        console.error(`Falha ao enviar e-mail (${type}) para ${to}:`, err);
+        throw err; // deixa quem chamou decidir o que fazer com a falha
     }
-    if(type === "login") {
-        const htmlContent = loginTemplate.replace('{{USER_ID}}', content.USER_ID)
-            .replace('{{DEVICE}}', content.DEVICE)
-            .replace('{{IP_ADDRESS}}', content.IP_ADDRESS)
-            .replace('{{LOCATION}}', content.LOCATION)
-            .replace('{{TIME}}', content.TIME);
-        mailOptions.html = htmlContent;
-        mailOptions.text = null;
-    }
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Error sending email:', error);
-        } else {
-            return
-            // console.log('Email sent:', info.response);
-        }
-    });
 }
 
 module.exports = { sendEmail, transporter };

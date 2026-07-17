@@ -11,6 +11,7 @@ const { newSession, updateLastLogin } = require('../modules/auth/AuthManager');
 
 const OTP = require('../models/Otp');
 const Session = require('../models/Sessions');
+const Notifications = require('../models/Notifications');
 
 const multer = require('multer');
 const upload = multer({ dest: "uploads/", limits: { fileSize: 20 * 1024 * 1024 } });
@@ -83,6 +84,13 @@ Router.post("/login", async (req, res) => {
         }
 
         await updateLastLogin(user._id);
+
+        Notifications.create({
+            user: user._id,
+            type: "login",
+            content: `New login from ${normalizeUserAgent(userAgent)} at ${location} (${ip})`,
+            link: `/users/${User._id}/settings/security`
+        });
 
         await sendEmail(user.email, "New login to your account", "login", {
             USER_ID: user._id,
@@ -517,7 +525,7 @@ Router.get("/logout", async (req, res) => {
 
     } catch (err) {
         console.error("Logout error:", err);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Internal server error", ok: false });
     }
 });
 

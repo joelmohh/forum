@@ -1,5 +1,31 @@
 const mongoose = require('mongoose');
 
+const questionCommentSchema = new mongoose.Schema({
+    creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true
+    },
+
+    content: {
+        type: String,
+        required: true,
+        maxlength: 500
+    },
+
+    isEdited: {
+        type: Boolean,
+        default: false
+    },
+
+    lastEditedAt: {
+        type: Date,
+        default: null
+    }
+
+}, { timestamps: true });
+
 const postSchema = new mongoose.Schema({
     creator: {
         type: mongoose.Schema.Types.ObjectId,
@@ -43,14 +69,33 @@ const postSchema = new mongoose.Schema({
         default: 0
     },
 
+    voters: {
+        type: Map,
+        of: Number, 
+        default: {}
+    },
+
     answersCount: {
         type: Number,
         default: 0
     },
+
     answers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Answer'
     }],
+
+    acceptedAnswer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Answer',
+        default: null
+    },
+
+    comments: {
+        type: [questionCommentSchema],
+        default: []
+    },
+
     isPinned: {
         type: Boolean,
         default: false,

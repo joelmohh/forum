@@ -1,6 +1,7 @@
 const Router = require('express').Router();
 const fs = require('fs');
 const sharp = require("sharp");
+const bcrypt = require("bcrypt");
 
 const multer = require("multer")
 const upload = multer({ dest: 'uploads/' });
@@ -12,6 +13,8 @@ const { verifyToken } = require('../modules/auth/AuthManager');
 const { loadUser } = require('../modules/auth/loadUser');
 const User = require('../models/User');
 const Question = require('../models/Question');
+const Notifications = require('../models/Notifications');
+const { sendEmail } = require('../modules/mail/SMTP');
 
 Router.get("/me", verifyToken, async (req, res) => {
     try {
@@ -47,7 +50,7 @@ Router.post("/me/update", verifyToken, upload.fields([{ name: "profilePicture", 
             });
         }
 
-        const { bio, displayName, bannerColor, removeProfilePicture, removeBanner } = req.body;
+        const { bio, displayName, bannerColor, removeProfilePicture, removeBanner, oldPassword, newPassword } = req.body;
 
         const username = User.username;
         const profilePicture = req.files?.profilePicture?.[0];
@@ -116,7 +119,48 @@ Router.post("/me/update", verifyToken, upload.fields([{ name: "profilePicture", 
             }
             updatedProfilePicture = result.url;
         }
+        if (oldPassword || newPassword) {
 
+            if (!oldPassword || !newPassword) {
+                return res.status(400).json({ message: "Please provide both the current and new password.", ok: false });
+            }
+
+            if (newPassword.length < 8) {
+                return res.status(400).json({ message: "The new password must be at least 8 characters long.", ok: false });
+            }
+
+            const passwordMatches = await bcrypt.compare(oldPassword, User.password);
+
+            if (!passwordMatches) {
+                return res.status(401).json({ message: "Incorrect current password.", ok: false });
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            User.password = await bcrypt.hash(newPassword, salt);
+
+            await Notifications.create({
+                user: User._id,
+                type: "security",
+                content: "Your password has been changed. See activity log for more details.",
+                link: `/users/${User._id}/settings/security`
+            });
+
+            await Session.updateMany({ user: User._id }, { isRevoked: true });
+
+            try {
+                await sendEmail(User.email, "Password Changed", "security", {
+                    USER_ID: User._id,
+                    DEVICE: req.headers['user-agent'] || "Unknown",
+                    IP_ADDRESS: req.ip || "Unknown",
+                    LOCATION: "Unknown",
+                    TIME: new Date().toISOString(),
+                    ACTION: "Reset Password",
+                    ABOUT: "Your password has been changed. If you did not perform this action, please review your account activity and consider changing your password immediately."
+                });
+            } catch (emailErr) {
+                console.error("[ERROR] Error sending security alert email:", emailErr);
+            }
+        }
         if (banner) {
 
             if (!allowedMimeTypes.includes(banner.mimetype)) {
@@ -435,6 +479,13 @@ Router.post("/users/:userId/follow", verifyToken, loadUser, async (req, res) => 
 
         user.following.push(targetUser._id);
         targetUser.followers.push(user._id);
+
+        Notifications.create({
+            user: targetUser._id,
+            type: "follow",
+            content: `${user.username} started following you.`,
+            link: `/users/${user._id}`
+        });
 
         await user.save();
         await targetUser.save();

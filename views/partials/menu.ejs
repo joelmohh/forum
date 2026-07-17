@@ -29,37 +29,21 @@
 
                             <!-- Notifications -->
                             <div class="dropdown">
-                                <button class="btn btn-light position-relative me-2" data-bs-toggle="dropdown">
-
+                                <button class="btn btn-light position-relative me-2" data-bs-toggle="dropdown"
+                                    id="notifBtn">
                                     <i class="fa-regular fa-bell"></i>
-
-                                    <% if(1> 0) { %>
-                                        <span
-                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                            <%= 2 %>
-                                        </span>
-                                        <% } %>
-
+                                    <span id="notifBadge"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"></span>
                                 </button>
 
-                                <div class="dropdown-menu dropdown-menu-end notification-menu">
-                                    <div class="px-3 py-2 border-bottom fw-semibold">
-                                        Notifications
+                                <div class="dropdown-menu dropdown-menu-end notification-menu" id="notifMenu">
+                                    <div class="px-3 py-2 border-bottom fw-semibold">Notifications</div>
+                                    <div id="notifList">
+                                        <div class="px-3 py-2 text-muted small">Loading...</div>
                                     </div>
-
-                                    <a href="#" class="dropdown-item py-2">
-                                        João respondeu sua pergunta
-                                    </a>
-
-                                    <a href="#" class="dropdown-item py-2">
-                                        Maria mencionou você
-                                    </a>
-
                                     <div class="dropdown-divider"></div>
-
-                                    <a href="/notifications" class="dropdown-item text-center text-primary">
-                                        View all notifications
-                                    </a>
+                                    <a href="/notifications" class="dropdown-item text-center text-primary">View all
+                                        notifications</a>
                                 </div>
                             </div>
 
@@ -136,7 +120,7 @@
 
     <!-- ================= TOGGLE ================= -->
     <input id="menuToggle" type="checkbox" class="d-none">
-    
+
     <!-- ================= APP LAYOUT ================= -->
 
     <div class="app-shell">
@@ -202,4 +186,7 @@
 
                 <main class="<% if(pageType !== 'auth') { %>site-content<% } else { %>site-content-auth<% } %>">
                     <div class="main-content">
-                        
+
+                        <% if(user) { %>
+                            <script src="/js/notifications.js"></script>
+                            <% } %>

@@ -21,6 +21,16 @@ const answerCommentSchema = new mongoose.Schema({
         maxlength: 500
     },
 
+    isEdited: {
+        type: Boolean,
+        default: false
+    },
+
+    lastEditedAt: {
+        type: Date,
+        default: null
+    }
+
 }, { timestamps: true });
 
 const answerSchema = new mongoose.Schema({
@@ -53,6 +63,16 @@ const answerSchema = new mongoose.Schema({
         type: Map,
         of: Number,
         default: {}
+    },
+
+    upvotes: {
+        type: Number,
+        default: 0
+    },
+
+    downvotes: {
+        type: Number,
+        default: 0
     },
 
     isEdited: {

@@ -94,19 +94,33 @@ Router.get('/questions/edit/:id', needAuth, async (req, res) => {
     });
 });
 
-Router.get('/questions/:id/', async (req, res) => {
-    const question = await Question.findById(req.params.id).populate('creator', 'username displayName profilePicture').populate('tags', 'name');
+Router.get('/questions/:id', async (req, res) => {
+    const question = await Question.findById(req.params.id)
+        .populate('creator', 'username displayName profilePicture')
+        .populate('tags', 'name')
+        .populate('comments.creator', 'username displayName profilePicture');
 
     if (!question) {
         return res.redirect('/questions');
     }
 
-    const answers = await Answers.find({ question: req.params.id }).sort({ score: -1, createdAt: 1 }).populate('creator', 'username displayName profilePicture bio').populate('comments.creator', 'username displayName profilePicture');
+    const answers = await Answers.find({ question: req.params.id })
+        .sort({ score: -1, createdAt: 1 })
+        .populate('creator', 'username displayName profilePicture bio')
+        .populate('comments.creator', 'username displayName profilePicture');
 
     question.content = marked.parse(question.content);
 
-    res.render('question-detail', { question: question, answers: answers, isSelf: res.locals.user?._id.toString() === question.creator._id.toString() })
-})
+    answers.forEach(answer => {
+        answer.content = marked.parse(answer.content);
+    });
+
+    res.render('question-detail', {
+        question,
+        answers,
+        isSelf: res.locals.user?._id.toString() === question.creator._id.toString()
+    });
+});
 Router.get('/users/:id/settings', needAuth, async (req, res) => {
     let currentDevice
     if (res.locals.user) {

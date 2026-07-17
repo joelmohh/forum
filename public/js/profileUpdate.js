@@ -11,6 +11,10 @@ const bannerFileName = document.getElementById("bannerFileName");
 const removeProfilePictureBtn = document.getElementById("removeProfilePicture");
 const removeBannerBtn = document.getElementById("removeBanner");
 
+const oldPasswordInput = document.getElementById("oldPassword");
+const newPasswordInput = document.getElementById("newPassword");
+const confirmPasswordInput = document.getElementById("password");
+
 const ALLOWED_IMAGE_TYPES = [
     "image/jpeg",
     "image/png",
@@ -67,6 +71,46 @@ function validateImage(input) {
     return true;
 }
 
+function validatePassword() {
+    const oldPass = oldPasswordInput.value;
+    const newPass = newPasswordInput.value;
+    const confirmPass = confirmPasswordInput.value;
+
+    if (!oldPass && !newPass && !confirmPass) {
+        clearValidation(oldPasswordInput);
+        clearValidation(newPasswordInput);
+        clearValidation(confirmPasswordInput);
+        return true;
+    }
+
+    let valid = true;
+
+    if (!oldPass) {
+        setValidation(oldPasswordInput, false, "Informe sua senha atual.");
+        valid = false;
+    } else {
+        setValidation(oldPasswordInput, true, "");
+    }
+
+    if (newPass.length < 8) {
+        setValidation(newPasswordInput, false, "A nova senha deve ter no mínimo 8 caracteres.");
+        valid = false;
+    } else if (newPass === oldPass) {
+        setValidation(newPasswordInput, false, "A nova senha deve ser diferente da atual.");
+        valid = false;
+    } else {
+        setValidation(newPasswordInput, true, "Senha válida.");
+    }
+
+    if (!confirmPass || confirmPass !== newPass) {
+        setValidation(confirmPasswordInput, false, "As senhas não coincidem.");
+        valid = false;
+    } else {
+        setValidation(confirmPasswordInput, true, "Senhas coincidem.");
+    }
+
+    return valid;
+}
 function validateDisplayName() {
     const value = displayNameInput.value.trim();
 
@@ -132,6 +176,10 @@ function validateBannerColor() {
 displayNameInput.addEventListener("input", validateDisplayName);
 
 bioInput.addEventListener("input", validateBio);
+
+oldPasswordInput.addEventListener("input", validatePassword);
+newPasswordInput.addEventListener("input", validatePassword);
+confirmPasswordInput.addEventListener("input", validatePassword);
 
 bannerColorInput.addEventListener("input", () => {
     validateBannerColor();
@@ -227,7 +275,8 @@ document.querySelectorAll(".togglePassword").forEach(button => {
 
 document.getElementById("saveProfileBtn").addEventListener("click", async () => {
 
-    const isValid = validateDisplayName() && validateBio() && validateBannerColor() && validateImage(profilePictureInput) && validateImage(bannerInput);
+    const isValid = validateDisplayName() && validateBio() && validateBannerColor() &&
+        validateImage(profilePictureInput) && validateImage(bannerInput) && validatePassword();
 
     if (!isValid) {
         return;
@@ -242,6 +291,12 @@ document.getElementById("saveProfileBtn").addEventListener("click", async () => 
 
     formData.append("removeProfilePicture", removeProfilePictureFlag);
     formData.append("removeBanner", removeBannerFlag);
+
+    // Só envia troca de senha se o usuário preencheu os campos
+    if (oldPasswordInput.value && newPasswordInput.value) {
+        formData.append("oldPassword", oldPasswordInput.value);
+        formData.append("newPassword", newPasswordInput.value);
+    }
 
     const profilePicture = profilePictureInput.files[0];
     const banner = bannerInput.files[0];
@@ -274,11 +329,14 @@ document.getElementById("saveProfileBtn").addEventListener("click", async () => 
                 lastBannerObjectURL = null;
             }
 
+            oldPasswordInput.value = "";
+            newPasswordInput.value = "";
+            confirmPasswordInput.value = "";
+
             window.location.href = "/users/" + data.userId + "/settings?t=success&m=Profile+updated+successfully";
 
         } else {
             toast(data.message || "Error updating profile.", "error");
-            console.log(data)
         }
 
     } catch (err) {

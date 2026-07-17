@@ -92,7 +92,27 @@ const userSchema = new mongoose.Schema({
     banReason: {
         type: String,
         maxlength: 500
-    }
+    },
+
+    securityActivity: [{
+        type: {
+            type: String,
+            enum: ['login', 'logout', 'passwordChange', 'profileUpdate', 'accountDeletion'],
+            required: true
+        },
+        ipAddress: {
+            type: String,
+            required: true
+        },
+        userAgent: {
+            type: String,
+            required: true
+        },
+        timestamp: {
+            type: Date,
+            default: Date.now
+        }
+    }]
     
 }, { timestamps: true });
 

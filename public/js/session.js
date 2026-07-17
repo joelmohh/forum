@@ -131,8 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            console.log(res)
-
             if (res.ok) {
                 window.location.reload();
             }
