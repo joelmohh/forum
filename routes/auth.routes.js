@@ -15,6 +15,7 @@ const Session = require('../models/Sessions');
 const Notifications = require('../models/Notifications');
 
 const multer = require('multer');
+const { type } = require('os');
 const upload = multer({ dest: "uploads/", limits: { fileSize: 20 * 1024 * 1024 } });
 
 function hashOtp(otp) {
@@ -38,7 +39,23 @@ Router.post("/login", async (req, res) => {
         }
 
         if (!user.verified) {
-            return res.status(403).json({ message: "Email not verified." });
+            const otp = crypto.randomInt(100000, 999999).toString();
+            const otpHash = hashOtp(otp);
+
+            await OTP.findOneAndUpdate(
+                { email: user.email },
+                { code: otpHash, expiresAt: new Date(Date.now() + 15 * 60 * 1000), attempts: 0 },
+                { upsert: true }
+            );
+
+            await sendEmail(user.email, "Your verification code", "otp", { OTP_CODE: otp });
+
+            return res.status(403).json({
+                message: "Email not verified. We've sent you a new code.",
+                ok: false,
+                verified: false,
+                email: user.email
+            });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -290,7 +307,7 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
         await OTP.create({
             email: normalizedEmail,
             code: otpHash,
-            expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
+            expiresAt: new Date(Date.now() + 15 * 60 * 1000)
         });
 
         await sendEmail(normalizedEmail, "Your verification code", `Your code is: ${otp}`);
@@ -319,7 +336,7 @@ Router.post("/verify-otp", async (req, res) => {
             });
         }
 
-        const otp = await OTP.findOne({ email, type: verificationType });
+        const otp = await OTP.findOne({ email});
 
         if (!otp) {
             return res.status(400).json({
@@ -327,7 +344,7 @@ Router.post("/verify-otp", async (req, res) => {
             });
         }
 
-        // check expiry
+
         if (otp.expiresAt.getTime() < Date.now()) {
             await OTP.deleteOne({ _id: otp._id });
 
@@ -336,7 +353,7 @@ Router.post("/verify-otp", async (req, res) => {
             });
         }
 
-        // verify OTP
+
         const codeHash = hashOtp(code);
 
         if (codeHash !== otp.code) {
@@ -396,7 +413,7 @@ Router.post("/verify-otp", async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
-            maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+            maxAge: 30 * 24 * 60 * 60 * 1000
         });
 
         return res.status(201).json({
@@ -448,7 +465,7 @@ Router.post("/resend-otp", async (req, res) => {
             { upsert: true }
         );
 
-        await sendEmail(normalizedEmail, "Your verification code", "otp", otp);
+        await sendEmail(normalizedEmail, "Your verification code", "otp", { OTP_CODE: otp });
 
         return res.status(200).json({
             message: "If the email is valid, we sent a code"
@@ -493,7 +510,7 @@ Router.post("/refresh", async (req, res) => {
 
         session.tokenHash = newTokenHash;
         session.lastUsedAt = new Date();
-        session.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+        session.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
         await session.save();
 

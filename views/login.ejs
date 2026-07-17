@@ -18,62 +18,99 @@
 
                             <div id="login_form">
 
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Email Address <span class="text-danger">*</span>
-                                    </label>
-
-                                    <div class="input-group">
-                                        <span class="input-group-text">
-                                            <i class="fa-regular fa-envelope"></i>
-                                        </span>
-
-                                        <input type="email" class="form-control" name="email" placeholder="name@example.com" required>
-                                    </div>
-                                    <div class="validation-messages" id="login-email-message"></div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Password <span class="text-danger">*</span>
-                                    </label>
-
-                                    <div class="input-group">
-                                        <span class="input-group-text">
-                                            <i class="fa-solid fa-lock"></i>
-                                        </span>
-
-                                        <input type="password" class="form-control" id="password" name="password"
-                                            placeholder="Enter your password" required>
-
-                                        <button class="btn btn-primary" type="button" id="togglePassword">
-                                            <i class="fa-regular fa-eye"></i>
-                                        </button>
-                                    </div>
-                                    <div class="validation-messages" id="login-password-message"></div>
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="rememberMe">
-
-                                        <label class="form-check-label" for="rememberMe">
-                                            Remember me
+                                <div id="login_credentials">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Email Address <span class="text-danger">*</span>
                                         </label>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fa-regular fa-envelope"></i>
+                                            </span>
+
+                                            <input type="email" class="form-control" name="email" placeholder="name@example.com" required>
+                                        </div>
+                                        <div class="validation-messages" id="login-email-message"></div>
                                     </div>
 
-                                    <a href="/forgot-password" class="text-decoration-none">
-                                        Forgot password?
-                                    </a>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Password <span class="text-danger">*</span>
+                                        </label>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fa-solid fa-lock"></i>
+                                            </span>
+
+                                            <input type="password" class="form-control" id="password" name="password"
+                                                placeholder="Enter your password" required>
+
+                                            <button class="btn btn-primary" type="button" id="togglePassword">
+                                                <i class="fa-regular fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div class="validation-messages" id="login-password-message"></div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="rememberMe">
+
+                                            <label class="form-check-label" for="rememberMe">
+                                                Remember me
+                                            </label>
+                                        </div>
+
+                                        <a href="/forgot-password" class="text-decoration-none">
+                                            Forgot password?
+                                        </a>
+                                    </div>
+
+                                    <button id="login_btn" class="btn btn-primary w-100">
+                                        Sign In
+                                    </button>
                                 </div>
 
-                                <button id="login_btn" class="btn btn-primary w-100">
-                                    Sign In
-                                </button>
+                                <div id="otp_verification" class="d-none">
+                                    <div class="text-center mb-3">
+                                        <p class="text-muted mb-0">We sent a verification code to your email.</p>
+                                    </div>
 
-                            </form>
+                                    <div class="mb-3">
+                                        <div class="input-group otp mb-3">
+                                            <input type="text" maxlength="1" name="login_otp_1" class="form-control">
+                                            <input type="text" maxlength="1" name="login_otp_2" class="form-control">
+                                            <input type="text" maxlength="1" name="login_otp_3" class="form-control">
+                                            <input type="text" maxlength="1" name="login_otp_4" class="form-control">
+                                            <input type="text" maxlength="1" name="login_otp_5" class="form-control">
+                                            <input type="text" maxlength="1" name="login_otp_6" class="form-control">
+                                        </div>
+                                    </div>
 
-                            <div class="text-center mt-4">
+                                    <div class="validation-messages" id="login-otp-message"></div>
+
+                                    <button id="verify_login_otp_btn" class="btn btn-primary w-100 mb-3">
+                                        Verify
+                                    </button>
+
+                                    <div class="mb-3">
+                                        <span class="text-muted">
+                                            Didn't receive the code? <a href="#" id="resend_login_otp" class="text-decoration-none">Resend OTP</a>
+                                        </span>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <a href="#" id="back_to_login" class="text-decoration-none">
+                                            <i class="fa-solid fa-arrow-left me-1"></i> Back to login
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="text-center mt-4" id="login_footer_links">
                                 <span class="text-muted">
                                     Don't have an account?
                                 </span>
@@ -82,13 +119,13 @@
                                     Create one
                                 </a>
                             </div>
-                            <div class="divider">
+                            <!--<div class="divider">
                                 <span class="divider-text">or</span>
                             </div>
                             <div class="social-login alingn-items-center justify-content-center mt-3">
                                 <a href="/auth/google" class="google-btn"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" width="20px">Sign in with Google</a>
                                 <a href="/auth/hackclub" class="hc-btn"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="HackClub Logo" width="20px">Sign in with HackClub</a>
-                            </div>
+                            </div>-->
 
                         </div>
                     </div>

@@ -560,7 +560,7 @@ Router.post('/:questionId/answer/:answerId/accept', verifyToken, loadUser, async
     }
 });
 
-// Answers 
+
 
 Router.post('/:questionId/answer/:answerId/comment', verifyToken, loadUser, async (req, res) => {
     try {
@@ -689,7 +689,7 @@ Router.post('/answer/:answerId/comment/:commentId/delete', verifyToken, loadUser
     }
 });
 
-// Questions
+
 
 Router.post('/:questionId/comment', verifyToken, loadUser, async (req, res) => {
     try {

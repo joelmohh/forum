@@ -59,7 +59,7 @@ async function sendEmail(to, subject, type, data) {
         return info;
     } catch (err) {
         console.error(`Falha ao enviar e-mail (${type}) para ${to}:`, err);
-        throw err; // deixa quem chamou decidir o que fazer com a falha
+        throw err; 
     }
 }
 

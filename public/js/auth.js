@@ -7,6 +7,13 @@ const loginForm = document.getElementById('login_form');
 const loginBtn = document.getElementById('login_btn');
 const loginEmailInput = loginForm ? loginForm.querySelector('[name="email"]') : null;
 const loginPasswordInput = loginForm ? loginForm.querySelector('[name="password"]') : null;
+
+const loginCredentials = document.getElementById('login_credentials');
+const loginOtpSection = document.getElementById('otp_verification');
+const verifyLoginOtpBtn = document.getElementById('verify_login_otp_btn');
+const resendLoginOtpBtn = document.getElementById('resend_login_otp');
+const loginOtpMessage = document.getElementById('login-otp-message');
+
 const loginMessages = {
     email: document.getElementById('login-email-message'),
     password: document.getElementById('login-password-message')
@@ -117,6 +124,113 @@ if (loginForm) {
 
         if (!isLoginValid) {
             event.preventDefault();
+        }
+    });
+}
+
+function showLoginOtpStep(email) {
+    if (!loginOtpSection) return;
+
+    loginCredentials.classList.add('d-none');
+    loginOtpSection.classList.remove('d-none');
+    loginOtpSection.dataset.email = email;
+}
+
+if (verifyLoginOtpBtn) {
+    verifyLoginOtpBtn.addEventListener('click', async () => {
+        const otpInputs = loginOtpSection.querySelectorAll('.input-group.otp input');
+        const otp = Array.from(otpInputs).map(input => input.value.trim()).join('');
+
+        if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+            showError(null, loginOtpMessage, 'Please enter a valid 6-digit code.');
+            return;
+        }
+
+        verifyLoginOtpBtn.disabled = true;
+        verifyLoginOtpBtn.innerText = 'Verifying...';
+
+        try {
+            const response = await fetch('/api/auth/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    email: loginOtpSection.dataset.email,
+                    code: otp
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.valid) {
+                showError(null, loginOtpMessage, data.message || 'Invalid or expired code.');
+                verifyLoginOtpBtn.disabled = false;
+                verifyLoginOtpBtn.innerText = 'Verify';
+                return;
+            }
+
+            if (data.accessToken) {
+                localStorage.setItem('token', data.accessToken);
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect');
+            window.location.href = redirectUrl || '/';
+
+        } catch (err) {
+            console.error(err);
+            showError(null, loginOtpMessage, 'Something went wrong.');
+            verifyLoginOtpBtn.disabled = false;
+            verifyLoginOtpBtn.innerText = 'Verify';
+        }
+    });
+}
+if (resendLoginOtpBtn) {
+    let loginCooldown = 30;
+    let loginTimer;
+
+    const startLoginCooldown = () => {
+        resendLoginOtpBtn.classList.add('disabled');
+
+        loginTimer = setInterval(() => {
+            resendLoginOtpBtn.innerText = `Resend OTP (${loginCooldown}s)`;
+            loginCooldown--;
+
+            if (loginCooldown < 0) {
+                clearInterval(loginTimer);
+                resendLoginOtpBtn.classList.remove('disabled');
+                resendLoginOtpBtn.innerText = 'Resend OTP';
+                loginCooldown = 30;
+            }
+        }, 1000);
+    };
+
+    resendLoginOtpBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const email = loginOtpSection.dataset.email;
+
+        try {
+            const response = await fetch('/api/auth/resend-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                showError(null, loginOtpMessage, data.message || 'Failed to resend OTP');
+                return;
+            }
+
+            showSuccess(null, loginOtpMessage, true, 'OTP resent successfully.');
+            startLoginCooldown();
+
+        } catch (err) {
+            console.error(err);
+            showError(null, loginOtpMessage, 'Error resending OTP');
         }
     });
 }
@@ -615,6 +729,11 @@ if (loginBtn) {
             const data = await response.json();
 
             if (!response.ok) {
+                if (data.verified === false) {
+                    showLoginOtpStep(data.email || loginEmailInput.value);
+                    return;
+                }
+
                 updateLoginFieldState(loginPasswordInput, loginMessages.password, false, "", data.message || "Invalid credentials");
                 return;
             }
@@ -689,82 +808,3 @@ if (resendOtpBtn) {
         }
     });
 }
-
-
-//RESET 
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("login_form");
-    const emailInput = form.querySelector('input[name="email"]');
-    const emailMessage = document.getElementById("login-email-message");
-    const submitBtn = document.getElementById("login_btn");
-
-    const originalBtnText = submitBtn.textContent;
-
-    function setMessage(text, type = "error") {
-        emailMessage.textContent = text || "";
-        emailMessage.classList.remove("text-danger", "text-success");
-        if (text) {
-            emailMessage.classList.add(type === "error" ? "text-danger" : "text-success");
-        }
-    }
-
-    function setLoading(isLoading) {
-        submitBtn.disabled = isLoading;
-        submitBtn.textContent = isLoading ? "Sending..." : originalBtnText;
-    }
-
-    function isValidEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    async function handleSubmit(e) {
-        e.preventDefault();
-        setMessage("");
-
-        const email = emailInput.value.trim();
-
-        if (!email) {
-            setMessage("Email is required");
-            emailInput.focus();
-            return;
-        }
-
-        if (!isValidEmail(email)) {
-            setMessage("Please enter a valid email address");
-            emailInput.focus();
-            return;
-        }
-
-        setLoading(true);
-
-        try {
-            const res = await fetch("/auth/send-otp?type=reset-password", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email })
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                setMessage(data.message || "Something went wrong, please try again");
-                setLoading(false);
-                return;
-            }
-
-            sessionStorage.setItem("reset_password_email", email);
-
-            setMessage("Verification code sent to your email", "success");
-
-            window.location.href = "/verify-otp?type=reset-password";
-
-        } catch (err) {
-            console.error("Reset password request error:", err);
-            setMessage("Could not connect to the server, please try again");
-            setLoading(false);
-        }
-    }
-
-    submitBtn.addEventListener("click", handleSubmit);
-    form.addEventListener("submit", handleSubmit);
-});

@@ -1,4 +1,4 @@
-// Character counter for title
+
 const titleInput = document.getElementById('title');
 const titleCount = document.getElementById('titleCount');
 
@@ -15,7 +15,7 @@ if (titleInput) {
     });
 }
 
-// Tag handling
+
 const tagsInput = document.getElementById('tags');
 const tagsList = document.getElementById('tagsList');
 
@@ -92,7 +92,7 @@ if (questionDescription) {
     updatePreview();
 }
 
-// FORM VALIDATION (create/edit question)
+
 const form = document.querySelector('form');
 const descriptionInput = document.getElementById('questionDescription');
 const hasAttempted = document.getElementById('hasAttempted');

@@ -7,7 +7,7 @@ const otpSchema = new mongoose.Schema({
         lowercase: true,
         trim: true
     },
-    // hash
+    
     code: {
         type: String,
         required: true
@@ -17,7 +17,6 @@ const otpSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-
     expiresAt: {
         type: Date,
         required: true

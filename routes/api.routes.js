@@ -356,7 +356,7 @@ Router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
             });
         }
 
-        const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+        const MAX_SIZE = 5 * 1024 * 1024; 
 
         if (req.file.size > MAX_SIZE) {
             return res.status(400).json({
