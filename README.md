@@ -9,8 +9,8 @@ A simple forum application built with **Node.js**, **Express**, and **MongoDB**.
 >
 > If you don't want to create an account, you can use the demo credentials below:
 >
-> **Email:** `user@example.com`  
-> **Password:** `demoaccount`
+> **Email:** `test@example.com`  
+> **Password:** `12345678aA@`
 
 ## Features
 
