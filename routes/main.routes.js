@@ -35,10 +35,25 @@ function normalizeUserAgent(ua) {
 
 Router.get('/', async (req, res) => {
     const questions = await Question.find().populate('creator', 'username displayName profilePicture').populate('tags', 'name').limit(10).populate('upvotes downvotes acceptedAnswer answersCount viewCount score').sort({ createdAt: -1 });
+
+    if(req.query.source === "macondo"){
+        res.cookie("macondo", "true", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 30 * 24 * 60 * 60 * 1000
+        })
+    }
+
     res.render('index', { questions })
 })
 Router.get('/login', (req, res) => {
-    res.render('login')
+    let macondo = false
+    if (req.cookies.macondo){
+        macondo = true
+    }
+
+    res.render('login', { macondo: macondo })
 })
 Router.get('/signup', (req, res) => {
     res.render('signup')
@@ -204,11 +219,11 @@ Router.get('/users/:username', async (req, res) => {
         }
 
         let isSelf = false;
-        if (isSelf && isSelf.toString() === req.params.id) {
+        if (user._id.toString() === res.locals.user?._id.toString()) {
             isSelf = true;
         }
 
-        res.render('profile', { displayUser: user, questions: questions, answers: answers, isSelf: isSelf === req.params.id, following: isFollowing })
+        res.render('profile', { displayUser: user, questions: questions, answers: answers, isSelf, following: isFollowing })
     }
 })
 Router.get('/logout', needAuth, (req, res) => {

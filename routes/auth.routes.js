@@ -249,33 +249,35 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
             });
         }
 
-        const formData = new FormData();
-        const file = new Blob([
-            await fs.promises.readFile(req.file.path)
-        ]);
-        formData.append("file", file, `profile_${username}_${Date.now()}.${req.file.originalname.split('.').pop()}`);
-
         let profilePicture
 
-        const rule = req.file.originalname.split('.').pop()
-        if (!["jpg", "jpeg", "png", "gif", "webp"].includes(rule.toLowerCase())) {
-            await fs.promises.unlink(req.file.path);
-            profilePicture = "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png";
-        } else {
+        const formData = new FormData();
+        if (req.file && req.file.path) {
+            const file = new Blob([
+                await fs.promises.readFile(req.file.path)
+            ]);
+            formData.append("file", file, `profile_${username}_${Date.now()}.${req.file.originalname.split('.').pop()}`);
 
-            const response = await fetch("https://cdn.hackclub.com/api/v4/upload", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${process.env.HC_CDN}`
-                },
-                body: formData
-            });
-            const result = await response.json();
-            profilePicture = result.url;
-            if (response.url === undefined || response.url === null) {
+            const rule = req.file.originalname.split('.').pop()
+            if (!["jpg", "jpeg", "png", "gif", "webp"].includes(rule.toLowerCase())) {
+                await fs.promises.unlink(req.file.path);
                 profilePicture = "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png";
+            } else {
+
+                const response = await fetch("https://cdn.hackclub.com/api/v4/upload", {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${process.env.HC_CDN}`
+                    },
+                    body: formData
+                });
+                const result = await response.json();
+                profilePicture = result.url;
+                if (response.url === undefined || response.url === null) {
+                    profilePicture = "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png";
+                }
+                await fs.promises.unlink(req.file.path);
             }
-            await fs.promises.unlink(req.file.path);
         }
 
         const normalizedEmail = email.toLowerCase().trim();
@@ -284,8 +286,8 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
         });
 
         if (existingUser) {
-            return res.status(409).json({
-                message: "If the email is valid, we will send a code"
+            return res.status(200).json({
+                message: "If the email is valid, we will send a code", ok: true
             });
         }
 
@@ -300,7 +302,7 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
             displayName,
             email: normalizedEmail,
             password: passwordHash,
-            profilePicture: profilePicture,
+            profilePicture: profilePicture || "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png",
             bio,
             verified: false
         });
@@ -310,11 +312,11 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
             expiresAt: new Date(Date.now() + 15 * 60 * 1000)
         });
 
-        await sendEmail(normalizedEmail, "Your verification code", `Your code is: ${otp}`);
+        await sendEmail(user.email, "Your verification code", "otp", { OTP_CODE: otp });
 
         return res.status(200).json({
             message: "If the email is valid, we sent a code",
-            success: true
+            ok: true
         });
 
     } catch (err) {
@@ -336,7 +338,7 @@ Router.post("/verify-otp", async (req, res) => {
             });
         }
 
-        const otp = await OTP.findOne({ email});
+        const otp = await OTP.findOne({ email });
 
         if (!otp) {
             return res.status(400).json({
@@ -445,8 +447,8 @@ Router.post("/resend-otp", async (req, res) => {
         const user = await User.findOne({ email: normalizedEmail });
 
         if (!user) {
-            return res.status(400).json({
-                message: "If the email is valid, we will send a code"
+            return res.status(200).json({
+                message: "If the email is valid, we will send a code", ok: true
             });
         }
 

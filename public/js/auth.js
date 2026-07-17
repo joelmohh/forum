@@ -295,8 +295,8 @@ if (nextBtn && signupForm) {
 
                 const data = await response.json();
 
-                if (!data.success) {
-                    alert(data.message || 'Failed to send OTP');
+                if (!data.ok) {
+                    showToast(data.message || 'Failed to send OTP. Please try again.', 'error');
                     nextBtn.disabled = false;
                     nextBtn.innerText = 'Next Step';
                     return;
@@ -309,7 +309,7 @@ if (nextBtn && signupForm) {
 
             } catch (err) {
                 console.error(err);
-                alert('Error sending OTP');
+                showToast('Something went wrong. Please try again.', 'error');
             }
 
             nextBtn.disabled = false;
