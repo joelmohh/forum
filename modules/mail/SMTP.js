@@ -42,7 +42,7 @@ async function sendEmail(to, subject, type, data) {
     const templateConfig = EMAIL_TYPES[type];
 
     if (!templateConfig) {
-        throw new Error(`Tipo de e-mail desconhecido: "${type}"`);
+        throw new Error(`Unknown email type: "${type}"`);
     }
 
     const html = renderTemplate(templates[type], data);
@@ -58,7 +58,7 @@ async function sendEmail(to, subject, type, data) {
         const info = await transporter.sendMail(mailOptions);
         return info;
     } catch (err) {
-        console.error(`Falha ao enviar e-mail (${type}) para ${to}:`, err);
+        console.error(`Failed to send email (${type}) to ${to}:`, err);
         throw err; 
     }
 }
