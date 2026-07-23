@@ -273,7 +273,7 @@ Router.post("/register", upload.single("profilePicture"), async (req, res) => {
                 });
                 const result = await response.json();
                 profilePicture = result.url;
-                if (response.url === undefined || response.url === null) {
+                if (result.url === undefined || result.url === null) {
                     profilePicture = "https://user-cdn.hackclub-assets.com/019ed71d-3a74-701f-96af-d8cde51fa768/profile_joelmo_1781725476683.png";
                 }
                 await fs.promises.unlink(req.file.path);

@@ -38,12 +38,12 @@ app.use('/api/tags', require('./routes/tags.routes'));
 app.use('/api/notifications', require('./routes/notifications.api.routes'));
 
 app.use((req, res) => {
-    res.status(404).send('404 Page Not Found', { title: '404 - Not Found' });
+    res.status(404).send('404 Page Not Found');
 });
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('500 Internal Server Error', { title: '500 - Server Error' });
+    res.status(500).send('500 Internal Server Error');
 });
 
 
